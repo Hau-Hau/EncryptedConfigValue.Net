@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "EncryptedConfigValue.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "generate-random-key -a RSA"
+    }
+  }
+}

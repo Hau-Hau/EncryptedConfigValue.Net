@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<OutputType>exe</OutputType>
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>encrypted-config-value-dotnet</ToolCommandName>
+		<PackageOutputPath>./nupkg</PackageOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>$(MSBuildProjectName).Test</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
+	<PropertyGroup>
+		<PackageId>EncryptedConfigValue.Net.Cli</PackageId>
+		<PackageVersion>1.0.0</PackageVersion>
+		<Description>Tooling for encrypting certain configuration parameter values in dotnet apps.</Description>
+		<RepositoryUrl>https://github.com/Hau-Hau/EncryptedConfigValue.Net</RepositoryUrl>
+		<RespositoryType>git</RespositoryType>
+		<PackageTags>config appsettings cryptography tool</PackageTags>
+		<Authors>Piotr Michalewicz</Authors>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.1.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\EncryptedConfigValue\EncryptedConfigValue.csproj" />
+	</ItemGroup>
+
+</Project>
