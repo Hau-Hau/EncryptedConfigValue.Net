@@ -11,15 +11,24 @@
 	</ItemGroup>
 
 	<PropertyGroup>
+		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))</SolutionDir>
+	</PropertyGroup>
+
+	<PropertyGroup>
 		<PackageId>EncryptedConfigValue.Net.AspNetCore</PackageId>
-		<PackageVersion>1.0.0</PackageVersion>
+		<PackageVersion>1.0.1</PackageVersion>
 		<Description>Provides a way of using encrypted values in ASP.NET Core apps.</Description>
 		<RepositoryUrl>https://github.com/Hau-Hau/EncryptedConfigValue.Net</RepositoryUrl>
 		<RespositoryType>git</RespositoryType>
 		<PackageTags>config appsettings cryptography aspnetcore</PackageTags>
 		<Authors>Piotr Michalewicz</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="$(SolutionDir)\Readme.md" Pack="true" PackagePath="Readme.md" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">

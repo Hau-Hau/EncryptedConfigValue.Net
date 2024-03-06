@@ -1,11 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\EncryptedConfigValue\EncryptedConfigValue.csproj" />
-  </ItemGroup>
+	<PropertyGroup>
+		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))</SolutionDir>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<PackageId>EncryptedConfigValue.Net.Module</PackageId>
+		<PackageVersion>1.0.1</PackageVersion>
+		<Description>Base package to create decrypt provider.</Description>
+		<RepositoryUrl>https://github.com/Hau-Hau/Serilog.Extensions.WhenRepeated</RepositoryUrl>
+		<RespositoryType>git</RespositoryType>
+		<PackageTags>serilog file repeat repeated WhenRepeated</PackageTags>
+		<Authors>Piotr Michalewicz</Authors>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="$(SolutionDir)\Readme.md" Pack="true" PackagePath="Readme.md" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\EncryptedConfigValue\EncryptedConfigValue.csproj" />
+	</ItemGroup>
 
 </Project>

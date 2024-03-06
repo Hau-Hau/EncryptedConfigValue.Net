@@ -10,11 +10,9 @@
 		<PackageOutputPath>./nupkg</PackageOutputPath>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-			<_Parameter1>$(MSBuildProjectName).Test</_Parameter1>
-		</AssemblyAttribute>
-	</ItemGroup>
+	<PropertyGroup>
+		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))</SolutionDir>
+	</PropertyGroup>
 
 	<PropertyGroup>
 		<PackageId>EncryptedConfigValue.Net.Cli</PackageId>
@@ -25,10 +23,21 @@
 		<PackageTags>config appsettings cryptography tool</PackageTags>
 		<Authors>Piotr Michalewicz</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.1.0" />
+		<None Include="$(SolutionDir)\Readme.md" Pack="true" PackagePath="Readme.md" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>$(MSBuildProjectName).Test</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>
