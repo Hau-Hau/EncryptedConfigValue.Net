@@ -17,11 +17,10 @@ Currently supported algorithms:
  - AES: (AES/GCM/NoPadding) with random IV
  - RSA
 
-<!-- Not yet published -->
-<!-- Installation:
+Install from [NuGet](https://www.nuget.org/packages/EncryptedConfigValue.Net.AspNetCore):
 ```powershell
 Install-Package EncryptedConfigValue.Net.AspNetCore  
-``` -->
+```
 
 To use in your app:
 ```console
@@ -59,21 +58,20 @@ Currently supported algorithms:
  - AES: (AES/GCM/NoPadding) with random IV
  - RSA
 
-<!-- Not yet published -->
-<!-- Installation:
+Install from [NuGet](https://www.nuget.org/packages/EncryptedConfigValue.Net.Cli):
 ```console
-dotnet tool install -g encrypted-config-value-dotnet
-``` -->
+dotnet tool install -g EncryptedConfigValue.Net.Cli
+```
 
 To generate keys:
  ```console
-my-application$ dotnet encrypted-config-value-dotnet generate-random-key -a AES
+my-application$ encrypted-config-value-dotnet generate-random-key -a AES
 Wrote key to var/conf/encrypted-config-value.key
 ```
 
 To encrypt value:
  ```console
-my-application$ dotnet encrypted-config-value-dotnet encrypt-config-value -v "secret-value"
+my-application$ encrypted-config-value-dotnet encrypt-config-value -v "secret-value"
 enc:eyJUeXBlIjoiQUVTIiwiRW5jcnlwdGlvbk1vZGUiOjAsIkl2IjoiUFZkMDJqbkczQ2FCS2t4MyIsIkNpcGhlclRleHQiOiJMSXMraHNuU0dZUXVVWmc9IiwiVGFnIjoiLzRVeVN0ckpnNjRacGJUdGJRTWEzZz09In0=
 ```
 
@@ -81,11 +79,10 @@ EncryptedConfigValue.Module
 -----------------------------
 You can use `EncryptedConfigValue.Module` to create your own decrypt provider.
 
-<!-- Not yet published -->
-<!-- Installation:
+Install from [NuGet](https://www.nuget.org/packages/EncryptedConfigValue.Net.Module):
 ```powershell
 Install-Package EncryptedConfigValue.Net.Module
-``` -->
+```
 
 Note
 -----------------------------
