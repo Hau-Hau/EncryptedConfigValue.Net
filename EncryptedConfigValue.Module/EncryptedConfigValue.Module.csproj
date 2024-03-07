@@ -10,11 +10,11 @@
 
 	<PropertyGroup>
 		<PackageId>EncryptedConfigValue.Net.Module</PackageId>
-		<PackageVersion>1.0.1</PackageVersion>
+		<PackageVersion>1.0.2</PackageVersion>
 		<Description>Base package to create decrypt provider.</Description>
-		<RepositoryUrl>https://github.com/Hau-Hau/Serilog.Extensions.WhenRepeated</RepositoryUrl>
+		<RepositoryUrl>https://github.com/Hau-Hau/EncryptedConfigValue.Net</RepositoryUrl>
 		<RespositoryType>git</RespositoryType>
-		<PackageTags>serilog file repeat repeated WhenRepeated</PackageTags>
+		<PackageTags>config appsettings cryptography tool</PackageTags>
 		<Authors>Piotr Michalewicz</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
