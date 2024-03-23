@@ -10,7 +10,7 @@
 
 	<PropertyGroup>
 		<PackageId>EncryptedConfigValue.Net.Module</PackageId>
-		<PackageVersion>1.0.2</PackageVersion>
+		<PackageVersion>1.0.3</PackageVersion>
 		<Description>Base package to create decrypt provider.</Description>
 		<RepositoryUrl>https://github.com/Hau-Hau/EncryptedConfigValue.Net</RepositoryUrl>
 		<RespositoryType>git</RespositoryType>
