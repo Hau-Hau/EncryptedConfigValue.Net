@@ -1,6 +1,6 @@
 EncryptedConfigValue.NET
 =========================
-[![tests](https://github.com/Hau-Hau/EncryptedConfigValue.Net/actions/workflows/tests.yml/badge.svg)](https://github.com/Hau-Hau/EncryptedConfigValue.Net/actions/workflows/tests.yml)
+[![tests](https://github.com/Hau-Hau/EncryptedConfigValue.Net/actions/workflows/workflow-tests.yml/badge.svg)](https://github.com/Hau-Hau/EncryptedConfigValue.Net/actions/workflows/workflow-tests.yml)
 
 > In sync with encrypted-config-value v5.2.0 ([a104ddefd48e2fb322f5db205f7c93f0ad4ae1d7](https://github.com/palantir/encrypted-config-value/tree/a104ddefd48e2fb322f5db205f7c93f0ad4ae1d7))
 

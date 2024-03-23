@@ -1,8 +1,8 @@
-name: on push
+name: tests
 on:
   push:
     branches: [ main ]
 jobs:
   test:
     name: test
-    uses: ./.github/workflows/job-tests.yml
+    uses: ./.github/workflows/action-tests.yml
