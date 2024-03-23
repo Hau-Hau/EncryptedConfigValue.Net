@@ -1,9 +1,9 @@
 ﻿using EncryptedConfigValue.Converters;
 using EncryptedConfigValue.Crypto.Algorithm.Aes;
 using EncryptedConfigValue.Crypto.Algorithm.Rsa;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace EncryptedConfigValue.Crypto.Algorithm
 {

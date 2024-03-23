@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
-using Org.BouncyCastle.Crypto.Engines;
+﻿using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 using System;
 using System.IO;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace EncryptedConfigValue.Crypto.Algorithm.Aes
 {

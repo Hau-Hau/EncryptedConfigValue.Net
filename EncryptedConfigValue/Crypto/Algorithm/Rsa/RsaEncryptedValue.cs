@@ -1,9 +1,9 @@
 ﻿using EncryptedConfigValue.Extensions;
-using Newtonsoft.Json;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Security;
 using System.Text;
+using System.Text.Json.Serialization;
 using static EncryptedConfigValue.Crypto.Algorithm.Rsa.RsaOaepEncrypter;
 
 namespace EncryptedConfigValue.Crypto.Algorithm.Rsa
@@ -23,6 +23,7 @@ namespace EncryptedConfigValue.Crypto.Algorithm.Rsa
             Mdf1HashAlg = mdf1HashAlg;
         }
 
+        //[JsonPropertyOrder(int.MinValue)]
         public Algorithm Type => Algorithm.RSA;
 
         // Returns the encryption mode used by this encrypted value.
@@ -30,10 +31,10 @@ namespace EncryptedConfigValue.Crypto.Algorithm.Rsa
 
         public byte[] CipherText { get; }
 
-        [JsonProperty("oaep-alg")]
+        [JsonPropertyName("oaep-alg")]
         public HashAlgorithm OaepHashAlg { get; }
 
-        [JsonProperty("mdf1-alg")]
+        [JsonPropertyName("mdf1-alg")]
         public HashAlgorithm Mdf1HashAlg { get; }
 
         public override string Decrypt(KeyWithType kwt)

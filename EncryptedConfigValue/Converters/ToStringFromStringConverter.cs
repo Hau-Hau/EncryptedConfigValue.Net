@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace EncryptedConfigValue.Converters
 {
@@ -14,12 +15,12 @@ namespace EncryptedConfigValue.Converters
             FromStringMethod = typeof(T).GetMethod(FromStringMethodName, BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(string) }, null);
         }
 
-        public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return (T)FromStringMethod.Invoke(null, new object[] { reader.Value as string });
+            return (T)FromStringMethod.Invoke(null, new object[] { reader.GetString()});
         }
 
-        public override void WriteJson(JsonWriter writer, T value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
         {
             writer.WriteRawValue($"\"{value}\"");
         }

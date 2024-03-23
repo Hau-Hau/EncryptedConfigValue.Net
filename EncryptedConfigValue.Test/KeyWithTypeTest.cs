@@ -1,6 +1,6 @@
 ﻿using EncryptedConfigValue.Crypto;
 using FluentAssertions;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Xunit;
 
 namespace EncryptedConfigValue.Test
@@ -13,12 +13,14 @@ namespace EncryptedConfigValue.Test
         [Fact]
         public void TestSerialization()
         {
-            var serialized = JsonConvert.SerializeObject(kwt);
+            var serialized = JsonSerializer.Serialize(
+                kwt,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             var expectedSerialization = string.Format("\"{0}\"", kwtString);
             serialized.Should().BeEquivalentTo(expectedSerialization);
 
-            var deserialized = JsonConvert.DeserializeObject<KeyWithType>(serialized);
+            var deserialized = JsonSerializer.Deserialize<KeyWithType>(serialized);
             deserialized!.ToString().Should().BeEquivalentTo(kwt.ToString());
         }
     }
