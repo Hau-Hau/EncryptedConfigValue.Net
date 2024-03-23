@@ -1,3 +1,4 @@
+TEST
 EncryptedConfigValue.NET
 =========================
 [![tests](https://github.com/Hau-Hau/EncryptedConfigValue.Net/actions/workflows/tests.yml/badge.svg)](https://github.com/Hau-Hau/EncryptedConfigValue.Net/actions/workflows/tests.yml)
