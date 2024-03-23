@@ -5,4 +5,4 @@ on:
 jobs:
   test:
     name: test
-    uses: ./.github/workflows/job-tests.yml
+    uses: ./.github/workflows/action-tests.yml
