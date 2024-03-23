@@ -1,7 +1,6 @@
 name: tests
 on:
-  push:
-    branches: [ main ]
+  workflow_call:
 jobs:
   build:
     name: tests-${{ matrix.operating-system }}
