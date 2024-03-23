@@ -1,11 +1,9 @@
-﻿using EncryptedConfigValue.Converters;
-using EncryptedConfigValue.Crypto.Algorithm.Aes;
+﻿using EncryptedConfigValue.Crypto.Algorithm.Aes;
 using EncryptedConfigValue.Crypto.Algorithm.Rsa;
-using JsonSubTypes;
-using Newtonsoft.Json;
 using System;
-using System.IO;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace EncryptedConfigValue.Crypto
 {
@@ -24,9 +22,9 @@ namespace EncryptedConfigValue.Crypto
     /// <see cref="EncryptedValue"/> subclass of the value. The subclass contains information about the algorithm used to encrypt
     /// the value, along with any relevant parameters for the algorithm.
     /// </summary>
-    [JsonConverter(typeof(JsonSubtypes), nameof(Type))]
-    [JsonSubtypes.KnownSubType(typeof(AesEncryptedValue), "AES")]
-    [JsonSubtypes.KnownSubType(typeof(RsaEncryptedValue), "RSA")]
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+    [JsonDerivedType(typeof(AesEncryptedValue), typeDiscriminator: "AES")]
+    [JsonDerivedType(typeof(RsaEncryptedValue), typeDiscriminator: "RSA")]
     public abstract class EncryptedValue
     {
         private const string PREFIX = "enc:";
@@ -51,11 +49,10 @@ namespace EncryptedConfigValue.Crypto
             var bytes = Convert.FromBase64String(suffix);
             try
             {
-                using (var reader = new MemoryStream(bytes))
-                {
-                    var instance = JsonConvert.DeserializeObject<EncryptedValue>(Encoding.UTF8.GetString(bytes));
-                    return instance ?? throw new ArgumentException("Deserialized encrypted value object is null");
-                }
+                var instance = JsonSerializer.Deserialize<EncryptedValue>(
+                    Encoding.UTF8.GetString(bytes),
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                return instance ?? throw new ArgumentException("Deserialized encrypted value object is null");
             }
             catch
             {
@@ -75,7 +72,7 @@ namespace EncryptedConfigValue.Crypto
 
         private static byte[] GetJsonBytes(object value)
         {
-            return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value));
+            return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(value, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }));
         }
     }
 }

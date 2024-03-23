@@ -1,11 +1,11 @@
 ﻿using EncryptedConfigValue.Converters;
 using EncryptedConfigValue.Extensions;
-using Newtonsoft.Json;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Security;
 using System;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace EncryptedConfigValue.Crypto.Algorithm.Rsa
 {

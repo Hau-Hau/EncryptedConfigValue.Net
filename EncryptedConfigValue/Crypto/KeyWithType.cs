@@ -1,7 +1,7 @@
 ﻿using EncryptedConfigValue.Converters;
 using EncryptedConfigValue.Crypto.Algorithm;
-using Newtonsoft.Json;
 using System;
+using System.Text.Json.Serialization;
 
 namespace EncryptedConfigValue.Crypto
 {
