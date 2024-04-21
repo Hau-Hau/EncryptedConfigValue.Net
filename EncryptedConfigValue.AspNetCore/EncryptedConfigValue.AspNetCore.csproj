@@ -16,7 +16,7 @@
 
 	<PropertyGroup>
 		<PackageId>EncryptedConfigValue.Net.AspNetCore</PackageId>
-		<PackageVersion>1.0.2</PackageVersion>
+		<PackageVersion>1.0.3</PackageVersion>
 		<Description>Provides a way of using encrypted values in ASP.NET Core apps.</Description>
 		<RepositoryUrl>https://github.com/Hau-Hau/EncryptedConfigValue.Net</RepositoryUrl>
 		<RespositoryType>git</RespositoryType>
@@ -37,14 +37,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="EncryptedConfigValue.Net.Module" Version="1.0.4" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\EncryptedConfigValue.Module\EncryptedConfigValue.Module.csproj" />
-		<ProjectReference Include="..\EncryptedConfigValue\EncryptedConfigValue.csproj" />
 	</ItemGroup>
 
 </Project>
