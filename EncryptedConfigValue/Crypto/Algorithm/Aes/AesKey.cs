@@ -4,7 +4,7 @@
     {
         public AesKey(byte[] secretKey)
         {
-            this.Bytes = secretKey;
+            Bytes = secretKey;
         }
 
         public byte[] Bytes { get; }

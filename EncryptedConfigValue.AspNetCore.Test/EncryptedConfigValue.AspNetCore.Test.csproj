@@ -6,47 +6,10 @@
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(TargetFramework)', '^net8.0'))">
-		<DefineConstants>NET8_0</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(TargetFramework)', '^net7.0'))">
-		<DefineConstants>NET7_0</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(TargetFramework)', '^net6.0'))">
-		<DefineConstants>NET6_0</DefineConstants>
-	</PropertyGroup>
-
-	<Choose>
-		<When Condition="$(DefineConstants.Contains('NET8_0'))">
-			<ItemGroup>
-				<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
-				<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-				<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-			</ItemGroup>
-		</When>
-	</Choose>
-	<Choose>
-		<When Condition="$(DefineConstants.Contains('NET7_0'))">
-			<ItemGroup>
-				<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
-				<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
-				<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-			</ItemGroup>
-		</When>
-	</Choose>
-	<Choose>
-		<When Condition="$(DefineConstants.Contains('NET6_0'))">
-			<ItemGroup>
-				<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
-				<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-				<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
-			</ItemGroup>
-		</When>
-	</Choose>
-
 	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
 		<PackageReference Include="FluentAssertions" Version="6.12.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
 		<PackageReference Include="NSubstitute" Version="5.1.0" />
@@ -64,9 +27,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="Resources\**\*">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
+		<None Update="Resources\**\*">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 </Project>

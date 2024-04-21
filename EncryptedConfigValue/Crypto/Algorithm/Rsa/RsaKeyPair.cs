@@ -2,7 +2,6 @@
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
-using Org.BouncyCastle.X509;
 
 namespace EncryptedConfigValue.Crypto.Algorithm.Rsa
 {

@@ -31,7 +31,6 @@ namespace EncryptedConfigValue.Crypto
             return KeyWithType.FromString(Encoding.UTF8.GetString(contents));
         }
 
-
         public static void KeyWithTypeToFile(KeyWithType kwt, string path)
         {
             byte[] serialized = Encoding.UTF8.GetBytes(kwt.ToString());
@@ -71,7 +70,6 @@ namespace EncryptedConfigValue.Crypto
         {
             return KeyPairFromPath(Environment.GetEnvironmentVariable(KeyPathProperty) ?? DefaultPublicKeyPath);
         }
-
 
         // Returns the sibling path of the provided path with ".private" as the extension.
         private static string PrivatePath(string path)

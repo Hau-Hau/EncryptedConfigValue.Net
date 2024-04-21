@@ -23,7 +23,6 @@ namespace EncryptedConfigValue.Crypto.Algorithm.Rsa
             Mdf1HashAlg = mdf1HashAlg;
         }
 
-        //[JsonPropertyOrder(int.MinValue)]
         public Algorithm Type => Algorithm.RSA;
 
         // Returns the encryption mode used by this encrypted value.
