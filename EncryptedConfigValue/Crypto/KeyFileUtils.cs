@@ -74,7 +74,7 @@ namespace EncryptedConfigValue.Crypto
         // Returns the sibling path of the provided path with ".private" as the extension.
         private static string PrivatePath(string path)
         {
-            return Path.Combine(Path.GetDirectoryName(path), $"{Path.GetFileName(path)}.private");
+            return Path.Combine(Path.GetDirectoryName(path), $"{Path.GetFileNameWithoutExtension(path)}.private");
         }
     }
 }

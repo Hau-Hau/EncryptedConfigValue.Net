@@ -53,8 +53,10 @@ namespace EncryptedConfigValue.AspNetCore
             {
                 parentPath = string.IsNullOrEmpty(parentPath) ? null : parentPath;
                 var result = new Dictionary<string, string?>();
-                var childs = provider.GetChildKeys(Enumerable.Empty<string>(), parentPath);
-                foreach (var key in childs.Distinct())
+                var childs = provider.GetChildKeys(Enumerable.Empty<string>(), parentPath)
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Distinct();
+                foreach (var key in childs)
                 {
                     var path = parentPath == null ? key : $"{parentPath}:{key}";
                     if (provider.TryGet(path, out var currentValue))
@@ -71,7 +73,7 @@ namespace EncryptedConfigValue.AspNetCore
                             throw e.Extend(path);
                         }
                     }
-                    else if (childs.Count(x => x == key) > 1)
+                    else if (childs.Any(x => x == key))
                     {
                         result = result
                             .Concat(TraverseConfiguration(provider, path))
