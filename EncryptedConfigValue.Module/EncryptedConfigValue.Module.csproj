@@ -18,7 +18,7 @@
 		</ProjectReference>
 	</ItemGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	<Target Name="BeforePack" BeforeTargets="Pack">
 		<Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)UpdateNuspec.ps1&quot; -CsprojPath &quot;$(ProjectDir)EncryptedConfigValue.Module.csproj&quot; -NuspecPath &quot;$(ProjectDir)EncryptedConfigValue.Net.Module.nuspec&quot; -ReadmePath &quot;$(SolutionDir)Readme.md&quot;" />
 	</Target>
 
