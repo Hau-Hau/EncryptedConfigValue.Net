@@ -2,23 +2,13 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))</SolutionDir>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<PackageId>EncryptedConfigValue.Net.Module</PackageId>
-		<PackageVersion>1.0.5</PackageVersion>
-		<Description>Base package to create decrypt provider.</Description>
-		<RepositoryUrl>https://github.com/Hau-Hau/EncryptedConfigValue.Net</RepositoryUrl>
-		<RespositoryType>git</RespositoryType>
-		<PackageTags>config appsettings cryptography tool</PackageTags>
-		<Authors>Piotr Michalewicz</Authors>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))$([System.IO.Path]::DirectorySeparatorChar)</SolutionDir>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+		<NuspecFile>.\EncryptedConfigValue.Net.Module.nuspec</NuspecFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="$(SolutionDir)\Readme.md" Pack="true" PackagePath="Readme.md" />
+		<None Include="$(SolutionDir)Readme.md" Pack="true" PackagePath="Readme.md" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -28,14 +18,11 @@
 		</ProjectReference>
 	</ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="NuGetizer" Version="1.2.1">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
-	</ItemGroup>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)UpdateNuspec.ps1&quot; -CsprojPath &quot;$(ProjectDir)EncryptedConfigValue.Module.csproj&quot; -NuspecPath &quot;$(ProjectDir)EncryptedConfigValue.Net.Module.nuspec&quot; -ReadmePath &quot;$(SolutionDir)Readme.md&quot;" />
+	</Target>
 
-	<!--<PropertyGroup>
+	<PropertyGroup>
 		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
 	</PropertyGroup>
 
@@ -47,6 +34,6 @@
 		<ItemGroup>
 			<BuildOutputInPackage Include="@(_ReferenceCopyLocalPaths)" TargetPath="%(_ReferenceCopyLocalPaths.DestinationSubDirectory)" />
 		</ItemGroup>
-	</Target>-->
+	</Target>
 
 </Project>
