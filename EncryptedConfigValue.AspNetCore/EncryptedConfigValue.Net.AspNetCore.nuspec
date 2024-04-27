@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>EncryptedConfigValue.Net.AspNetCore</id>
+    <version>1.0.9</version>
+    <authors>Piotr Michalewicz</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <readme>Readme.md</readme>
+    <description>Provides a way of using encrypted values in ASP.NET Core apps.</description>
+    <tags>config appsettings cryptography aspnetcore</tags>
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="cd4dffae3c63909ca36dec6f0e39218ef72fab65" />
+    <dependencies>
+      <group targetFramework="net7.0">
+        <dependency id="EncryptedConfigValue.Net.Module" version="1.0.7" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Json" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Portable.BouncyCastle" version="1.9.0" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="8.0.3" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net6.0">
+        <dependency id="EncryptedConfigValue.Net.Module" version="1.0.7" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Json" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Portable.BouncyCastle" version="1.9.0" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="8.0.3" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net8.0">
+        <dependency id="EncryptedConfigValue.Net.Module" version="1.0.7" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Json" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Portable.BouncyCastle" version="1.9.0" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="8.0.3" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <frameworkReferences>
+      <group targetFramework="net6.0">
+        <frameworkReference name="Microsoft.AspNetCore.App" />
+      </group>
+      <group targetFramework="net7.0">
+        <frameworkReference name="Microsoft.AspNetCore.App" />
+      </group>
+      <group targetFramework="net8.0">
+        <frameworkReference name="Microsoft.AspNetCore.App" />
+      </group>
+    </frameworkReferences>
+  </metadata>
+  <files>
+    <file src="bin\Release\net6.0\EncryptedConfigValue.AspNetCore.dll" target="lib\net6.0\EncryptedConfigValue.AspNetCore.dll" />
+    <file src="bin\Release\net6.0\EncryptedConfigValue.AspNetCore.pdb" target="lib\net6.0\EncryptedConfigValue.AspNetCore.pdb" />
+    <file src="bin\Release\net7.0\EncryptedConfigValue.AspNetCore.dll" target="lib\net7.0\EncryptedConfigValue.AspNetCore.dll" />
+    <file src="bin\Release\net7.0\EncryptedConfigValue.AspNetCore.pdb" target="lib\net7.0\EncryptedConfigValue.AspNetCore.pdb" />
+    <file src="bin\Release\net8.0\EncryptedConfigValue.AspNetCore.dll" target="lib\net8.0\EncryptedConfigValue.AspNetCore.dll" />
+    <file src="bin\Release\net8.0\EncryptedConfigValue.AspNetCore.pdb" target="lib\net8.0\EncryptedConfigValue.AspNetCore.pdb" />
+    <file src="..\Readme.md" target="\" />
+  </files>
+</package>

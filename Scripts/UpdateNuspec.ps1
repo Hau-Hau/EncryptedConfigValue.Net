@@ -3,7 +3,8 @@ param (
   [string] $CsprojPath,
   [Parameter(Mandatory = $true)]
   [string] $NuspecPath,
-  [string] $ReadmePath = $null
+  [string] $ReadmePath = $null,
+  [string[]] $ExplicitDependenciesFromCsproj
 )
 
 if (!(Test-Path -Path $csprojPath)) {
@@ -47,14 +48,14 @@ function GetTargetFrameworks {
 function GatherDependencies {
   param ($CsprojPath, $RootDir)
   $csproj = [xml](Get-Content $CsprojPath)
-  $packageReferences = $csproj.Project.ItemGroup.PackageReference
-  $projectReferences = $csproj.Project.ItemGroup.ProjectReference
+  $packageReferences = $csproj.Project.ItemGroup.PackageReference | Where-Object { $_ -ne $null }
+  $projectReferences = $csproj.Project.ItemGroup.ProjectReference | Where-Object { $_ -ne $null }
   $targetFrameworks = GetTargetFrameworks -Xml $csproj
 
   $output = @{}
   foreach ($targetFramework in $targetFrameworks) {
     $output[$targetFramework] = @{}
-    foreach ($packageReference in $packageReferences | Where-Object { $_ -ne $null } ) {
+    foreach ($packageReference in $packageReferences) {
       if ($output[$targetFramework].ContainsKey($packageReference.Include)) {
         continue
       }
@@ -88,6 +89,7 @@ function GatherDependencies {
         if ($output[$targetFramework].ContainsKey($dependencyPackageReference.Include)) {
           continue
         }
+        
         $output[$targetFramework][$dependencyPackageReference.Include] = @{
           id      = $dependencyPackageReference.Include
           version = $dependencyPackageReference.Version
@@ -97,7 +99,7 @@ function GatherDependencies {
     }
 
     $dependencyProjectReferences = GatherDependencies -CsprojPath $projectReference.Include -RootDir $RootDir
-    foreach ($targetFramework in $dependencyProjectReferences.Keys) {
+    foreach ($targetFramework in $dependencyProjectReferences.Keys | Where-Object { $_ -ne $null }) {
       if (!$output.ContainsKey($targetFramework)) {
         $output[$targetFramework] = @{}
       }
@@ -130,6 +132,31 @@ foreach ($node in $nuspecXml.package.metadata.SelectNodes("//*[local-name() = 'd
 }
 
 $nuspecDependencies = GatherDependencies -CsprojPath $csprojPath -RootDir $rootCsprojDirectory
+if ($null -ne $ExplicitDependenciesFromCsproj) {
+  foreach ($path in $ExplicitDependenciesFromCsproj) {
+    $externalDependencies = GatherDependencies -CsprojPath $path -RootDir $rootCsprojDirectory
+    foreach ($targetFramework in $externalDependencies.Keys) {
+      if (!$nuspecDependencies.ContainsKey($targetFramework)) {
+        $nuspecDependencies[$targetFramework] = @{}
+      }
+      
+      foreach ($packageId in $externalDependencies[$targetFramework].Keys) {
+        $externalDependency = $externalDependencies[$targetFramework][$packageId]
+        foreach ($rootTargetFramework in $rootTargetFrameworks) {
+          if (($nuspecDependencies[$targetFramework].ContainsKey($packageId))) {
+            $nuspecDependencies[$targetFramework].Remove($packageId)
+          }
+
+          $nuspecDependencies[$rootTargetFramework][$packageId] =  @{
+            id      = $externalDependency.id
+            version = $externalDependency.Version
+          }
+        }
+      }
+    }
+  }
+}
+
 $dependenciesNode = $nuspecXml.CreateElement("dependencies", $nuspecXmlNamespace)
 foreach ($targetFramework in $nuspecDependencies.Keys) {
   $groupNode = $nuspecXml.CreateElement("group", $nuspecXmlNamespace)
@@ -154,10 +181,16 @@ foreach ($targetFramework in $nuspecDependencies.Keys) {
       $dependencyNode.Attributes.Append($includeAttr) | Out-Null
     }
 
+    $excludeAttr = $nuspecXml.CreateAttribute('exclude')
+    $excludeAttr.Value = "Build,Analyzers"
+    $dependencyNode.Attributes.Append($excludeAttr) | Out-Null
+
     $groupNode.AppendChild($dependencyNode) | Out-Null
   }
 
-  $dependenciesNode.AppendChild($groupNode) | Out-Null
+  if ($groupNode.ChildNodes.Count -gt 0) {
+    $dependenciesNode.AppendChild($groupNode) | Out-Null
+  }
 }
 
 $nuspecXml.package.metadata.AppendChild($dependenciesNode) | Out-Null
@@ -190,9 +223,12 @@ if ($null -ne $frameworkReferencesNode) {
 
     $frameworkReferencesNode.AppendChild($groupNode) | Out-Null
   }
-
-  $nuspecXml.package.metadata.AppendChild($frameworkReferencesNode) | Out-Null
+  
+  if ($frameworkReferencesNode.ChildNodes.Count -gt 0) {
+    $nuspecXml.package.metadata.AppendChild($frameworkReferencesNode) | Out-Null
+  }
 }
+
 # Files
 foreach ($node in $nuspecXml.package.SelectNodes("//*[local-name() = 'files']")) {
   $node.ParentNode.RemoveChild($node) | Out-Null
