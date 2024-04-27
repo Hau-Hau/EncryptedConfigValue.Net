@@ -7,7 +7,7 @@ namespace EncryptedConfigValue.Crypto
     public static class KeyFileUtils
     {
         // KeyPathProperty is different than in original Java implementation.
-        public const string KeyPathProperty = "encrypted_config_value.config.key_path";
+        public const string KeyPathProperty = "EncryptedConfigValue_Config_KeyPath";
         public const string DefaultPublicKeyPath = "var/conf/encrypted-config-value.key";
 
         public static string DecryptUsingDefaultKeys(EncryptedValue encryptedValue)
