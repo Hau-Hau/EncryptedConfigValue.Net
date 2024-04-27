@@ -1,0 +1,258 @@
+param (
+  [Parameter(Mandatory = $true)]
+  [string] $CsprojPath,
+  [Parameter(Mandatory = $true)]
+  [string] $NuspecPath,
+  [string] $ReadmePath = $null
+)
+
+if (!(Test-Path -Path $csprojPath)) {
+  Write-Error "File '$($csprojPath)' not found."
+}
+
+if (!(Test-Path -Path $nuspecPath)) {
+  Write-Error "File '$($nuspecPath)' not found."
+  exit;
+}
+
+function GetRelativePath {
+  param(
+    [string]$RelativeTo,
+    [string]$Path
+  )
+
+  $uri = New-Object System.Uri($RelativeTo)
+  $rel = [System.Uri]::UnescapeDataString($uri.MakeRelativeUri((New-Object System.Uri($Path))).ToString()).Replace([System.IO.Path]::AltDirectorySeparatorChar, [System.IO.Path]::DirectorySeparatorChar)
+  if (!$rel.Contains([System.IO.Path]::DirectorySeparatorChar.ToString())) {
+    $rel = ".$([System.IO.Path]::DirectorySeparatorChar)$($rel)"
+  }
+
+  return $rel
+}
+
+function GetTargetFrameworks {
+  param ($Xml)
+  $targetFrameworksStr = $Xml.Project.PropertyGroup.TargetFrameworks
+  if ([string]::IsNullOrWhitespace($targetFrameworksStr)) {
+    $targetFrameworksStr = $Xml.Project.PropertyGroup.TargetFramework
+  }
+  
+  if ([string]::IsNullOrWhitespace($targetFrameworksStr)) {
+    return @()
+  }
+  
+  return @($targetFrameworksStr -split ';' -match '\S') # remove empty entries
+}
+
+function GatherDependencies {
+  param ($CsprojPath, $RootDir)
+  $csproj = [xml](Get-Content $CsprojPath)
+  $packageReferences = $csproj.Project.ItemGroup.PackageReference
+  $projectReferences = $csproj.Project.ItemGroup.ProjectReference
+  $targetFrameworks = GetTargetFrameworks -Xml $csproj
+
+  $output = @{}
+  foreach ($targetFramework in $targetFrameworks) {
+    $output[$targetFramework] = @{}
+    foreach ($packageReference in $packageReferences | Where-Object { $_ -ne $null } ) {
+      if ($output[$targetFramework].ContainsKey($packageReference.Include)) {
+        continue
+      }
+      $output[$targetFramework][$packageReference.Include] = @{
+        id      = $packageReference.Include
+        version = $packageReference.Version
+        include = $projectReference.IncludeAssets
+      }
+    }
+  }
+
+  # Gather dependencies from referenced projects
+  foreach ($projectReference in $projectReferences) {
+    if ($projectReference.PrivateAssets -ne "All") {
+      continue;
+    }
+    
+    if ([string]::IsNullOrWhitespace($projectReference.IncludeAssets)) {
+      continue;
+    }
+
+    $dependencyProjectCsproj = [xml](Get-Content "$([IO.Path]::Combine($RootDir, $projectReference.Include))")
+    $dependencyProjectTargetFrameworks = GetTargetFrameworks -Xml $dependencyProjectCsproj
+    $dependencyPackageReferences = $dependencyProjectCsproj.Project.ItemGroup.PackageReference | Where-Object { $_ -ne $null }
+    foreach ($targetFramework in (@($targetFrameworks) + @($dependencyProjectTargetFrameworks)) | Select-Object -Unique) {
+      if (!$output.ContainsKey($targetFramework)) {
+        $output[$targetFramework] = @{}
+      }
+
+      foreach ($dependencyPackageReference in $dependencyPackageReferences) {
+        if ($output[$targetFramework].ContainsKey($dependencyPackageReference.Include)) {
+          continue
+        }
+        $output[$targetFramework][$dependencyPackageReference.Include] = @{
+          id      = $dependencyPackageReference.Include
+          version = $dependencyPackageReference.Version
+          include = $projectReference.IncludeAssets
+        }
+      }
+    }
+
+    $dependencyProjectReferences = GatherDependencies -CsprojPath $projectReference.Include -RootDir $RootDir
+    foreach ($targetFramework in $dependencyProjectReferences.Keys) {
+      if (!$output.ContainsKey($targetFramework)) {
+        $output[$targetFramework] = @{}
+      }
+      
+      foreach ($packageId in $dependencyProjectReferences[$targetFramework].Keys) {
+        if (($output[$targetFramework].ContainsKey($packageId))) {
+          continue
+        }
+
+        $output[$targetFramework][$packageId] = $dependencyProjectReferences[$targetFramework][$packageId]
+      }
+    }
+  }
+
+  return $output
+}
+
+
+$csprojPath = (Resolve-Path $csprojPath).Path
+$nuspecPath = (Resolve-Path $nuspecPath).Path
+$rootCsprojDirectory = (Split-Path $CsprojPath -Parent)
+$rootCsproj = [xml](Get-Content $csprojPath)
+$nuspecXml = [xml](Get-Content $nuspecPath)
+$nuspecXmlNamespace = $nuspecXml.package.xmlns
+$rootTargetFrameworks = GetTargetFrameworks -Xml $rootCsproj
+
+# metadata.dependencies
+foreach ($node in $nuspecXml.package.metadata.SelectNodes("//*[local-name() = 'dependencies']")) {
+  $node.ParentNode.RemoveChild($node) | Out-Null
+}
+
+$nuspecDependencies = GatherDependencies -CsprojPath $csprojPath -RootDir $rootCsprojDirectory
+$dependenciesNode = $nuspecXml.CreateElement("dependencies", $nuspecXmlNamespace)
+foreach ($targetFramework in $nuspecDependencies.Keys) {
+  $groupNode = $nuspecXml.CreateElement("group", $nuspecXmlNamespace)
+  $targetFrameworkAttr = $nuspecXml.CreateAttribute('targetFramework')
+  $targetFrameworkAttr.Value = $targetFramework
+  $groupNode.Attributes.Append($targetFrameworkAttr) | Out-Null
+  foreach ($packageId in $nuspecDependencies[$targetFramework].Keys) {
+    $item = $nuspecDependencies[$targetFramework][$packageId]
+    $dependencyNode = $nuspecXml.CreateElement("dependency", $nuspecXmlNamespace)
+
+    $idAttr = $nuspecXml.CreateAttribute('id')
+    $idAttr.Value = $item.id
+    $dependencyNode.Attributes.Append($idAttr) | Out-Null
+
+    $versionAttr = $nuspecXml.CreateAttribute('version')
+    $versionAttr.Value = $item.version
+    $dependencyNode.Attributes.Append($versionAttr) | Out-Null
+
+    if (![string]::IsNullOrWhitespace($item.include)) {
+      $includeAttr = $nuspecXml.CreateAttribute('include')
+      $includeAttr.Value = $item.include
+      $dependencyNode.Attributes.Append($includeAttr) | Out-Null
+    }
+
+    $groupNode.AppendChild($dependencyNode) | Out-Null
+  }
+
+  $dependenciesNode.AppendChild($groupNode) | Out-Null
+}
+
+$nuspecXml.package.metadata.AppendChild($dependenciesNode) | Out-Null
+
+# metadata.frameworkReferences
+foreach ($node in $nuspecXml.package.metadata.SelectNodes("//*[local-name() = 'frameworkReferences']")) {
+  $node.ParentNode.RemoveChild($node) | Out-Null
+}
+
+$frameworkReferences = $rootCsproj.Project.ItemGroup.FrameworkReference | Where-Object { $_ -ne $null }
+$frameworkReferencesNode = $null
+if ($frameworkReferences.Count -ne 0) {
+  $frameworkReferencesNode = $nuspecXml.CreateElement("frameworkReferences", $nuspecXmlNamespace)
+}
+
+if ($null -ne $frameworkReferencesNode) {
+  foreach ($targetFramework in $rootTargetFrameworks) {
+    $groupNode = $nuspecXml.CreateElement("group", $nuspecXmlNamespace)
+    $targetFrameworkAttr = $nuspecXml.CreateAttribute('targetFramework')
+    $targetFrameworkAttr.Value = $targetFramework
+    $groupNode.Attributes.Append($targetFrameworkAttr) | Out-Null
+  
+    foreach ($frameworkReference in $frameworkReferences) {
+      $frameworkReferenceNode = $nuspecXml.CreateElement("frameworkReference", $nuspecXmlNamespace)
+      $nameAttr = $nuspecXml.CreateAttribute('name')
+      $nameAttr.Value = $frameworkReference.Include
+      $frameworkReferenceNode.Attributes.Append($nameAttr) | Out-Null
+      $groupNode.AppendChild($frameworkReferenceNode) | Out-Null
+    }
+
+    $frameworkReferencesNode.AppendChild($groupNode) | Out-Null
+  }
+
+  $nuspecXml.package.metadata.AppendChild($frameworkReferencesNode) | Out-Null
+}
+# Files
+foreach ($node in $nuspecXml.package.SelectNodes("//*[local-name() = 'files']")) {
+  $node.ParentNode.RemoveChild($node) | Out-Null
+}
+
+$filesNode = $nuspecXml.CreateElement("files", $nuspecXmlNamespace)
+$appendFiles = $false
+foreach ($targetFramework in $rootTargetFrameworks) {
+  foreach ($file in (Get-ChildItem -Path "$([IO.Path]::Combine($rootCsprojDirectory, "bin", "Release", $targetFramework))")) {
+    if (($file.Extension -ne ".dll") -and ($file.Extension -ne ".pdb")) {
+      continue
+    }
+      
+    $fileNode = $nuspecXml.CreateElement("file", $nuspecXmlNamespace)
+
+    $srcAttr = $nuspecXml.CreateAttribute('src')
+    $srcAttr.Value = "$([IO.Path]::Combine("bin", "Release", $targetFramework, $file.Name))"
+    $fileNode.Attributes.Append($srcAttr) | Out-Null
+
+    $targetAttr = $nuspecXml.CreateAttribute('target')
+    $targetAttr.Value = "$([IO.Path]::Combine("lib", $targetFramework, $file.Name))"
+    $fileNode.Attributes.Append($targetAttr) | Out-Null
+
+    $filesNode.AppendChild($fileNode) | Out-Null
+
+    if ($appendFiles -eq $false) {
+      $appendFiles = $true
+    }
+  }
+}
+
+if ($appendFiles -eq $true) {
+  if (![string]::IsNullOrWhitespace($ReadmePath)) {
+    $fileNode = $nuspecXml.CreateElement("file", $nuspecXmlNamespace)
+    $srcAttr = $nuspecXml.CreateAttribute('src')
+    $srcAttr.Value = GetRelativePath -RelativeTo $CsprojPath -Path $ReadmePath
+    $fileNode.Attributes.Append($srcAttr) | Out-Null
+
+    $targetAttr = $nuspecXml.CreateAttribute('target')
+    $targetAttr.Value = "\"
+    $fileNode.Attributes.Append($targetAttr) | Out-Null
+
+    $filesNode.AppendChild($fileNode) | Out-Null
+  }
+ 
+  $nuspecXml.package.AppendChild($filesNode) | Out-Null
+}
+else {
+  Write-Error "No files found!"
+}
+
+# Increment version
+$currentVersion = $nuspecXml.package.metadata.version
+$versionSplitted = $currentVersion -split '\.'
+$versionSplitted[2] = ([int]$versionSplitted[2]) + 1
+$nuspecXml.package.metadata.version = $versionSplitted -join '.'
+
+# Update commit hash
+$commitAttr = $nuspecXml.CreateAttribute('commit')
+$commitAttr.Value = $(git rev-parse HEAD)
+$nuspecXml.package.metadata.repository.Attributes.Append($commitAttr) | Out-Null
+
+$nuspecXml.Save($NuspecPath);

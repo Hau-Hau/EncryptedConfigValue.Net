@@ -4,19 +4,12 @@
 		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
-
-	<PropertyGroup>
-		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))</SolutionDir>
+		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))$([System.IO.Path]::DirectorySeparatorChar)</SolutionDir>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<PackageId>EncryptedConfigValue.Net.AspNetCore</PackageId>
-		<PackageVersion>1.0.6</PackageVersion>
+		<PackageVersion>1.0.7</PackageVersion>
 		<Description>Provides a way of using encrypted values in ASP.NET Core apps.</Description>
 		<RepositoryUrl>https://github.com/Hau-Hau/EncryptedConfigValue.Net</RepositoryUrl>
 		<RespositoryType>git</RespositoryType>
@@ -37,7 +30,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="EncryptedConfigValue.Net.Module" Version="1.0.7" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="EncryptedConfigValue.Net.Module" Version="1.0.7">
+			<PrivateAssets>None</PrivateAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
