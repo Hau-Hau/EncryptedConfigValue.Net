@@ -25,7 +25,7 @@ Install-Package EncryptedConfigValue.Net.AspNetCore
 To use in your app:
 ```console
 // If needed, set environment variable, default is var/conf/encrypted-config-value.key
-my-application$ export encrypted_config_value.config.key_path=conf/encrypted-config-value.key 
+my-application$ export EncryptedConfigValue_Config_KeyPath=conf/encrypted-config-value.key 
 ```
 
 ```json
