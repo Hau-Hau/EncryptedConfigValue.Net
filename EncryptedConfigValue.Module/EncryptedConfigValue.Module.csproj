@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
+
 		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))$([System.IO.Path]::DirectorySeparatorChar)</SolutionDir>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
 		<NuspecFile>.\EncryptedConfigValue.Net.Module.nuspec</NuspecFile>
@@ -11,16 +12,16 @@
 		<None Include="$(SolutionDir)Readme.md" Pack="true" PackagePath="Readme.md" />
 	</ItemGroup>
 
+	<Target Name="UpdateNuspec" BeforeTargets="_IntermediatePack" Condition="'$(Configuration)' == 'Release'">
+		<Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(SolutionDir)Scripts$([System.IO.Path]::DirectorySeparatorChar)UpdateNuspec.ps1&quot; -CsprojPath &quot;$(ProjectDir)EncryptedConfigValue.Module.csproj&quot; -NuspecPath &quot;$(ProjectDir)EncryptedConfigValue.Net.Module.nuspec&quot; -ReadmePath &quot;$(SolutionDir)Readme.md&quot;" />
+	</Target>
+
 	<ItemGroup>
 		<ProjectReference Include="..\EncryptedConfigValue\EncryptedConfigValue.csproj" PrivateAssets="All">
 			<ReferenceOutputAssembly>true</ReferenceOutputAssembly>
 			<IncludeAssets>EncryptedConfigValue.dll</IncludeAssets>
 		</ProjectReference>
 	</ItemGroup>
-
-	<Target Name="BeforePack" BeforeTargets="Pack">
-		<Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)UpdateNuspec.ps1&quot; -CsprojPath &quot;$(ProjectDir)EncryptedConfigValue.Module.csproj&quot; -NuspecPath &quot;$(ProjectDir)EncryptedConfigValue.Net.Module.nuspec&quot; -ReadmePath &quot;$(SolutionDir)Readme.md&quot;" />
-	</Target>
 
 	<PropertyGroup>
 		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>

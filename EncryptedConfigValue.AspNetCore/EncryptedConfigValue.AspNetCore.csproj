@@ -4,31 +4,19 @@
 		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-	</PropertyGroup>
 
-	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
-
-	<PropertyGroup>
-		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))</SolutionDir>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<PackageId>EncryptedConfigValue.Net.AspNetCore</PackageId>
-		<PackageVersion>1.0.6</PackageVersion>
-		<Description>Provides a way of using encrypted values in ASP.NET Core apps.</Description>
-		<RepositoryUrl>https://github.com/Hau-Hau/EncryptedConfigValue.Net</RepositoryUrl>
-		<RespositoryType>git</RespositoryType>
-		<PackageTags>config appsettings cryptography aspnetcore</PackageTags>
-		<Authors>Piotr Michalewicz</Authors>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))$([System.IO.Path]::DirectorySeparatorChar)</SolutionDir>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+		<NuspecFile>.\EncryptedConfigValue.Net.AspNetCore.nuspec</NuspecFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="$(SolutionDir)\Readme.md" Pack="true" PackagePath="Readme.md" />
+		<None Include="$(SolutionDir)Readme.md" Pack="true" PackagePath="Readme.md" />
 	</ItemGroup>
+
+	<Target Name="UpdateNuspec" BeforeTargets="_IntermediatePack" Condition="'$(Configuration)' == 'Release'">
+		<Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(SolutionDir)Scripts$([System.IO.Path]::DirectorySeparatorChar)UpdateNuspec.ps1&quot; -CsprojPath &quot;$(ProjectDir)EncryptedConfigValue.AspNetCore.csproj&quot; -NuspecPath &quot;$(ProjectDir)EncryptedConfigValue.Net.AspNetCore.nuspec&quot; -ReadmePath &quot;$(SolutionDir)Readme.md&quot; -ExplicitDependenciesFromCsproj &quot;$(SolutionDir)EncryptedConfigValue$([System.IO.Path]::DirectorySeparatorChar)EncryptedConfigValue.csproj&quot;" />
+	</Target>
 
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
@@ -37,6 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="EncryptedConfigValue.Net.Module" Version="1.0.7" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
