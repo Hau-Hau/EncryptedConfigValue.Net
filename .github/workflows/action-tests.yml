@@ -3,7 +3,7 @@ on:
   workflow_call:
 jobs:
   test:
-    name: ${{github.job}}-${{ matrix.operating-system }}
+    name: test-${{ matrix.operating-system }}
     runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
