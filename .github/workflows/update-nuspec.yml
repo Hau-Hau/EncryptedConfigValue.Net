@@ -12,8 +12,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup git
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          BRANCH_NAME="update-nuspec/$(date +%Y-%m-%d_%H-%M-%S)"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          git checkout -b $BRANCH_NAME
+
       - name: Setup dotnet
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: | 
             8.0.x
@@ -26,28 +34,19 @@ jobs:
       - name: Update EncryptedConfigValue.Net.Module.nuspec
         shell: pwsh
         run: |
-          pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath "./EncryptedConfigValue.Module/EncryptedConfigValue.Module.csproj" -NuspecPath "./EncryptedConfigValue.Module/EncryptedConfigValue.Module.nuspec" -ReadmePath "./Readme.md"
-     
+          pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath "./EncryptedConfigValue.Module/EncryptedConfigValue.Module.csproj" -NuspecPath "./EncryptedConfigValue.Module/EncryptedConfigValue.Net.Module.nuspec" -ReadmePath "./Readme.md"
+
       - name: Update EncryptedConfigValue.Net.AspNetCore.nuspec
         shell: pwsh
         run: |
-          pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath "./EncryptedConfigValue.AspNetCore/EncryptedConfigValue.AspNetCore.csproj" -NuspecPath "./EncryptedConfigValue.AspNetCore/EncryptedConfigValue.Net.AspNetCore.nuspec" -ReadmePath "./Readme.md" -ExplicitDependenciesFromCsproj "./EncryptedConfigValue/EncryptedConfigValue.csproj"
+          pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath "./EncryptedConfigValue.AspNetCore/EncryptedConfigValue.AspNetCore.csproj" -NuspecPath "./EncryptedConfigValue.AspNetCore/EncryptedConfigValue.Net.AspNetCore.nuspec" -ReadmePath "$./Readme.md" -ExplicitDependenciesFromCsproj "./EncryptedConfigValue/EncryptedConfigValue.csproj"
 
-      - name: Setup Git for commit
+      - name: Commit changes
         run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-
-      - name: Create a new branch
-        run: |
-          BRANCH_NAME="update-nuspec/$(date +%s)"
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-
-          git checkout -b $BRANCH_NAME
           git add .
           git commit -m "Update nuspec files"
           git push origin $BRANCH_NAME
-
+      
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
