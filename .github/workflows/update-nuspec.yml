@@ -20,6 +20,7 @@ jobs:
             echo "RESULT=$RESULT" >> $GITHUB_OUTPUT
     
   update-nuspec-files:
+    needs: [validate]
     if: needs.validate.outputs.RESULT != 'true'
     runs-on: ubuntu-latest
     permissions:
