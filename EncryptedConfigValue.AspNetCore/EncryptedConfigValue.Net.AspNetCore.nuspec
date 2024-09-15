@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>EncryptedConfigValue.Net.AspNetCore</id>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,30 +10,30 @@
     <readme>Readme.md</readme>
     <description>Provides a way of using encrypted values in ASP.NET Core apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="6721314e1efd0cd70925e542b154b09a56009842" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="bb6add265510fb03517d3312bb6602591c8e1a80" />
     <dependencies>
       <group targetFramework="net7.0">
         <dependency id="EncryptedConfigValue.Net.Module" version="1.1.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration.Json" version="8.0.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="8.0.0" exclude="Build,Analyzers" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Json" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" exclude="Build,Analyzers" />
         <dependency id="System.Text.Json" version="8.0.3" exclude="Build,Analyzers" />
       </group>
       <group targetFramework="net6.0">
         <dependency id="EncryptedConfigValue.Net.Module" version="1.1.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration.Json" version="8.0.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="8.0.0" exclude="Build,Analyzers" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Json" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" exclude="Build,Analyzers" />
         <dependency id="System.Text.Json" version="8.0.3" exclude="Build,Analyzers" />
       </group>
       <group targetFramework="net8.0">
         <dependency id="EncryptedConfigValue.Net.Module" version="1.1.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration.Json" version="8.0.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="8.0.0" exclude="Build,Analyzers" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Json" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" exclude="Build,Analyzers" />
         <dependency id="System.Text.Json" version="8.0.3" exclude="Build,Analyzers" />
       </group>
     </dependencies>
@@ -50,12 +50,12 @@
     </frameworkReferences>
   </metadata>
   <files>
-    <file src="bin\Release\net6.0\EncryptedConfigValue.AspNetCore.dll" target="lib\net6.0\EncryptedConfigValue.AspNetCore.dll" />
-    <file src="bin\Release\net6.0\EncryptedConfigValue.AspNetCore.pdb" target="lib\net6.0\EncryptedConfigValue.AspNetCore.pdb" />
-    <file src="bin\Release\net7.0\EncryptedConfigValue.AspNetCore.dll" target="lib\net7.0\EncryptedConfigValue.AspNetCore.dll" />
-    <file src="bin\Release\net7.0\EncryptedConfigValue.AspNetCore.pdb" target="lib\net7.0\EncryptedConfigValue.AspNetCore.pdb" />
-    <file src="bin\Release\net8.0\EncryptedConfigValue.AspNetCore.dll" target="lib\net8.0\EncryptedConfigValue.AspNetCore.dll" />
-    <file src="bin\Release\net8.0\EncryptedConfigValue.AspNetCore.pdb" target="lib\net8.0\EncryptedConfigValue.AspNetCore.pdb" />
-    <file src="..\Readme.md" target="\" />
+    <file src="bin/Release/net6.0/EncryptedConfigValue.AspNetCore.dll" target="lib/net6.0/EncryptedConfigValue.AspNetCore.dll" />
+    <file src="bin/Release/net6.0/EncryptedConfigValue.AspNetCore.pdb" target="lib/net6.0/EncryptedConfigValue.AspNetCore.pdb" />
+    <file src="bin/Release/net7.0/EncryptedConfigValue.AspNetCore.dll" target="lib/net7.0/EncryptedConfigValue.AspNetCore.dll" />
+    <file src="bin/Release/net7.0/EncryptedConfigValue.AspNetCore.pdb" target="lib/net7.0/EncryptedConfigValue.AspNetCore.pdb" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.AspNetCore.dll" target="lib/net8.0/EncryptedConfigValue.AspNetCore.dll" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.AspNetCore.pdb" target="lib/net8.0/EncryptedConfigValue.AspNetCore.pdb" />
+    <file src="../$./Readme.md" target="/" />
   </files>
 </package>

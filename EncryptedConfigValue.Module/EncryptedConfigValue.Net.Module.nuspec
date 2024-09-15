@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>EncryptedConfigValue.Net.Module</id>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,7 +10,7 @@
     <readme>Readme.md</readme>
     <description>Base package to create decrypt provider.</description>
     <tags>config appsettings cryptography tool</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="6721314e1efd0cd70925e542b154b09a56009842" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="bb6add265510fb03517d3312bb6602591c8e1a80" />
     <dependencies>
       <group targetFramework="netstandard2.0">
         <dependency id="Portable.BouncyCastle" version="1.9.0" include="EncryptedConfigValue.dll" exclude="Build,Analyzers" />
@@ -19,10 +19,10 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\netstandard2.0\EncryptedConfigValue.dll" target="lib\netstandard2.0\EncryptedConfigValue.dll" />
-    <file src="bin\Release\netstandard2.0\EncryptedConfigValue.Module.dll" target="lib\netstandard2.0\EncryptedConfigValue.Module.dll" />
-    <file src="bin\Release\netstandard2.0\EncryptedConfigValue.Module.pdb" target="lib\netstandard2.0\EncryptedConfigValue.Module.pdb" />
-    <file src="bin\Release\netstandard2.0\EncryptedConfigValue.pdb" target="lib\netstandard2.0\EncryptedConfigValue.pdb" />
-    <file src="..\Readme.md" target="\" />
+    <file src="bin/Release/netstandard2.0/EncryptedConfigValue.dll" target="lib/netstandard2.0/EncryptedConfigValue.dll" />
+    <file src="bin/Release/netstandard2.0/EncryptedConfigValue.Module.dll" target="lib/netstandard2.0/EncryptedConfigValue.Module.dll" />
+    <file src="bin/Release/netstandard2.0/EncryptedConfigValue.Module.pdb" target="lib/netstandard2.0/EncryptedConfigValue.Module.pdb" />
+    <file src="bin/Release/netstandard2.0/EncryptedConfigValue.pdb" target="lib/netstandard2.0/EncryptedConfigValue.pdb" />
+    <file src="../Readme.md" target="/" />
   </files>
 </package>
