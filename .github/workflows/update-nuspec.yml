@@ -1,7 +1,5 @@
 name: Update nuspec files
-permissions:
-  contents: write
-  pull-requests: write
+
 on:
   push:
     branches:
@@ -9,6 +7,9 @@ on:
 jobs:
   update-nuspec-files:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -19,6 +20,7 @@ jobs:
           BRANCH_NAME="update-nuspec/$(date +%Y-%m-%d_%H-%M-%S)"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           git checkout -b $BRANCH_NAME
+          git remote set-url origin  ${{ secrets.ssh }}
 
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
@@ -42,10 +44,8 @@ jobs:
           pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath "./EncryptedConfigValue.AspNetCore/EncryptedConfigValue.AspNetCore.csproj" -NuspecPath "./EncryptedConfigValue.AspNetCore/EncryptedConfigValue.Net.AspNetCore.nuspec" -ReadmePath "$./Readme.md" -ExplicitDependenciesFromCsproj "./EncryptedConfigValue/EncryptedConfigValue.csproj"
 
       - name: Commit changes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git add .
+          git add --all .
           git commit -m "Update nuspec files"
           git push origin $BRANCH_NAME
       
