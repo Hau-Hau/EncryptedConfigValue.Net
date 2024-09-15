@@ -20,7 +20,6 @@ jobs:
           BRANCH_NAME="update-nuspec/$(date +%Y-%m-%d_%H-%M-%S)"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           git checkout -b $BRANCH_NAME
-          git remote set-url origin  ${{ secrets.ssh }}
 
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
