@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - main
-    branches-ignore:
-      - 'update-nuspec/*'
+
 jobs:
   update-nuspec-files:
     runs-on: ubuntu-latest
