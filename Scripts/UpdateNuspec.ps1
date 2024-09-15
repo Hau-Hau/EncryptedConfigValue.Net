@@ -25,9 +25,10 @@ function GetRelativePath {
 
   $uri = New-Object System.Uri($RelativeTo)
   $rel = [System.Uri]::UnescapeDataString($uri.MakeRelativeUri((New-Object System.Uri([IO.Path]::Combine((Get-Location), $Path)))).ToString()).Replace([System.IO.Path]::AltDirectorySeparatorChar, [System.IO.Path]::DirectorySeparatorChar)
-  if (!$rel.Contains([System.IO.Path]::DirectorySeparatorChar.ToString())) {
+  if (!($rel -match "[\\/]")) {
     $rel = ".$([System.IO.Path]::DirectorySeparatorChar)$($rel)"
   }
+  Write-Host $rel
 
   return $rel
 }
@@ -269,7 +270,7 @@ if ($appendFiles -eq $true) {
     $fileNode.Attributes.Append($srcAttr) | Out-Null
 
     $targetAttr = $nuspecXml.CreateAttribute('target')
-    $targetAttr.Value = "\"
+    $targetAttr.Value = [System.IO.Path]::DirectorySeparatorChar.ToString()
     $fileNode.Attributes.Append($targetAttr) | Out-Null
 
     $filesNode.AppendChild($fileNode) | Out-Null
