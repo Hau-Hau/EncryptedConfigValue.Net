@@ -86,7 +86,7 @@ Install-Package EncryptedConfigValue.Net.Module
 
 Differences from [palantir/encrypted-config-value](https://github.com/palantir/encrypted-config-value)
 -----------------------------
-- Name of environmental variable containing path to key is _EncryptedConfigVaLue_Config_KeyPath_ instead of _palantir.config.key_path_
+- Name of environmental variable containing path to key is _EncryptedConfigValue_Config_KeyPath_ instead of _palantir.config.key_path_
 - Commands _encrypt-config-vaLue_ and _generate-random-key_ don't need explicit -v parameter. If -v not provided then program will start interactive mode
 
 Note
