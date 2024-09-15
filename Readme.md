@@ -84,6 +84,11 @@ Install from [NuGet](https://www.nuget.org/packages/EncryptedConfigValue.Net.Mod
 Install-Package EncryptedConfigValue.Net.Module
 ```
 
+Differences from [palantir/encrypted-config-value](https://github.com/palantir/encrypted-config-value)
+-----------------------------
+- Name of environmental variable containing path to key is _EncryptedConfigVaLue_Config_KeyPath_ instead of _palantir.config.key_path_
+- Commands _encrypt-config-vaLue_ and _generate-random-key_ don't need explicit -v parameter. If -v not provided then program will start interactive mode
+
 Note
 -----------------------------
 The project has been devised to align with the original functionality. Please refrain from suggesting changes that would alter how it works compared to the original. Any adjustments, additions, or removals should be carefully considered to ensure they align seamlessly with the established framework.
