@@ -14,6 +14,7 @@ jobs:
         RESULT: ${{ steps.validate.outputs.RESULT }}
       steps:
         - name: Validate
+          id: validate
           run: |
             is_not_origin_of_action="$([[ ! "$GITHUB_HEAD_REF" == update-nuspec/* ]] && echo true || echo false)"
             RESULT="$([[ "$is_not_origin_of_action" == true ]] && echo true || echo false)"
