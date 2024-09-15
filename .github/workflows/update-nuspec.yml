@@ -14,7 +14,7 @@ jobs:
       - name: Setup env variables
         run: |
           TARGET_BRANCH_NAME="update-nuspec/$(date +%Y-%m-%d_%H-%M-%S)"
-          echo "TARGET_BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "TARGET_BRANCH_NAME=$TARGET_BRANCH_NAME" >> $GITHUB_ENV
       
       - uses: actions/checkout@v4
 
