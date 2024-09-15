@@ -21,7 +21,7 @@ jobs:
     
   update-nuspec-files:
     needs: [validate]
-    if: needs.validate.outputs.RESULT != 'true'
+    if: needs.validate.outputs.RESULT == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
