@@ -9,6 +9,7 @@ param (
 
 if (!(Test-Path -Path $csprojPath)) {
   Write-Error "File '$($csprojPath)' not found."
+  exit;
 }
 
 if (!(Test-Path -Path $nuspecPath)) {
@@ -23,7 +24,7 @@ function GetRelativePath {
   )
 
   $uri = New-Object System.Uri($RelativeTo)
-  $rel = [System.Uri]::UnescapeDataString($uri.MakeRelativeUri((New-Object System.Uri($Path))).ToString()).Replace([System.IO.Path]::AltDirectorySeparatorChar, [System.IO.Path]::DirectorySeparatorChar)
+  $rel = [System.Uri]::UnescapeDataString($uri.MakeRelativeUri((New-Object System.Uri([IO.Path]::Combine((Get-Location), $Path)))).ToString()).Replace([System.IO.Path]::AltDirectorySeparatorChar, [System.IO.Path]::DirectorySeparatorChar)
   if (!$rel.Contains([System.IO.Path]::DirectorySeparatorChar.ToString())) {
     $rel = ".$([System.IO.Path]::DirectorySeparatorChar)$($rel)"
   }
@@ -98,7 +99,7 @@ function GatherDependencies {
       }
     }
 
-    $dependencyProjectReferences = GatherDependencies -CsprojPath $projectReference.Include -RootDir $RootDir
+    $dependencyProjectReferences = GatherDependencies -CsprojPath "$([IO.Path]::Combine($RootDir, $projectReference.Include))" -RootDir $RootDir
     foreach ($targetFramework in $dependencyProjectReferences.Keys | Where-Object { $_ -ne $null }) {
       if (!$output.ContainsKey($targetFramework)) {
         $output[$targetFramework] = @{}
