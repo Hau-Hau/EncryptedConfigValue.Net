@@ -7,18 +7,25 @@ on:
       - main
 
 jobs:
+  validate:
+      if: true
+      runs-on: ubuntu-latest
+      outputs:
+        RESULT: ${{ steps.validate.outputs.RESULT }}
+      steps:
+        - name: Validate
+          run: |
+            is_not_origin_of_action="$([[ ! "$GITHUB_HEAD_REF" == update-nuspec/* ]] && echo true || echo false)"
+            RESULT="$([[ "$is_not_origin_of_action" == true ]] && echo true || echo false)"
+            echo "RESULT=$RESULT" >> $GITHUB_OUTPUT
+    
   update-nuspec-files:
+    if: needs.validate.outputs.RESULT != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
     steps:
-      - name: Validate
-        run: |
-          if [[ ("$GITHUB_HEAD_REF" == update-nuspec/*) ]]; then
-            exit 2
-          fi
-
       - name: Setup env variables
         run: |
           TARGET_BRANCH_NAME="update-nuspec/$(date +%Y-%m-%d_%H-%M-%S)"
