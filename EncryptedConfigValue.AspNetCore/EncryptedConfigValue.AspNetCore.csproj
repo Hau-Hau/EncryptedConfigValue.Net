@@ -14,9 +14,10 @@
 		<None Include="$(SolutionDir)Readme.md" Pack="true" PackagePath="Readme.md" />
 	</ItemGroup>
 
-	<Target Name="UpdateNuspec" BeforeTargets="_IntermediatePack" Condition="'$(Configuration)' == 'Release'">
+    <!-- P.Michalewicz: Disabled as managed through CI/CD -->
+	<!-- <Target Name="UpdateNuspec" BeforeTargets="_IntermediatePack" Condition="'$(Configuration)' == 'Release'">
 		<Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(SolutionDir)Scripts$([System.IO.Path]::DirectorySeparatorChar)UpdateNuspec.ps1&quot; -CsprojPath &quot;$(ProjectDir)EncryptedConfigValue.AspNetCore.csproj&quot; -NuspecPath &quot;$(ProjectDir)EncryptedConfigValue.Net.AspNetCore.nuspec&quot; -ReadmePath &quot;$(SolutionDir)Readme.md&quot; -ExplicitDependenciesFromCsproj &quot;$(SolutionDir)EncryptedConfigValue$([System.IO.Path]::DirectorySeparatorChar)EncryptedConfigValue.csproj&quot;" />
-	</Target>
+	</Target> -->
 
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
