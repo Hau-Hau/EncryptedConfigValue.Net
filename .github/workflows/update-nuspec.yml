@@ -6,6 +6,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: update-nuspec-files
+  cancel-in-progress: true
+
 jobs:
   validate:
       if: true
