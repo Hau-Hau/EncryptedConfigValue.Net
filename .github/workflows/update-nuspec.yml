@@ -15,8 +15,10 @@ jobs:
 
       - name: Setup git
         run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
+          # git config --global user.name "GitHub Action"
+          # git config --global user.email "action@github.com"
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
           BRANCH_NAME="update-nuspec/$(date +%Y-%m-%d_%H-%M-%S)"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           git checkout -b $BRANCH_NAME
