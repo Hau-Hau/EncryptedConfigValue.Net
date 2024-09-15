@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Validate
         run: |
-          if [[ ! ("$GITHUB_HEAD_REF" == update-nuspec/*) ]]; then
+          if [[ ("$GITHUB_HEAD_REF" == update-nuspec/*) ]]; then
             exit 2
           fi
 
