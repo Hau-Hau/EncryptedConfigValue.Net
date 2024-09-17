@@ -14,10 +14,11 @@ jobs:
       matrix:
         operating-system: [ ubuntu-latest ]
     steps:
-    - uses: ./.github/workflows/action-setup-project.yml
+    - uses: ./.github/workflows/action-setup-dotnet.yml
+
+    - name: Build
       if: ${{ inputs.build }}
-      with:
-        configuration: Debug
+      run: dotnet build ./EncryptedConfigValue.sln --configuration Debug
 
     - name: Test
       run: dotnet test --no-restore --verbosity normal
