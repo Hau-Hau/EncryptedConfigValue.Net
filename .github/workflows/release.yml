@@ -39,8 +39,7 @@ jobs:
       - name: Build
         run: dotnet build ./EncryptedConfigValue.sln --configuration Release
       
-      - uses: ./.github/actions/test-action
-        with:
-          build: false
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal
 
       # TODO add release github and release nuget jobs
