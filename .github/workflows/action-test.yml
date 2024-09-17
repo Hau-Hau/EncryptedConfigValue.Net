@@ -1,4 +1,5 @@
-on: []
+on:
+  workflow_dispatch:
 jobs:
   test:
     name: test-${{ matrix.operating-system }}
