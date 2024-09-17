@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+concurrency:
+  group: release
+
+jobs:
+  validate:
+      runs-on: ubuntu-latest
+      outputs:
+        RESULT: ${{ steps.validate.outputs.RESULT }}
+      steps:
+        - name: Validate
+          id: validate
+          run: |
+            ORIGIN_BRANCH_NAME="bot/update-nuspec"
+            check_origin="$([[ ! "$GITHUB_HEAD_REF" == $ORIGIN_BRANCH_NAME ]] && echo true || echo false)"
+            RESULT="$([[ "$check_origin" == true ]] && echo true || echo false)"
+            echo "RESULT=$RESULT" >> $GITHUB_OUTPUT
+    
+  release:
+    needs: [validate]
+    if: needs.validate.outputs.RESULT == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: ./.github/workflows/action-setup-project.yml
+        with:
+          configuration: Debug
+      
+      - name: Test
+        uses: ./.github/workflows/action-test.yml
+        with:
+          build: false

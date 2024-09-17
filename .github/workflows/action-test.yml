@@ -1,23 +1,23 @@
 on:
   workflow_call:
+    inputs:
+      build:
+        description: 'Build before test'
+        type: boolean
+        default: true
 jobs:
   test:
-    name: test-${{ matrix.operating-system }}
+    name: Test on ${{ matrix.operating-system }}
     runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
       matrix:
         operating-system: [ ubuntu-latest ]
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v3
+    - uses: ./.github/workflows/action-setup-project.yml
+      if: ${{ inputs.build }}
       with:
-        dotnet-version: | 
-          8.0.x
-          7.0.x
-          6.0.x 
-    - name: Build
-      run: dotnet build ./EncryptedConfigValue.sln --configuration Release
+        configuration: Debug
+
     - name: Test
       run: dotnet test --no-restore --verbosity normal

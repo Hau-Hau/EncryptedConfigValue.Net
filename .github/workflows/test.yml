@@ -5,5 +5,4 @@ on:
     branches: [ main ]
 jobs:
   test:
-    name: test
     uses: ./.github/workflows/action-test.yml
