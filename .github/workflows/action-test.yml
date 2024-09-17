@@ -1,6 +1,4 @@
-name: run tests
-on:
-  workflow_call:
+on: []
 jobs:
   test:
     name: test-${{ matrix.operating-system }}
