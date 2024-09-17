@@ -1,12 +1,11 @@
-on:
-  workflow_call:
-    inputs:
-      build:
-        description: 'Build before test'
-        type: boolean
-        default: true
-jobs:
-  test:
+inputs:
+  build:
+    description: 'Build before test'
+    type: boolean
+    default: true
+runs:
+  using: "composite"
+  steps:
     name: Test on ${{ matrix.operating-system }}
     runs-on: ${{ matrix.operating-system }}
     strategy:

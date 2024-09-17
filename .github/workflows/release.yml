@@ -34,13 +34,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/workflows/action-setup-dotnet.yml
+      - uses: ./.github/actions/setup-dotnet-action
 
       - name: Build
         run: dotnet build ./EncryptedConfigValue.sln --configuration Release
       
-      - name: Test
-        uses: ./.github/workflows/action-test.yml
+      - uses: ./.github/actions/test-action
         with:
           build: false
 

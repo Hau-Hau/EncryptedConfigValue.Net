@@ -9,4 +9,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/workflows/action-test.yml
+      - uses: ./.github/actions/test-action

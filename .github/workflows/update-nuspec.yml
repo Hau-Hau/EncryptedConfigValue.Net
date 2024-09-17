@@ -38,7 +38,7 @@ jobs:
             git checkout -b $TARGET_BRANCH_NAME
           fi
       
-      - uses: ./.github/workflows/action-setup-dotnet.yml
+      - uses: ./.github/actions/action-setup-dotnet
     
       - name: Build
         run: dotnet build ./EncryptedConfigValue.sln --configuration Debug
