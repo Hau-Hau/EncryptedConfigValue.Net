@@ -1,8 +1,0 @@
-name: tests
-on:
-  push:
-    branches: [ main ]
-jobs:
-  test:
-    name: test
-    uses: ./.github/workflows/action-tests.yml
