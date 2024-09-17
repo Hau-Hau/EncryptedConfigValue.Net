@@ -82,7 +82,7 @@ jobs:
           if [[ "$IS_TARGET_BRANCH_EXISTS" == "true" ]]; then
             git push --force origin $TARGET_BRANCH_NAME
           else
-            git push origin $TARGET_BRANCH_NAME
+            git push --set-upstream origin $TARGET_BRANCH_NAME
           fi
 
       - name: Create Pull Request
