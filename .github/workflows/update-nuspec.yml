@@ -1,32 +1,18 @@
 name: Update nuspec files
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [closed]
     branches:
       - main
 
 concurrency:
-  group: update-nuspec-files
+  group: update-nuspec
   cancel-in-progress: true
 
 jobs:
-  # validate:
-  #     if: true
-  #     runs-on: ubuntu-latest
-  #     outputs:
-  #       RESULT: ${{ steps.validate.outputs.RESULT }}
-  #     steps:
-  #       - name: Validate
-  #         id: validate
-  #         run: |
-  #           is_not_origin_of_action="$([[ ! "$GITHUB_HEAD_REF" == update-nuspec/* ]] && echo true || echo false)"
-  #           RESULT="$([[ "$is_not_origin_of_action" == true ]] && echo true || echo false)"
-  #           echo "RESULT=$RESULT" >> $GITHUB_OUTPUT
-    
   update-nuspec-files:
-    # needs: [validate]
-    # if: needs.validate.outputs.RESULT == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -37,8 +23,6 @@ jobs:
           TARGET_BRANCH_NAME="bot/update-nuspec"
           echo "TARGET_BRANCH_NAME=$TARGET_BRANCH_NAME" >> $GITHUB_ENV
       
-      - uses: actions/checkout@v4
-
       - name: Setup git
         run: |
           git config --global user.name "GitHub Action"
@@ -53,17 +37,10 @@ jobs:
             git checkout -b $TARGET_BRANCH_NAME
           fi
 
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v4
+      - uses: ./.github/workflows/action-setup-project.yml
         with:
-          dotnet-version: | 
-            8.0.x
-            7.0.x
-            6.0.x 
+          configuration: Debug
       
-      - name: Build
-        run: dotnet build ./EncryptedConfigValue.sln --configuration Release
-
       - name: Update EncryptedConfigValue.Net.Module.nuspec
         shell: pwsh
         run: |
