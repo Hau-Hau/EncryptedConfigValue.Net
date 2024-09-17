@@ -1,0 +1,19 @@
+name: Test
+description: Run tests
+inputs:
+  build:
+    description: 'Build before test. Allowed values: true | false'
+    default: "true"
+runs:
+  using: "composite"
+  steps:
+  - uses: ./.github/workflows/action-setup-dotnet.yml
+  
+  - name: Build
+    shell: bash
+    run: dotnet build ./EncryptedConfigValue.sln --configuration Debug
+    if: inputs.build == 'true'
+  
+  - name: Test
+    shell: bash
+    run: dotnet test --no-restore --verbosity normal
