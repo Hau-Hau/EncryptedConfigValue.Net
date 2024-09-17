@@ -5,4 +5,14 @@ on:
     branches: [ main ]
 jobs:
   test:
-    uses: ./.github/workflows/action-test.yml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/action-setup-dotnet
+
+      - name: Build
+        run: dotnet build ./EncryptedConfigValue.sln --configuration Debug
+
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal

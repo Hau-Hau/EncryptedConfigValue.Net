@@ -32,11 +32,14 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: ./.github/workflows/action-setup-project.yml
-        with:
-          configuration: Debug
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-dotnet-action
+
+      - name: Build
+        run: dotnet build ./EncryptedConfigValue.sln --configuration Release
       
       - name: Test
-        uses: ./.github/workflows/action-test.yml
-        with:
-          build: false
+        run: dotnet test --no-restore --verbosity normal
+
+      # TODO add release github and release nuget jobs
