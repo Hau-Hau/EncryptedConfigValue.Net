@@ -41,7 +41,7 @@ jobs:
       - uses: ./.github/actions/setup-dotnet-action
     
       - name: Build
-        run: dotnet build ./EncryptedConfigValue.sln --configuration Debug
+        run: dotnet build ./EncryptedConfigValue.sln --configuration Release
 
       - name: Update EncryptedConfigValue.Net.Module.nuspec
         shell: pwsh
