@@ -1,0 +1,66 @@
+name: Update nuspec file
+description: Update .nuspec file
+inputs:
+  GITHUB_TOKEN:
+    description: 'GITHUB_TOKEN'
+    required: true
+  project:
+    required: true
+    description: "Allowed values: EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore"
+runs:
+  using: "composite"
+  steps:
+      - name: Setup env variables
+        shell: bash
+        run: |
+          TARGET_BRANCH_NAME="bot/${{ inputs.project }}/update-nuspec"
+          echo "TARGET_BRANCH_NAME=$TARGET_BRANCH_NAME" >> $GITHUB_ENV
+      
+      - name: Setup git
+        shell: bash
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          IS_TARGET_BRANCH_EXISTS=$(git ls-remote --heads origin $TARGET_BRANCH_NAME | grep -q "refs/heads/$TARGET_BRANCH_NAME" && echo true || echo false)
+          echo "IS_TARGET_BRANCH_EXISTS=$IS_TARGET_BRANCH_EXISTS" >> $GITHUB_ENV
+          if [[ "$IS_TARGET_BRANCH_EXISTS" == "true" ]]; then
+            git fetch origin $TARGET_BRANCH_NAME:$TARGET_BRANCH_NAME
+            git checkout $TARGET_BRANCH_NAME
+            git reset --hard origin/main
+          else
+            git checkout -b $TARGET_BRANCH_NAME
+          fi
+      
+      - uses: ./.github/actions/setup-dotnet-action
+    
+      - name: Build
+        shell: bash
+        run: dotnet build ./EncryptedConfigValue.sln --configuration Release
+
+      - name: Update ${{ inputs.project }}.nuspec
+        shell: pwsh
+        run: |
+          pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath "./${{ inputs.project }}/${{ inputs.project }}.csproj" -NuspecPath "./${{ inputs.project }}/${{ inputs.project }}.nuspec" -ReadmePath "./Readme.md"
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          git add --all .
+          git commit -m "Update ${{ inputs.project }}.nuspec"
+          if [[ "$IS_TARGET_BRANCH_EXISTS" == "true" ]]; then
+            git push --force origin $TARGET_BRANCH_NAME
+          else
+            git push --set-upstream origin $TARGET_BRANCH_NAME
+          fi
+
+      - name: Create Pull Request
+        shell: bash
+        run: |
+          pr_id=$(gh pr list --base main --head $TARGET_BRANCH_NAME --json number --jq '.[0].number')
+          if [ -z "$pr_id" ]; then
+            gh pr create -B main -H $TARGET_BRANCH_NAME --title 'Release ${{ inputs.project }}' --body "**⚠️ Attention: This Pull Request Will Initiate the Release Process of ${{ inputs.project }}! ⚠️**"
+          else
+            gh pr edit $pr_id --title 'Release ${{ inputs.project }}' --body "**⚠️ Attention: This Pull Request Will Initiate the Release Process of ${{ inputs.project }}! ⚠️**"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}

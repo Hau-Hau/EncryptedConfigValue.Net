@@ -1,6 +1,7 @@
 name: Update nuspec files
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [closed]
     branches:
@@ -11,65 +12,72 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  update-nuspec-files:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      module: ${{ steps.validate.outputs.result }}
+      
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate
+        id: validate
+        run: |
+          originated_from_feature="$([[ ! "$GITHUB_HEAD_REF" =~ ^bot\/[^\/]+\/update-nuspec$ ]] && echo true || echo false)"
+          result="$([[ "$originated_from_feature" == true ]] && echo true || echo false)"
+          echo "result=$result" >> $GITHUB_OUTPUT
+
+  has-changes:
+    needs: [validate]
+    if: needs.validate.outputs.module == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      module: ${{ steps.finalize.outputs.module }}
+      aspnetcore: ${{ steps.finalize.outputs.aspnetcore }}
+      
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/has-changes-action
+        id: has-changes-module
+        with:
+          project: EncryptedConfigValue.Module
+
+      - uses: ./.github/actions/has-changes-action
+        id: has-changes-aspnetcore
+        with:
+          project: EncryptedConfigValue.AspNetCore
+
+      - name: Finalize
+        id: finalize
+        run: |
+          echo "module=${{ steps.has-changes-module.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "aspnetcore=${{ steps.has-changes-aspnetcore.outputs.result }}" >> $GITHUB_OUTPUT
+
+  module:
+    needs: [has-changes]
+    if: needs.has-changes.outputs.module == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup env variables
-        run: |
-          TARGET_BRANCH_NAME="bot/update-nuspec"
-          echo "TARGET_BRANCH_NAME=$TARGET_BRANCH_NAME" >> $GITHUB_ENV
-      
-      - name: Setup git
-        run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-          git fetch origin $TARGET_BRANCH_NAME:$TARGET_BRANCH_NAME
-          IS_TARGET_BRANCH_EXISTS=$(git ls-remote --heads origin $TARGET_BRANCH_NAME | grep -q "refs/heads/$TARGET_BRANCH_NAME" && echo true || echo false)
-          echo "IS_TARGET_BRANCH_EXISTS=$IS_TARGET_BRANCH_EXISTS" >> $GITHUB_ENV
-          if [[ "$IS_TARGET_BRANCH_EXISTS" == "true" ]]; then
-            git checkout $TARGET_BRANCH_NAME
-            git reset --hard main
-          else
-            git checkout -b $TARGET_BRANCH_NAME
-          fi
-      
-      - uses: ./.github/actions/setup-dotnet-action
-    
-      - name: Build
-        run: dotnet build ./EncryptedConfigValue.sln --configuration Release
-
-      - name: Update EncryptedConfigValue.Net.Module.nuspec
-        shell: pwsh
-        run: |
-          pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath "./EncryptedConfigValue.Module/EncryptedConfigValue.Module.csproj" -NuspecPath "./EncryptedConfigValue.Module/EncryptedConfigValue.Net.Module.nuspec" -ReadmePath "./Readme.md"
-
-      - name: Update EncryptedConfigValue.Net.AspNetCore.nuspec
-        shell: pwsh
-        run: |
-          pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath "./EncryptedConfigValue.AspNetCore/EncryptedConfigValue.AspNetCore.csproj" -NuspecPath "./EncryptedConfigValue.AspNetCore/EncryptedConfigValue.Net.AspNetCore.nuspec" -ReadmePath "./Readme.md" -ExplicitDependenciesFromCsproj "./EncryptedConfigValue/EncryptedConfigValue.csproj"
-
-      - name: Commit changes
-        run: |
-          git add --all .
-          git commit -m "Update nuspec files"
-          if [[ "$IS_TARGET_BRANCH_EXISTS" == "true" ]]; then
-            git push --force origin $TARGET_BRANCH_NAME
-          else
-            git push --set-upstream origin $TARGET_BRANCH_NAME
-          fi
-
-      - name: Create Pull Request
-        run: |
-          pr_id=$(gh pr list --base main --head $TARGET_BRANCH_NAME --json number --jq '.[0].number')
-          if [ -z "$pr_id" ]; then
-            gh pr create -B main -H $TARGET_BRANCH_NAME --title 'Release' --body "**⚠️ Attention: This Pull Request Will Initiate the Release Process! ⚠️**"
-          else
-            gh pr edit $pr_id --title 'Release' --body "**⚠️ Attention: This Pull Request Will Initiate the Release Process! ⚠️**"
-          fi
-        env:
+      - uses: ./.github/actions/update-nuspec-file-action
+        with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          project: EncryptedConfigValue.Module
+
+  aspnetcore:
+    needs: [has-changes]
+    if: needs.has-changes.outputs.aspnetcore == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/update-nuspec-file-action
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          project: EncryptedConfigValue.AspNetCore
