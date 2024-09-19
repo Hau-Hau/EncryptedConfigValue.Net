@@ -13,20 +13,33 @@ jobs:
         RESULT: ${{ steps.validate.outputs.RESULT }}
       steps:
         - uses: actions/checkout@v4
-
-        - name: Setup git
-          run: |
-            git fetch origin main:main
-            git checkout main
+          with:
+            fetch-depth: 0
+            fetch-tags: true
 
         - name: Validate
           id: validate
           run: |
             hash_current=$(git rev-parse HEAD)
-            hash_of_last_release=$(git log --tags="EncryptedConfigValue.Net.Module/*" --simplify-by-decoration --pretty="format:%H %D" | grep 'EncryptedConfigValue.Net.Module/' | head -n 1 | awk '{print $1}')
-            has_differences=$(git diff --quiet $hash_current:./.github/ $hash_of_last_release:./.github/ && echo false || echo true)
-            RESULT="$([[ "$has_differences" == true ]] && echo true || echo false)"
-            echo "RESULT=$RESULT" >> $GITHUB_OUTPUT
+            if [ -z "$hash_current" ]; then
+              echo "RESULT=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            
+            hash_of_last_release=$(git tag -l "EncryptedConfigValue.Net.Module/*" | sort -V | tail -n 1 | xargs -I {} git rev-list -n 1 {})
+            if [ -z "$hash_of_last_release" ]; then
+              echo "RESULT=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+
+            has_differences=$(git diff --quiet "$hash_current:./EncryptedConfigValue.Module" "$hash_of_last_release:./EncryptedConfigValue.Module" && echo false || echo true)
+            if [ -z "$has_differences" ]; then
+              echo "RESULT=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            
+            # RESULT="$([[ "$has_differences" == true ]] && echo true || echo false)"
+            echo "RESULT=true" >> $GITHUB_OUTPUT
     
   test:
     needs: [validate]
@@ -53,13 +66,12 @@ jobs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          git fetch origin main:main
-          git checkout main          
 
       - uses: ./.github/actions/setup-dotnet-action
     
       - name: Build
-        run: dotnet build ./EncryptedConfigValue.sln --configuration Release
+        run: |
+          dotnet build ./EncryptedConfigValue.sln --configuration Release
 
       - name: Update EncryptedConfigValue.Net.Module.nuspec
         shell: pwsh
@@ -95,13 +107,13 @@ jobs:
           # dotnet nuget push "./EncryptedConfigValue.Module/bin/Release/EncryptedConfigValue.Net.Module.$version.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} -src https://api.nuget.org/v3/index.json
 
 
-  # release-github:
-  #   needs: [update-nuspec]
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: write
-  #     pull-requests: write
-  #   steps:
+  # # release-github:
+  # #   needs: [update-nuspec]
+  # #   runs-on: ubuntu-latest
+  # #   permissions:
+  # #     contents: write
+  # #     pull-requests: write
+  # #   steps:
 
         
   tag:
@@ -118,3 +130,4 @@ jobs:
           version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ./EncryptedConfigValue.Module/EncryptedConfigValue.Net.Module.nuspec)
           hash=$(sed -n 's:.*commit="\([^"]*\)".*:\1:p' ./EncryptedConfigValue.Module/EncryptedConfigValue.Net.Module.nuspec)
           git tag -a "EncryptedConfigValue.Net.Module/$version" -m "EncryptedConfigValue.Net.Module v$version" $hash
+          git push origin tag "EncryptedConfigValue.Net.Module/$version"
