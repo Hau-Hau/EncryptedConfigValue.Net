@@ -14,6 +14,11 @@ jobs:
       steps:
         - uses: actions/checkout@v4
 
+        - name: Setup git
+          run: |
+            git fetch origin main:main
+            git checkout main
+
         - name: Validate
           id: validate
           run: |
@@ -48,6 +53,8 @@ jobs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
+          git fetch origin main:main
+          git checkout main          
 
       - uses: ./.github/actions/setup-dotnet-action
     
