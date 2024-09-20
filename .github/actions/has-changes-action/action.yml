@@ -7,7 +7,7 @@ inputs:
 outputs:
   result:
     description: "true | false"
-    value: "string"
+    value: "${{ steps.validate.outputs.result }}"
 runs:
   using: "composite"
   steps:
