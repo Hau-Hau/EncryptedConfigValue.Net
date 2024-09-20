@@ -26,7 +26,7 @@ runs:
           if [[ "$IS_TARGET_BRANCH_EXISTS" == "true" ]]; then
             git fetch origin $TARGET_BRANCH_NAME:$TARGET_BRANCH_NAME
             git checkout $TARGET_BRANCH_NAME
-            git reset --hard main
+            git reset --hard origin/main
           else
             git checkout -b $TARGET_BRANCH_NAME
           fi
