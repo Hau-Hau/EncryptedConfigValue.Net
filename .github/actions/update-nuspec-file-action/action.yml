@@ -21,10 +21,10 @@ runs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          git fetch origin $TARGET_BRANCH_NAME:$TARGET_BRANCH_NAME
           IS_TARGET_BRANCH_EXISTS=$(git ls-remote --heads origin $TARGET_BRANCH_NAME | grep -q "refs/heads/$TARGET_BRANCH_NAME" && echo true || echo false)
           echo "IS_TARGET_BRANCH_EXISTS=$IS_TARGET_BRANCH_EXISTS" >> $GITHUB_ENV
           if [[ "$IS_TARGET_BRANCH_EXISTS" == "true" ]]; then
+            git fetch origin $TARGET_BRANCH_NAME:$TARGET_BRANCH_NAME
             git checkout $TARGET_BRANCH_NAME
             git reset --hard main
           else
