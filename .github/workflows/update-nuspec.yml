@@ -32,8 +32,8 @@ jobs:
     if: needs.validate.outputs.module == 'true'
     runs-on: ubuntu-latest
     outputs:
-      module: ${{ steps.finalize.outputs.result-module }}
-      aspnetcore: ${{ steps.finalize.outputs.result-aspnetcore }}
+      module: ${{ steps.finalize.outputs.module }}
+      aspnetcore: ${{ steps.finalize.outputs.aspnetcore }}
       
     steps:
       - uses: actions/checkout@v4
