@@ -20,6 +20,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - uses: ./.github/actions/has-changes-action
         id: has-changes-module
         with:
@@ -47,6 +48,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/update-nuspec-file-action
         with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: EncryptedConfigValue.Module
 
   aspnetcore:
@@ -60,4 +62,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/update-nuspec-file-action
         with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: EncryptedConfigValue.AspNetCore

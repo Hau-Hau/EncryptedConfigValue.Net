@@ -1,6 +1,9 @@
 name: Update nuspec file
 description: Update .nuspec file
 inputs:
+  GITHUB_TOKEN:
+    description: 'GITHUB_TOKEN'
+    required: true
   project:
     required: true
     description: "Allowed values: EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore"
@@ -60,4 +63,4 @@ runs:
             gh pr edit $pr_id --title 'Release' --body "**⚠️ Attention: This Pull Request Will Initiate the Release Process of ${{ inputs.project }}! ⚠️**"
           fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
