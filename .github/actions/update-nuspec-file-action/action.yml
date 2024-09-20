@@ -38,7 +38,7 @@ runs:
         run: dotnet build ./EncryptedConfigValue.sln --configuration Release
 
       - name: Update ${{ inputs.project }}.nuspec
-        shell: shell
+        shell: pwsh
         run: |
           pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath "./${{ inputs.project }}/${{ inputs.project }}.csproj" -NuspecPath "./${{ inputs.project }}/${{ inputs.project }}.nuspec" -ReadmePath "./Readme.md"
 
