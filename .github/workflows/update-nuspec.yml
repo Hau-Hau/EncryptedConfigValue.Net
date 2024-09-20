@@ -19,6 +19,7 @@ jobs:
       result-aspnetcore: ${{ steps.validate.outputs.result-aspnetcore }}
 
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/has-changes-action
         id: has-changes-module
         with:
@@ -43,7 +44,8 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: ./.github/actions/setup-dotnet-action
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/update-nuspec-file-action
         with:
           project: EncryptedConfigValue.Module
 
@@ -55,6 +57,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: ./.github/actions/setup-dotnet-action
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/update-nuspec-file-action
         with:
           project: EncryptedConfigValue.AspNetCore
