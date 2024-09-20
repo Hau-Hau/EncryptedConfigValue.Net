@@ -15,9 +15,26 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     outputs:
-      result-module: ${{ steps.validate.outputs.result-module }}
-      result-aspnetcore: ${{ steps.validate.outputs.result-aspnetcore }}
+      module: ${{ steps.validate.outputs.result }}
+      
+    steps:
+      - uses: actions/checkout@v4
 
+      - name: Validate
+        id: validate
+        run: |
+          originated_from_feature="$([[ ! "$GITHUB_HEAD_REF" =~ ^bot\/[^\/]+\/update-nuspec$ ]] && echo true || echo false)"
+          result="$([[ "$originated_from_feature" == true ]] && echo true || echo false)"
+          echo "result=$result" >> $GITHUB_OUTPUT
+
+  has-changes:
+    needs: [validate]
+    if: needs.validate.outputs.module == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      module: ${{ steps.finalize.outputs.result-module }}
+      aspnetcore: ${{ steps.finalize.outputs.result-aspnetcore }}
+      
     steps:
       - uses: actions/checkout@v4
 
@@ -31,15 +48,15 @@ jobs:
         with:
           project: EncryptedConfigValue.AspNetCore
 
-      - name: Validate
-        id: validate
+      - name: Finalize
+        id: finalize
         run: |
-          echo "result-module=${{ steps.has-changes-module.outputs.result }}" >> $GITHUB_OUTPUT
-          echo "result-aspnetcore=${{ steps.has-changes-aspnetcore.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "module=${{ steps.has-changes-module.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "aspnetcore=${{ steps.has-changes-aspnetcore.outputs.result }}" >> $GITHUB_OUTPUT
 
   module:
-    needs: [validate]
-    if: needs.validate.outputs.result-module == 'true'
+    needs: [has-changes]
+    if: needs.has-changes.outputs.module == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -52,8 +69,8 @@ jobs:
           project: EncryptedConfigValue.Module
 
   aspnetcore:
-    needs: [validate]
-    if: needs.validate.outputs.result-aspnetcore == 'true'
+    needs: [has-changes]
+    if: needs.has-changes.outputs.aspnetcore == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
