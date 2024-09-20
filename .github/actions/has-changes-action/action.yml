@@ -20,6 +20,10 @@ runs:
       shell: bash
       id: validate
       run: |
+        echo "${{ inputs.project }}"
+        git tag -l "${{ inputs.project }}/*" 
+
+
         hash_current=$(git rev-parse HEAD)
         echo "hash_current=$hash_current
         if [ -z "$hash_current" ]; then
