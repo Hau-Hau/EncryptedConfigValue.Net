@@ -8,29 +8,14 @@ on:
     branches:    
       - 'main'
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    outputs:
-      module: ${{ steps.validate.outputs.result }}
-      
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Validate
-        id: validate
-        run: |
-          originated_from_release_pr="$([[ "$GITHUB_HEAD_REF" =~ ^bot\/[^\/]+\/update-nuspec$ ]] && echo true || echo false)"
-          result="$([[ "$originated_from_release_pr" == true ]] && echo true || echo false)"
-          echo "result=$result" >> $GITHUB_OUTPUT
-
   check-actors:
-    needs: [validate]
     runs-on: ubuntu-latest
     steps:
       - name: check actor
         run: |
-          skip_check="${{ needs.validate.outputs.module }}"
-          if [[ $skip_check == 'true' ]]; then
+          originated_from_release_pr="$([[ "$GITHUB_HEAD_REF" =~ ^bot\/[^\/]+\/update-nuspec$ ]] && echo true || echo false)"
+          skip_check="$([[ "$originated_from_release_pr" == false ]] && echo true || echo false)"
+          if [[ $skip_check == true ]]; then
             exit 0
           fi
 
