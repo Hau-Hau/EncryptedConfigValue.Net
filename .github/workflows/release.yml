@@ -2,47 +2,62 @@ name: Release
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: 
-      - closed
-    branches:
-      - main
+    inputs:
+      project:
+        required: true
+        type: choice
+        options:
+          - EncryptedConfigValue.Module
+          - EncryptedConfigValue.AspNetCore
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    env:
-      PULL_REQUEST_MERGED: ${{ github.event.pull_request.merged }}
     outputs:
       module: ${{ steps.validate.outputs.result }}
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+  
       - name: Validate
         id: validate
         run: |
-          merged="$([[ "$PULL_REQUEST_MERGED" == "true" ]] && echo true || echo false)"
-          originated_from_release_pr="$([[ "$GITHUB_HEAD_REF" =~ ^bot\/[^\/]+\/update-nuspec$ ]] && echo true || echo false)"
-          result="$([[ "$merged" == true && "$originated_from_release_pr" == true ]] && echo true || echo false)"
-          echo "result=$result" >> $GITHUB_OUTPUT
+          IFS=',' read -r -a username_array <<< "${{ secrets.ACCEPT_RELEASE_PR_ALLOW_LIST }}"
+          user_found=false
+          for username in "${username_array[@]}"
+          do
+              if [ "$username" == "${{ github.actor }}" ]; then
+                  user_found=true
+                  break
+              fi
+          done
+          if [ "$user_found" = "false" ]; then
+            echo "User ${{ github.actor }} is not authorized to execute this workflow."
+            echo "result=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
-  setup:
-    needs: [validate]
-    if: needs.validate.outputs.module == 'true'
-    runs-on: ubuntu-latest
-    outputs:
-      project: ${{ steps.setup.outputs.project }}
-      
-    steps:
-      - name: Setup
-        id: setup
-        run: |
-          project=$(echo "$GITHUB_HEAD_REF" | sed 's#bot/\(.*\)/update-nuspec#\1#')
-          echo "project=$project" >> $GITHUB_OUTPUT
+          version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ./${{ inputs.project }}/${{ inputs.project }}.nuspec)
+          version_of_last_release=$(git tag -l "${{ inputs.project }}/*" | sort -V | tail -n 1 | sed 's/${{ inputs.project }}\///')
+          if [ "$version" = "$version_of_last_release" ]; then
+            echo "Version in ${{ inputs.project }}.nuspec is same as version of last release. Did you forget to update nuspec file?"
+            echo "result=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [ "$(printf '%s\n' "$version_of_last_release" "$version" | sort -V | head -n 1)" = "$version_of_last_release" ]; then
+            echo "Version in ${{ inputs.project }}.nuspec is lower than or equal to the version of the last release. Please update the nuspec file with a higher version."
+            echo "result=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "result=true" >> $GITHUB_OUTPUT
 
   release:
-    needs: [setup]
-    if: needs.setup.outputs.project == 'EncryptedConfigValue.Module' || needs.setup.outputs.project == 'EncryptedConfigValue.AspNetCore'
+    needs: [validate]
+    if: needs.validate.outputs.module == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,11 +66,10 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-          project: ${{ needs.setup.outputs.project }}
+          project: ${{ inputs.project }}
 
   tag:
-    needs: [setup, release]
-    if: needs.setup.outputs.project == 'EncryptedConfigValue.Module' || needs.setup.outputs.project == 'EncryptedConfigValue.AspNetCore'
+    needs: [release]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -74,10 +88,9 @@ jobs:
       - name: Tag
         shell: bash
         run: |
-          project="${{ needs.setup.outputs.project }}"
-          version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ./$project/$project.nuspec)
-          hash=$(sed -n 's:.*commit="\([^"]*\)".*:\1:p' ./$project/$project.nuspec)
-          git tag -a "$project/$version" -m "$project v$version" $hash
-          git push origin tag "$project/$version"
+          version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ./${{ inputs.project }}/${{ inputs.project }}.nuspec)
+          hash=$(sed -n 's:.*commit="\([^"]*\)".*:\1:p' ./${{ inputs.project }}/${{ inputs.project }}.nuspec)
+          git tag -a "${{ inputs.project }}/$version" -m "${{ inputs.project }} v$version" $hash
+          git push origin tag "${{ inputs.project }}/$version"
         env:
           GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
