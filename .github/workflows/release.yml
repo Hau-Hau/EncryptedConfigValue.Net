@@ -10,17 +10,19 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    env:
+      PULL_REQUEST_MERGED: ${{ github.event.pull_request.merged }}
     outputs:
       module: ${{ steps.validate.outputs.result }}
-      
     steps:
       - uses: actions/checkout@v4
 
       - name: Validate
         id: validate
         run: |
+          merged="$([[ "$PULL_REQUEST_MERGED" == "true" ]] && echo true || echo false)"
           originated_from_release_pr="$([[ "$GITHUB_HEAD_REF" =~ ^bot\/[^\/]+\/update-nuspec$ ]] && echo true || echo false)"
-          result="$([[ "$originated_from_release_pr" == true ]] && echo true || echo false)"
+          result="$([[ "$merged" == true && "$originated_from_release_pr" == true ]] && echo true || echo false)"
           echo "result=$result" >> $GITHUB_OUTPUT
 
   setup:

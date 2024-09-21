@@ -19,7 +19,6 @@ jobs:
       PULL_REQUEST_MERGED: ${{ github.event.pull_request.merged }}
     outputs:
       module: ${{ steps.validate.outputs.result }}
-      
     steps:
       - uses: actions/checkout@v4
 
@@ -28,7 +27,7 @@ jobs:
         run: |
           merged="$([[ "$PULL_REQUEST_MERGED" == "true" ]] && echo true || echo false)"
           originated_from_feature="$([[ ! "$GITHUB_HEAD_REF" =~ ^bot\/[^\/]+\/update-nuspec$ ]] && echo true || echo false)"
-          result="$([[ "$originated_from_feature" == true && "$merged" == true]] && echo true || echo false)"
+          result="$([[ "$merged" == true && "$originated_from_feature" == true ]] && echo true || echo false)"
           echo "result=$result" >> $GITHUB_OUTPUT
 
   has-changes:
