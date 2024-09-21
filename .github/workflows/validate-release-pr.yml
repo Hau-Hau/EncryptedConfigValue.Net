@@ -25,11 +25,15 @@ jobs:
 
   check-actors:
     needs: [validate]
-    if: needs.validate.outputs.module == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: check actor
         run: |
+          skip_check="${{ needs.validate.outputs.module }}"
+          if [[ $skip_check == 'true' ]]; then
+            exit 0
+          fi
+
           IFS=',' read -r -a username_array <<< "${{ secrets.ACCEPT_RELEASE_PR_ALLOW_LIST }}"
           user_found=false
           for username in "${username_array[@]}"
