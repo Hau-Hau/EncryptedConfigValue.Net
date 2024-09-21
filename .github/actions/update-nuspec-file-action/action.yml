@@ -62,7 +62,5 @@ runs:
           else
             gh pr edit $pr_id --title 'Update ${{ inputs.project }}.nuspec' --body "This PR updates the ${{ inputs.project }}.nuspec file to ensure correct project dependencies, metadata, or versioning. Please review the changes for accuracy and compliance."
           fi
-          gh pr close $pr_id
-          gh pr reopen $pr_id
         env:
           GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
