@@ -41,6 +41,19 @@ jobs:
     needs: [setup]
     if: needs.setup.outputs.project == 'EncryptedConfigValue.Module' || needs.setup.outputs.project == 'EncryptedConfigValue.AspNetCore'
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/release-action
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          project: ${{ needs.setup.outputs.project }}
+
+  tag:
+    needs: [setup, release]
+    if: needs.setup.outputs.project == 'EncryptedConfigValue.Module' || needs.setup.outputs.project == 'EncryptedConfigValue.AspNetCore'
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
@@ -48,12 +61,12 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-
-      - uses: ./.github/actions/release-action
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-          project: ${{ needs.setup.outputs.project }}
+      
+      - name: Setup git
+        shell: bash
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
 
       - name: Tag
         shell: bash
