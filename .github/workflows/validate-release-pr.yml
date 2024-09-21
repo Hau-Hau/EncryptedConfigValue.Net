@@ -1,0 +1,30 @@
+name: Validate if user can complete release PR
+on: 
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:    
+      - 'main'
+jobs:
+  validate-actors:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check actor
+        run: |
+          IFS=',' read -r -a username_array <<< "${{ secrets.ACCEPT_RELEASE_PR_ALLOW_LIST }}"
+          user_found=false
+          for username in "${username_array[@]}"
+          do
+              if [ "$username" == "${{ github.actor }}" ]; then
+                  user_found=true
+                  break
+              fi
+          done
+          if [ "$user_found" = false ]; then
+              exit 1
+          fi
+
+
+
