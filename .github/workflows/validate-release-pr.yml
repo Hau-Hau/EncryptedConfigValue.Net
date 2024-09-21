@@ -8,7 +8,24 @@ on:
     branches:    
       - 'main'
 jobs:
-  validate-actors:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      module: ${{ steps.validate.outputs.result }}
+      
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate
+        id: validate
+        run: |
+          originated_from_release_pr="$([[ "$GITHUB_HEAD_REF" =~ ^bot\/[^\/]+\/update-nuspec$ ]] && echo true || echo false)"
+          result="$([[ "$originated_from_release_pr" == true ]] && echo true || echo false)"
+          echo "result=$result" >> $GITHUB_OUTPUT
+
+  check-actors:
+    needs: [validate]
+    if: needs.validate.outputs.module == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: check actor
