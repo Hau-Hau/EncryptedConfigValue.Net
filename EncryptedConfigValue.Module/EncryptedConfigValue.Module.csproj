@@ -5,7 +5,7 @@
 
 		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))$([System.IO.Path]::DirectorySeparatorChar)</SolutionDir>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
-		<NuspecFile>.\EncryptedConfigValue.Net.Module.nuspec</NuspecFile>
+		<NuspecFile>.\EncryptedConfigValue.Module.nuspec</NuspecFile>
 	</PropertyGroup>
 
 	<ItemGroup>

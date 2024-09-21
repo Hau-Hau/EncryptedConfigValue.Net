@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      module: ${{ steps.validate.outputs.result }}
+      
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate
+        id: validate
+        run: |
+          originated_from_release_pr="$([[ "$GITHUB_HEAD_REF" =~ ^bot\/[^\/]+\/update-nuspec$ ]] && echo true || echo false)"
+          result="$([[ "$originated_from_release_pr" == true ]] && echo true || echo false)"
+          echo "result=$result" >> $GITHUB_OUTPUT
+
+  setup:
+    needs: [validate]
+    if: needs.validate.outputs.module == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      project: ${{ steps.setup.outputs.project }}
+      
+    steps:
+      - name: Setup
+        id: setup
+        run: |
+          project=$(echo "$GITHUB_HEAD_REF" | sed 's#bot/\(.*\)/update-nuspec#\1#')
+          echo "project=$project" >> $GITHUB_OUTPUT
+
+  release:
+    needs: [setup]
+    if: needs.setup.outputs.project == 'EncryptedConfigValue.Module' || needs.setup.outputs.project == 'EncryptedConfigValue.AspNetCore'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/release-action
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          project: ${{ needs.setup.outputs.project }}
