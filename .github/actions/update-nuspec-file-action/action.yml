@@ -43,9 +43,10 @@ runs:
       - name: Update ${{ inputs.project }}.nuspec
         shell: bash
         run: |
+          EXTERNAL_DEPENDENCIES_SOURCES="${{ inputs.external-dependencies-sources }}"
           external_dependencies_paths=""
-          if [ -n "${{ inputs.external-dependencies-sources }}" ]; then
-            IFS=$'\n' read -r -d '' -a dependencies_array <<< "${{ inputs.external-dependencies-sources }}"
+          if [ -n "$EXTERNAL_DEPENDENCIES_SOURCES" ]; then
+            IFS=$'\n' read -r -d '' -a dependencies_array <<< "$EXTERNAL_DEPENDENCIES_SOURCES"
             for dependency in "${dependencies_array[@]}"; do
               path="./$dependency/$dependency.csproj"
               if [ -z "$external_dependencies_paths" ]; then
