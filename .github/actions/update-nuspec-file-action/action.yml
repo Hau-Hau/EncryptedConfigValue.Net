@@ -7,6 +7,9 @@ inputs:
   project:
     required: true
     description: "Allowed values: EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore"
+  externalDependenciesSources:
+    required: false
+    description: "Allowed values: (EncryptedConfigValue | EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore | EncryptedConfigValue.Cli)[]"
 runs:
   using: "composite"
   steps:
@@ -38,9 +41,29 @@ runs:
         run: dotnet build ./EncryptedConfigValue.sln --configuration Release
 
       - name: Update ${{ inputs.project }}.nuspec
-        shell: pwsh
+        shell: bash
         run: |
-          pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath "./${{ inputs.project }}/${{ inputs.project }}.csproj" -NuspecPath "./${{ inputs.project }}/${{ inputs.project }}.nuspec" -ReadmePath "./Readme.md"
+          externalDependenciesPaths=""
+          if [ -n "$externalDependenciesSources" ]; then
+            IFS=$'\n' read -r -d '' -a dependenciesArray <<< "$externalDependenciesSources"
+            for dependency in "${dependenciesArray[@]}"; do
+              path="./$dependency/$dependency.csproj"
+              if [ -z "$externalDependenciesPaths" ]; then
+                externalDependenciesPaths="$path"
+              else
+                externalDependenciesPaths="$externalDependenciesPaths,$path"
+              fi
+            done
+          fi    
+                
+          if [ -n "$externalDependenciesPaths" ]; then
+            externalDependenciesParam="-ExternalCsprojDependencies $externalDependenciesPaths"
+          else
+            externalDependenciesParam=""
+          fi
+
+          cmd="pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath \"./${{ inputs.project }}/${{ inputs.project }}.csproj\" -NuspecPath \"./${{ inputs.project }}/${{ inputs.project }}.nuspec\" -ReadmePath \"./Readme.md\" $externalDependenciesParam"
+          eval "$cmd"
 
       - name: Commit changes
         shell: bash
