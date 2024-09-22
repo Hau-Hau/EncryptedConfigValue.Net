@@ -29,4 +29,4 @@ runs:
       shell: bash
       run: |
         version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ./${{ inputs.project }}/${{ inputs.project }}.nuspec)
-        dotnet nuget push "./${{ inputs.project }}/bin/Release/${{ inputs.project }}.$version.nupkg" --api-key ${{ inputs.NUGET_API_KEY }} -source https://api.nuget.org/v3/index.json
+        dotnet nuget push "./${{ inputs.project }}/bin/Release/${{ inputs.project }}.$version.nupkg" --api-key ${{ inputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
