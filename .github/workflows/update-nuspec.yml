@@ -78,6 +78,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      checks: write 
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/update-nuspec-file-action
