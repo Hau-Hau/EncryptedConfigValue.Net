@@ -28,7 +28,6 @@ function GetRelativePath {
   if (!($rel -match "[\\/]")) {
     $rel = ".$([System.IO.Path]::DirectorySeparatorChar)$($rel)"
   }
-  Write-Host $rel
 
   return $rel
 }
