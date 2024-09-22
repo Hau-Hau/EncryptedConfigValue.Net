@@ -90,5 +90,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: EncryptedConfigValue.AspNetCore
           # Include dependencies of EncryptedConfigValue as they are traversal dependencies
-          externalDependenciesSources: |
+          external-dependencies-sources: |
             EncryptedConfigValue

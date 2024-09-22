@@ -7,7 +7,7 @@ inputs:
   project:
     required: true
     description: "Allowed values: EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore"
-  externalDependenciesSources:
+  external-dependencies-sources:
     required: false
     description: "Allowed values: (EncryptedConfigValue | EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore | EncryptedConfigValue.Cli)[]"
 runs:
@@ -43,26 +43,26 @@ runs:
       - name: Update ${{ inputs.project }}.nuspec
         shell: bash
         run: |
-          externalDependenciesPaths=""
-          if [ -n "$externalDependenciesSources" ]; then
-            IFS=$'\n' read -r -d '' -a dependenciesArray <<< "$externalDependenciesSources"
-            for dependency in "${dependenciesArray[@]}"; do
+          external_dependencies_paths=""
+          if [ -n "${{ inputs.external-dependencies-sources }}" ]; then
+            IFS=$'\n' read -r -d '' -a dependencies_array <<< "${{ inputs.external-dependencies-sources }}"
+            for dependency in "${dependencies_array[@]}"; do
               path="./$dependency/$dependency.csproj"
-              if [ -z "$externalDependenciesPaths" ]; then
-                externalDependenciesPaths="$path"
+              if [ -z "$external_dependencies_paths" ]; then
+                external_dependencies_paths="$path"
               else
-                externalDependenciesPaths="$externalDependenciesPaths,$path"
+                external_dependencies_paths="$external_dependencies_paths,$path"
               fi
             done
           fi    
                 
-          if [ -n "$externalDependenciesPaths" ]; then
-            externalDependenciesParam="-ExternalCsprojDependencies $externalDependenciesPaths"
+          if [ -n "$external_dependencies_paths" ]; then
+            external_dependencies_param="-ExternalCsprojDependencies $external_dependencies_paths"
           else
-            externalDependenciesParam=""
+            external_dependencies_param=""
           fi
 
-          cmd="pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath \"./${{ inputs.project }}/${{ inputs.project }}.csproj\" -NuspecPath \"./${{ inputs.project }}/${{ inputs.project }}.nuspec\" -ReadmePath \"./Readme.md\" $externalDependenciesParam"
+          cmd="pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath \"./${{ inputs.project }}/${{ inputs.project }}.csproj\" -NuspecPath \"./${{ inputs.project }}/${{ inputs.project }}.nuspec\" -ReadmePath \"./Readme.md\" $external_dependencies_param"
           echo $cmd
           eval "$cmd"
 
