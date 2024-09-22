@@ -38,4 +38,4 @@ runs:
           exit 0
         fi
         
-        echo "result=true" >> $GITHUB_OUTPUT
+        echo "result=$has_differences" >> $GITHUB_OUTPUT
