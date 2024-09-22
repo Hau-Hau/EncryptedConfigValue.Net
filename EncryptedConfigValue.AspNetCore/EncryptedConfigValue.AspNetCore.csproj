@@ -16,7 +16,7 @@
 
     <!-- P.Michalewicz: Disabled as managed through CI/CD -->
 	<!-- <Target Name="UpdateNuspec" BeforeTargets="_IntermediatePack" Condition="'$(Configuration)' == 'Release'">
-		<Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(SolutionDir)Scripts$([System.IO.Path]::DirectorySeparatorChar)UpdateNuspec.ps1&quot; -CsprojPath &quot;$(ProjectDir)EncryptedConfigValue.AspNetCore.csproj&quot; -NuspecPath &quot;$(ProjectDir)EncryptedConfigValue.Net.AspNetCore.nuspec&quot; -ReadmePath &quot;$(SolutionDir)Readme.md&quot; -ExplicitDependenciesFromCsproj &quot;$(SolutionDir)EncryptedConfigValue$([System.IO.Path]::DirectorySeparatorChar)EncryptedConfigValue.csproj&quot;" />
+		<Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(SolutionDir)Scripts$([System.IO.Path]::DirectorySeparatorChar)UpdateNuspec.ps1&quot; -CsprojPath &quot;$(ProjectDir)EncryptedConfigValue.AspNetCore.csproj&quot; -NuspecPath &quot;$(ProjectDir)EncryptedConfigValue.Net.AspNetCore.nuspec&quot; -ReadmePath &quot;$(SolutionDir)Readme.md&quot; -ExternalCsprojDependencies &quot;$(SolutionDir)EncryptedConfigValue$([System.IO.Path]::DirectorySeparatorChar)EncryptedConfigValue.csproj&quot;" />
 	</Target> -->
 
 	<ItemGroup>

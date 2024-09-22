@@ -4,7 +4,7 @@ param (
   [Parameter(Mandatory = $true)]
   [string] $NuspecPath,
   [string] $ReadmePath = $null,
-  [string[]] $ExplicitDependenciesFromCsproj
+  [string[]] $ExternalCsprojDependencies
 )
 
 if (!(Test-Path -Path $csprojPath)) {
@@ -134,8 +134,8 @@ foreach ($node in $nuspecXml.package.metadata.SelectNodes("//*[local-name() = 'd
 }
 
 $nuspecDependencies = GatherDependencies -CsprojPath $csprojPath -RootDir $rootCsprojDirectory
-if ($null -ne $ExplicitDependenciesFromCsproj) {
-  foreach ($path in $ExplicitDependenciesFromCsproj) {
+if ($null -ne $ExternalCsprojDependencies) {
+  foreach ($path in $ExternalCsprojDependencies) {
     $externalDependencies = GatherDependencies -CsprojPath $path -RootDir $rootCsprojDirectory
     foreach ($targetFramework in $externalDependencies.Keys) {
       if (!$nuspecDependencies.ContainsKey($targetFramework)) {
