@@ -75,10 +75,7 @@ jobs:
     needs: [has-changes]
     if: needs.has-changes.outputs.aspnetcore == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write 
+    permissions: write-all
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/update-nuspec-file-action
