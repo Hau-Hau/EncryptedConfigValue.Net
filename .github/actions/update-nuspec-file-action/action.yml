@@ -63,6 +63,7 @@ runs:
           fi
 
           cmd="pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath \"./${{ inputs.project }}/${{ inputs.project }}.csproj\" -NuspecPath \"./${{ inputs.project }}/${{ inputs.project }}.nuspec\" -ReadmePath \"./Readme.md\" $externalDependenciesParam"
+          echo $cmd
           eval "$cmd"
 
       - name: Commit changes
