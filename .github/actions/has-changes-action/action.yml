@@ -32,5 +32,5 @@ runs:
           exit 1
         fi
 
-        has_differences=$(git diff --quiet "$hash_current_main:./${{ inputs.project }}" "$hash_of_last_release:./${{ inputs.project }} -- ':!*.nuspec'" && echo false || echo true)
+        has_differences=$(git diff --quiet "$hash_current_main:./${{ inputs.project }}" "$hash_of_last_release:./${{ inputs.project }}" -- ':!*.nuspec' && echo false || echo true)
         echo "result=$has_differences" >> $GITHUB_OUTPUT
