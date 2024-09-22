@@ -93,4 +93,4 @@ jobs:
           git tag -a "${{ inputs.project }}/$version" -m "${{ inputs.project }} v$version" $hash
           git push origin tag "${{ inputs.project }}/$version"
         env:
-          GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
