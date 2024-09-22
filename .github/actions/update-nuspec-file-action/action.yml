@@ -44,25 +44,30 @@ runs:
         shell: bash
         run: |
           EXTERNAL_DEPENDENCIES_SOURCES="${{ inputs.external-dependencies-sources }}"
+          echo 1
           external_dependencies_paths=""
           if [ -n "$EXTERNAL_DEPENDENCIES_SOURCES" ]; then
+            echo 2
             IFS=$'\n' read -r -d '' -a dependencies_array <<< "$EXTERNAL_DEPENDENCIES_SOURCES"
+            echo 3
             for dependency in "${dependencies_array[@]}"; do
               path="./$dependency/$dependency.csproj"
+              echo $path
               if [ -z "$external_dependencies_paths" ]; then
                 external_dependencies_paths="$path"
               else
                 external_dependencies_paths="$external_dependencies_paths,$path"
               fi
+              echo $external_dependencies_paths
             done
           fi    
-                
+          echo 4
           if [ -n "$external_dependencies_paths" ]; then
             external_dependencies_param="-ExternalCsprojDependencies $external_dependencies_paths"
           else
             external_dependencies_param=""
           fi
-
+          echo 5
           cmd="pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath \"./${{ inputs.project }}/${{ inputs.project }}.csproj\" -NuspecPath \"./${{ inputs.project }}/${{ inputs.project }}.nuspec\" -ReadmePath \"./Readme.md\" $external_dependencies_param"
           echo $cmd
           eval "$cmd"
