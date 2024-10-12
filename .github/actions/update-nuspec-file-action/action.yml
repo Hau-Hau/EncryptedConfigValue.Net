@@ -43,9 +43,9 @@ runs:
       - name: Update ${{ inputs.project }}.nuspec
         shell: bash
         run: |
+          if [ -n "${{ inputs.external-dependencies-sources }}" ]; then
           EXTERNAL_DEPENDENCIES_SOURCES=$(echo "${{ inputs.external-dependencies-sources }}" | grep -v '^$' | tr '\n' ',' | sed 's/, *,/,/g; s/,$//')
           external_dependencies_paths=""
-          if [ -n "$EXTERNAL_DEPENDENCIES_SOURCES" ]; then
             IFS=',' read -r -a dependencies_array <<< "$EXTERNAL_DEPENDENCIES_SOURCES"
             for dependency in "${dependencies_array[@]}"; do
               path="./$dependency/$dependency.csproj"
@@ -64,9 +64,14 @@ runs:
             external_dependencies_param=""
           fi
 
+
+          echo "external_dependencies_param:"
+          echo $external_dependencies_param
           cmd="pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath \"./${{ inputs.project }}/${{ inputs.project }}.csproj\" -NuspecPath \"./${{ inputs.project }}/${{ inputs.project }}.nuspec\" -ReadmePath \"./Readme.md\" $external_dependencies_param"
           echo $cmd
           eval "$cmd"
+          echo $?
+          echo "Finished"
 
       - name: Commit changes
         shell: bash
