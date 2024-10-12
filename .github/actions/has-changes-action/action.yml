@@ -56,8 +56,6 @@ runs:
           param ($CsprojPath, $CurrentHash, $PrevHash)  
 
           $projectDirectoryPath = "$(Split-Path -Path $CsprojPath)"
-          Write-Host "$($CurrentHash):$($projectDirectoryPath -replace '\\', '/')"
-          Write-Host "$($PrevHash):$($projectDirectoryPath -replace '\\', '/')"
           $output = $(git diff --quiet "$($CurrentHash):$($projectDirectoryPath -replace '\\', '/')" "$($PrevHash):$($projectDirectoryPath -replace '\\', '/')" -- ':!*.nuspec'; $LASTEXITCODE -ne 0)
 
           if ($output) {
@@ -102,4 +100,5 @@ runs:
 
         $csProjPath = "$([IO.Path]::Combine(".", "$($SelectedProject)", "$($SelectedProject).csproj"))"
         $hasDifferences = HasChanges -CsprojPath $csProjPath  -CurrentHash $currentHash -PrevHash $lastReleaseHash
-        Write-Output "result=$("$($hasDifferences)".ToLowerInvariant())" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "result=$("$($hasDifferences)".ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+        exit 0
