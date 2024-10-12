@@ -17,20 +17,89 @@ runs:
         fetch-tags: true
 
     - name: Validate
-      shell: bash
+      shell: pwsh
       id: validate
       run: |
-        hash_current_main=$(git rev-parse origin/main)
-        if [ -z "$hash_current_main" ]; then
-          echo "Cannot fetch hash of origin/main"
-          exit 1
-        fi
-        
-        hash_of_last_release=$(git tag -l "${{ inputs.project }}/*" | sort -V | tail -n 1 | xargs -I {} git rev-list -n 1 {})
-        if [ -z "$hash_of_last_release" ]; then
-          echo "Cannot fetch hash of last release"
-          exit 1
-        fi
+        function Resolve-RelativePath {
+          param (
+              [string]$Path
+          )
 
-        has_differences=$(git diff --quiet "$hash_current_main:./${{ inputs.project }}" "$hash_of_last_release:./${{ inputs.project }}" -- ':!*.nuspec' && echo false || echo true)
-        echo "result=$has_differences" >> $GITHUB_OUTPUT
+          $pathParts = $Path -split '[\\/]+'
+          $resolvedStack = New-Object System.Collections.Stack
+          foreach ($part in $pathParts) {
+              if ($part -eq "..") {
+                  if ($resolvedStack.Count -gt 0 -and $resolvedStack.Peek() -ne "..") {
+                      [void]$resolvedStack.Pop()
+                  }
+                  else {
+                      $resolvedStack.Push($part)
+                  }
+              }
+              elseif ($part -eq ".") {
+                  if ($resolvedStack.Count -eq 0) {
+                      $resolvedStack.Push($part)
+                  }
+              }
+              elseif ($part -ne "") {
+                  $resolvedStack.Push($part)
+              }
+          }
+
+          $resolvedPath = [System.Collections.ArrayList]::new($resolvedStack).ToArray()
+          [Array]::Reverse($resolvedPath)
+          $resolvedPath = $resolvedPath -join [IO.Path]::DirectorySeparatorChar
+          return $resolvedPath
+        }
+
+        function HasChanges {
+          param ($CsprojPath, $CurrentHash, $PrevHash)  
+
+          $projectDirectoryPath = "$(Split-Path -Path $CsprojPath)"
+          Write-Host "$($CurrentHash):$($projectDirectoryPath -replace '\\', '/')"
+          Write-Host "$($PrevHash):$($projectDirectoryPath -replace '\\', '/')"
+          $output = $(git diff --quiet "$($CurrentHash):$($projectDirectoryPath -replace '\\', '/')" "$($PrevHash):$($projectDirectoryPath -replace '\\', '/')" -- ':!*.nuspec'; $LASTEXITCODE -ne 0)
+
+          if ($output) {
+            return $output;
+          }
+
+          $csproj = [xml](Get-Content "$($CsprojPath)")
+          $projectReferences = $csproj.Project.ItemGroup.ProjectReference | Where-Object { $_ -ne $null }
+          foreach ($projectReference in $projectReferences) {
+            if ($projectReference.PrivateAssets -ne "All") {
+              continue;
+            }
+            
+            if ([string]::IsNullOrWhitespace($projectReference.IncludeAssets)) {
+              continue;
+            }
+
+
+            $output = HasChanges -CsprojPath "$(Resolve-RelativePath $([IO.Path]::Combine($projectDirectoryPath, $projectReference.Include)))" -CurrentHash $CurrentHash -PrevHash $PrevHash
+            if ($output) {
+              break;
+            }
+          }
+
+          return $output
+        }
+
+        $SelectedProject = "${{ inputs.project }}"
+
+        $currentHash = git rev-parse origin/main
+        if (-not $currentHash) {
+          Write-Host "Cannot fetch hash of origin/main"
+          exit 1
+        }
+
+        # Fetch hash of last release based on the project input
+        $lastReleaseHash = git tag -l "$($SelectedProject)/*" | Sort-Object -V | Select-Object -Last 1 | ForEach-Object { git rev-list -n 1 $_ }
+        if (-not $lastReleaseHash) {
+          Write-Host "Cannot fetch hash of last release"
+          exit 1
+        }
+
+        $csProjPath = "$([IO.Path]::Combine(".", "$($SelectedProject)", "$($SelectedProject).csproj"))"
+        $hasDifferences = HasChanges -CsprojPath $csProjPath  -CurrentHash $currentHash -PrevHash $lastReleaseHash
+        Write-Output "result=$("$($hasDifferences)".ToLowerInvariant())" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
