@@ -83,7 +83,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: EncryptedConfigValue.Module
           additional-files: |
-            ../Readme.md
+            ./Readme.md
 
   aspnetcore:
     needs: [has-changes]
@@ -101,7 +101,7 @@ jobs:
           external-dependencies-sources: |
             EncryptedConfigValue
           additional-files: |
-            ../Readme.md
+            ./Readme.md
   cli:
     needs: [has-changes]
     if: needs.has-changes.outputs.cli == 'true'
@@ -118,5 +118,5 @@ jobs:
           external-dependencies-sources: |
             EncryptedConfigValue
           additional-files: |
-            ../Readme.md
-            ./DotnetToolSettings.xml
+            ./Readme.md
+            ./EncryptedConfigValue.Cli/DotnetToolSettings.xml
