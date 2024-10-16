@@ -3,8 +3,8 @@ param (
   [string] $CsprojPath,
   [Parameter(Mandatory = $true)]
   [string] $NuspecPath,
-  [string] $ReadmePath = $null,
-  [string[]] $ExternalCsprojDependencies
+  [string[]] $AdditionalFiles = @(),
+  [string[]] $ExternalCsprojDependencies = @()
 )
 
 if (!(Test-Path -Path $csprojPath)) {
@@ -17,7 +17,7 @@ if (!(Test-Path -Path $nuspecPath)) {
   exit;
 }
 
-function GetRelativePath {
+function Get-RelativePath {
   param(
     [string]$RelativeTo,
     [string]$Path
@@ -126,6 +126,7 @@ $rootCsproj = [xml](Get-Content $csprojPath)
 $nuspecXml = [xml](Get-Content $nuspecPath)
 $nuspecXmlNamespace = $nuspecXml.package.xmlns
 $rootTargetFrameworks = GetTargetFrameworks -Xml $rootCsproj
+$rootPackAsATool = $rootCsproj.project.PropertyGroup.PackAsTool -ieq "true"
 
 # metadata.dependencies
 foreach ($node in $nuspecXml.package.metadata.SelectNodes("//*[local-name() = 'dependencies']")) {
@@ -133,6 +134,7 @@ foreach ($node in $nuspecXml.package.metadata.SelectNodes("//*[local-name() = 'd
 }
 
 $nuspecDependencies = GatherDependencies -CsprojPath $csprojPath -RootDir $rootCsprojDirectory
+
 if ($null -ne $ExternalCsprojDependencies) {
   foreach ($path in $ExternalCsprojDependencies) {
     $externalDependencies = GatherDependencies -CsprojPath $path -RootDir $rootCsprojDirectory
@@ -236,10 +238,10 @@ foreach ($node in $nuspecXml.package.SelectNodes("//*[local-name() = 'files']"))
 }
 
 $filesNode = $nuspecXml.CreateElement("files", $nuspecXmlNamespace)
-$appendFiles = $false
+$allowedFileExtensions = @(".dll", ".pdb", ".exe", ".json") 
 foreach ($targetFramework in $rootTargetFrameworks) {
   foreach ($file in (Get-ChildItem -Path "$([IO.Path]::Combine($rootCsprojDirectory, "bin", "Release", $targetFramework))")) {
-    if (($file.Extension -ne ".dll") -and ($file.Extension -ne ".pdb")) {
+    if (-not($allowedFileExtensions -Contains $file.Extension)) {
       continue
     }
       
@@ -250,36 +252,30 @@ foreach ($targetFramework in $rootTargetFrameworks) {
     $fileNode.Attributes.Append($srcAttr) | Out-Null
 
     $targetAttr = $nuspecXml.CreateAttribute('target')
-    $targetAttr.Value = "$([IO.Path]::Combine("lib", $targetFramework, $file.Name))"
-    $fileNode.Attributes.Append($targetAttr) | Out-Null
 
-    $filesNode.AppendChild($fileNode) | Out-Null
-
-    if ($appendFiles -eq $false) {
-      $appendFiles = $true
-    }
-  }
-}
-
-if ($appendFiles -eq $true) {
-  if (![string]::IsNullOrWhitespace($ReadmePath)) {
-    $fileNode = $nuspecXml.CreateElement("file", $nuspecXmlNamespace)
-    $srcAttr = $nuspecXml.CreateAttribute('src')
-    $srcAttr.Value = GetRelativePath -RelativeTo $CsprojPath -Path $ReadmePath
-    $fileNode.Attributes.Append($srcAttr) | Out-Null
-
-    $targetAttr = $nuspecXml.CreateAttribute('target')
-    $targetAttr.Value = [System.IO.Path]::DirectorySeparatorChar.ToString()
+    $targetDirectory = $("tools", "lib")[$rootPackAsATool]
+    $targetAttr.Value = "$([IO.Path]::Combine($targetDirectory, $targetFramework, $file.Name))"
     $fileNode.Attributes.Append($targetAttr) | Out-Null
 
     $filesNode.AppendChild($fileNode) | Out-Null
   }
- 
-  $nuspecXml.package.AppendChild($filesNode) | Out-Null
 }
-else {
-  Write-Error "No files found!"
+
+foreach ($path in $AdditionalFiles) {
+  $fileNode = $nuspecXml.CreateElement("file", $nuspecXmlNamespace)
+  $srcAttr = $nuspecXml.CreateAttribute('src')
+  $srcAttr.Value = Get-RelativePath -RelativeTo $CsprojPath -Path $path
+  $fileNode.Attributes.Append($srcAttr) | Out-Null
+
+  $targetAttr = $nuspecXml.CreateAttribute('target')
+  $targetAttr.Value = [System.IO.Path]::DirectorySeparatorChar.ToString()
+  $fileNode.Attributes.Append($targetAttr) | Out-Null
+
+  $filesNode.AppendChild($fileNode) | Out-Null
 }
+
+$nuspecXml.package.AppendChild($filesNode) | Out-Null
+
 
 # Increment version
 $currentVersion = $nuspecXml.package.metadata.version

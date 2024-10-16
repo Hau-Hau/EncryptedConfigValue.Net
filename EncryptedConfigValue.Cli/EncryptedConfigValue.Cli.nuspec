@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>EncryptedConfigValue.Net.AspNetCore</id>
+    <version>1.0.1</version>
+    <authors>Piotr Michalewicz</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <readme>Readme.md</readme>
+    <description>Tooling for encrypting certain configuration parameter values in dotnet apps.</description>
+    <tags>config appsettings cryptography aspnetcore</tags>
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="6721314e1efd0cd70925e542b154b09a56009842" />
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="McMaster.Extensions.CommandLineUtils" version="4.1.1" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="8.0.5" include="EncryptedConfigValue.dll" exclude="Build,Analyzers" />
+        <dependency id="Portable.BouncyCastle" version="1.9.0" include="EncryptedConfigValue.dll" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.dll" target="lib/net8.0/EncryptedConfigValue.AspNetCore.dll" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.pdb" target="lib/net8.0/EncryptedConfigValue.AspNetCore.pdb" />
+    <file src="../Readme.md" target="/" />
+  </files>
+</package>

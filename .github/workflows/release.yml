@@ -9,6 +9,7 @@ on:
         options:
           - EncryptedConfigValue.Module
           - EncryptedConfigValue.AspNetCore
+          - EncryptedConfigValue.Cli
 
 jobs:
   validate:

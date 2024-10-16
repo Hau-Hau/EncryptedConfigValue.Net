@@ -9,7 +9,7 @@ inputs:
     required: true
   project:
     required: true
-    description: "Allowed values: EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore"
+    description: "Allowed values: EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore | EncryptedConfigValue.Cli"
 runs:
   using: "composite"
   steps:
