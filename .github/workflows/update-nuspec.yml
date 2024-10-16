@@ -42,6 +42,7 @@ jobs:
     outputs:
       module: ${{ steps.finalize.outputs.module }}
       aspnetcore: ${{ steps.finalize.outputs.aspnetcore }}
+      cli: ${{ steps.finalize.outputs.cli }}
       
     steps:
       - uses: actions/checkout@v4
@@ -56,11 +57,17 @@ jobs:
         with:
           project: EncryptedConfigValue.AspNetCore
 
+      - uses: ./.github/actions/has-changes-action
+        id: has-changes-cli
+        with:
+          project: EncryptedConfigValue.Cli
+
       - name: Finalize
         id: finalize
         run: |
           echo "module=${{ steps.has-changes-module.outputs.result }}" >> $GITHUB_OUTPUT
           echo "aspnetcore=${{ steps.has-changes-aspnetcore.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "cli=${{ steps.has-changes-cli.outputs.result }}" >> $GITHUB_OUTPUT
 
   module:
     needs: [has-changes]
@@ -75,6 +82,8 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: EncryptedConfigValue.Module
+          additional-files: |
+            ./Readme.md
 
   aspnetcore:
     needs: [has-changes]
@@ -89,6 +98,25 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: EncryptedConfigValue.AspNetCore
-          # Include dependencies of EncryptedConfigValue as they are traversal dependencies
           external-dependencies-sources: |
             EncryptedConfigValue
+          additional-files: |
+            ./Readme.md
+  cli:
+    needs: [has-changes]
+    if: needs.has-changes.outputs.cli == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/update-nuspec-file-action
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          project: EncryptedConfigValue.Cli
+          external-dependencies-sources: |
+            EncryptedConfigValue
+          additional-files: |
+            ./Readme.md
+            ./EncryptedConfigValue.Cli/DotnetToolSettings.xml

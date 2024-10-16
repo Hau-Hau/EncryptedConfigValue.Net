@@ -9,6 +9,11 @@ on:
         options:
           - EncryptedConfigValue.Module
           - EncryptedConfigValue.AspNetCore
+          - EncryptedConfigValue.Cli
+      dry-run:
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   validate:
@@ -90,7 +95,13 @@ jobs:
         run: |
           version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ./${{ inputs.project }}/${{ inputs.project }}.nuspec)
           hash=$(sed -n 's:.*commit="\([^"]*\)".*:\1:p' ./${{ inputs.project }}/${{ inputs.project }}.nuspec)
-          git tag -a "${{ inputs.project }}/$version" -m "${{ inputs.project }} v$version" $hash
-          git push origin tag "${{ inputs.project }}/$version"
+ 
+          if [[ "${{ inputs.dry-run }}" == "true" ]]; then
+            echo "git tag -a \"${{ inputs.project }}/$version\" -m \"${{ inputs.project }} v$version\" $hash'
+            echo "git push origin tag \"${{ inputs.project }}/$version\""
+          else
+            git tag -a "${{ inputs.project }}/$version" -m "${{ inputs.project }} v$version" $hash
+            git push origin tag "${{ inputs.project }}/$version"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
