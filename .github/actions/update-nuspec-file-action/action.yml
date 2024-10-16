@@ -83,7 +83,7 @@ runs:
             additional_files_param="-AdditionalFiles $additional_files_paths"
           fi
 
-          cmd="pwsh ./Scripts/UpdateNuspec.ps1 -CsprojPath \"./${{ inputs.project }}/${{ inputs.project }}.csproj\" -NuspecPath \"./${{ inputs.project }}/${{ inputs.project }}.nuspec\" $external_dependencies_param $additional_files_param"
+          cmd="pwsh -Command ./Scripts/UpdateNuspec.ps1 -CsprojPath './${{ inputs.project }}/${{ inputs.project }}.csproj\ -NuspecPath \./${{ inputs.project }}/${{ inputs.project }}.nuspec\ $external_dependencies_param $additional_files_param"
           echo $cmd
           eval "$cmd"
           echo "Finished"
