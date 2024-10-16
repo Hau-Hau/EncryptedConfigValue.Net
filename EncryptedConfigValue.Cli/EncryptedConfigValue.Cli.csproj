@@ -7,27 +7,13 @@
 		<OutputType>exe</OutputType>
 		<PackAsTool>true</PackAsTool>
 		<ToolCommandName>encrypted-config-value-dotnet</ToolCommandName>
-		<PackageOutputPath>./nupkg</PackageOutputPath>
-	</PropertyGroup>
-
-	<PropertyGroup>
 		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))</SolutionDir>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<PackageId>EncryptedConfigValue.Net.Cli</PackageId>
-		<PackageVersion>1.0.1</PackageVersion>
-		<Description>Tooling for encrypting certain configuration parameter values in dotnet apps.</Description>
-		<RepositoryUrl>https://github.com/Hau-Hau/EncryptedConfigValue.Net</RepositoryUrl>
-		<RespositoryType>git</RespositoryType>
-		<PackageTags>config appsettings cryptography tool</PackageTags>
-		<Authors>Piotr Michalewicz</Authors>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+		<NuspecFile>.\EncryptedConfigValue.Cli.nuspec</NuspecFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<None Include="$(SolutionDir)\Readme.md" Pack="true" PackagePath="Readme.md" />
+		<None Include="DotnetToolSettings.xml" Pack="true" PackagePath="DotnetToolSettings.xml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -37,11 +23,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.1.1" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\EncryptedConfigValue\EncryptedConfigValue.csproj" />
+		<PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.1.1" />
+		<ProjectReference Include="..\EncryptedConfigValue\EncryptedConfigValue.csproj" PrivateAssets="All">
+			<ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+			<IncludeAssets>EncryptedConfigValue.dll</IncludeAssets>
+		</ProjectReference>
 	</ItemGroup>
 
 </Project>

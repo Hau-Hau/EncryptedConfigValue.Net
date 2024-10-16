@@ -3,7 +3,7 @@ description: Checks if project has any changes since last release
 inputs:
   project:
     required: true
-    description: "Allowed values: EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore"
+    description: "Allowed values: EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore | EncryptedConfigValue.Cli"
 outputs:
   result:
     description: "true | false"
