@@ -253,7 +253,7 @@ foreach ($targetFramework in $rootTargetFrameworks) {
 
     $targetAttr = $nuspecXml.CreateAttribute('target')
 
-    $targetDirectory = $("tools", "lib")[$rootPackAsATool]
+    $targetDirectory = $("lib", "tools")[$rootPackAsATool]
     $targetAttr.Value = "$([IO.Path]::Combine($targetDirectory, $targetFramework, $file.Name))"
     $fileNode.Attributes.Append($targetAttr) | Out-Null
 
