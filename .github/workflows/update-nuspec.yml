@@ -23,7 +23,7 @@ jobs:
     env:
       PULL_REQUEST_MERGED: ${{ github.event.pull_request.merged }}
     outputs:
-      module: ${{ steps.validate.outputs.result }}
+      result: ${{ steps.validate.outputs.result }}
     steps:
       - uses: actions/checkout@v4
 
@@ -42,7 +42,7 @@ jobs:
 
   has-changes:
     needs: [validate]
-    if: needs.validate.outputs.module == 'true'
+    if: inputs.force == 'false' && needs.validate.outputs.result == 'true'
     runs-on: ubuntu-latest
     outputs:
       module: ${{ steps.finalize.outputs.module }}
@@ -76,7 +76,7 @@ jobs:
 
   module:
     needs: [has-changes]
-    if: ${{ inputs.force == 'true' || needs.has-changes.outputs.module == 'true' }}
+    if: inputs.force == 'true' || needs.has-changes.outputs.module == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -92,7 +92,7 @@ jobs:
 
   aspnetcore:
     needs: [has-changes]
-    if: ${{ inputs.force == 'true' || needs.has-changes.outputs.aspnetcore == 'true' }}
+    if: inputs.force == 'true' || needs.has-changes.outputs.aspnetcore == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -109,7 +109,7 @@ jobs:
             ./Readme.md
   cli:
     needs: [has-changes]
-    if: ${{ inputs.force == 'true' || needs.has-changes.outputs.cli == 'true' }}
+    if: inputs.force == 'true' || needs.has-changes.outputs.cli == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
