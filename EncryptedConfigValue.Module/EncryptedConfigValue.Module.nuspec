@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>EncryptedConfigValue.Net.Module</id>
-    <version>1.1.7</version>
+    <version>1.1.8</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,16 +10,17 @@
     <readme>Readme.md</readme>
     <description>Base package to create decrypt provider.</description>
     <tags>config appsettings cryptography tool</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="c496d0ac6f22740511fed86da1c3cf3fbbef783e" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="3c11bcc70a2ebe35017e83ca76e4bb37162accb9" />
     <dependencies>
       <group targetFramework="netstandard2.0">
-        <dependency id="System.Text.Json" version="8.0.5" include="EncryptedConfigValue.dll" exclude="Build,Analyzers" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" include="EncryptedConfigValue.dll" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="8.0.5" include="EncryptedConfigValue.dll" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
   <files>
     <file src="bin/Release/netstandard2.0/EncryptedConfigValue.dll" target="lib/netstandard2.0/EncryptedConfigValue.dll" />
+    <file src="bin/Release/netstandard2.0/EncryptedConfigValue.Module.deps.json" target="lib/netstandard2.0/EncryptedConfigValue.Module.deps.json" />
     <file src="bin/Release/netstandard2.0/EncryptedConfigValue.Module.dll" target="lib/netstandard2.0/EncryptedConfigValue.Module.dll" />
     <file src="bin/Release/netstandard2.0/EncryptedConfigValue.Module.pdb" target="lib/netstandard2.0/EncryptedConfigValue.Module.pdb" />
     <file src="bin/Release/netstandard2.0/EncryptedConfigValue.pdb" target="lib/netstandard2.0/EncryptedConfigValue.pdb" />
