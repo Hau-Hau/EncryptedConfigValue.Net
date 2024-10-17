@@ -20,14 +20,14 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin/Release/net8.0/DotnetToolSettings.xml" target="tools/net8.0/DotnetToolSettings.xml" />
-    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.deps.json" target="tools/net8.0/EncryptedConfigValue.Cli.deps.json" />
-    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.dll" target="tools/net8.0/EncryptedConfigValue.Cli.dll" />
-    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.pdb" target="tools/net8.0/EncryptedConfigValue.Cli.pdb" />
-    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.runtimeconfig.json" target="tools/net8.0/EncryptedConfigValue.Cli.runtimeconfig.json" />
-    <file src="bin/Release/net8.0/EncryptedConfigValue.dll" target="tools/net8.0/EncryptedConfigValue.dll" />
-    <file src="bin/Release/net8.0/EncryptedConfigValue.pdb" target="tools/net8.0/EncryptedConfigValue.pdb" />
-    <file src="bin/Release/net8.0/McMaster.Extensions.CommandLineUtils.dll" target="tools/net8.0/McMaster.Extensions.CommandLineUtils.dll" />
+    <file src="bin/Release/net8.0/DotnetToolSettings.xml" target="tools/net8.0/any/DotnetToolSettings.xml" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.deps.json" target="tools/net8.0/any/EncryptedConfigValue.Cli.deps.json" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.dll" target="tools/net8.0/any/EncryptedConfigValue.Cli.dll" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.pdb" target="tools/net8.0/any/EncryptedConfigValue.Cli.pdb" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.runtimeconfig.json" target="tools/net8.0/any/EncryptedConfigValue.Cli.runtimeconfig.json" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.dll" target="tools/net8.0/any/EncryptedConfigValue.dll" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.pdb" target="tools/net8.0/any/EncryptedConfigValue.pdb" />
+    <file src="bin/Release/net8.0/McMaster.Extensions.CommandLineUtils.dll" target="tools/net8.0/any/McMaster.Extensions.CommandLineUtils.dll" />
     <file src="../Readme.md" target="/" />
   </files>
 </package>
