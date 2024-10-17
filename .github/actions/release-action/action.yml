@@ -35,7 +35,7 @@ runs:
         artefact_path=$(find "./${{ inputs.project }}/bin/Release/" -maxdepth 1 -type f -name "*.$version.nupkg" | sort -V | tail -n 1 | xargs)
 
         if [[ "${{ inputs.dry-run }}" == "true" ]]; then
-          echo 'dotnet nuget push "$artefact_path" --api-key ${{ inputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json'
+          echo "dotnet nuget push \"$artefact_path\" --api-key ${{ inputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json"
         else
           dotnet nuget push "$artefact_path" --api-key ${{ inputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
         fi
