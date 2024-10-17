@@ -252,11 +252,13 @@ foreach ($targetFramework in $rootTargetFrameworks) {
     $fileNode.Attributes.Append($srcAttr) | Out-Null
 
     $targetAttr = $nuspecXml.CreateAttribute('target')
+    if ($rootPackAsATool) {
+      $targetAttr.Value = "$([IO.Path]::Combine("tools", $targetFramework, "any", $file.Name))"
+    } else {
+      $targetAttr.Value = "$([IO.Path]::Combine("lib", $targetFramework, $file.Name))"
+    }
 
-    $targetDirectory = $("lib", "tools")[$rootPackAsATool]
-    $targetAttr.Value = "$([IO.Path]::Combine($targetDirectory, $targetFramework, $file.Name))"
     $fileNode.Attributes.Append($targetAttr) | Out-Null
-
     $filesNode.AppendChild($fileNode) | Out-Null
   }
 }
