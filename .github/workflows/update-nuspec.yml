@@ -42,7 +42,7 @@ jobs:
 
   has-changes:
     needs: [validate]
-    if: inputs.force == 'false' && needs.validate.outputs.result == 'true'
+    if: needs.validate.outputs.result == 'true'
     runs-on: ubuntu-latest
     outputs:
       module: ${{ steps.finalize.outputs.module }}
