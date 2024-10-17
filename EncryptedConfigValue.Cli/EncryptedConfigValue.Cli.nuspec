@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
-    <id>EncryptedConfigValue.Net.AspNetCore</id>
-    <version>1.0.2</version>
+    <id>EncryptedConfigValue.Net.Cli</id>
+    <version>1.0.1</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,24 +10,12 @@
     <readme>Readme.md</readme>
     <description>Tooling for encrypting certain configuration parameter values in dotnet apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="e5d3636d28babdad2977f90b2b9d7c5edab9a023" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="" />
     <dependencies>
       <group targetFramework="net8.0">
-        <dependency id="System.Text.Json" version="8.0.5" exclude="Build,Analyzers" />
-        <dependency id="Portable.BouncyCastle" version="1.9.0" exclude="Build,Analyzers" />
-        <dependency id="McMaster.Extensions.CommandLineUtils" version="4.1.1" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.deps.json" target="tools/net8.0/EncryptedConfigValue.Cli.deps.json" />
-    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.dll" target="tools/net8.0/EncryptedConfigValue.Cli.dll" />
-    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.pdb" target="tools/net8.0/EncryptedConfigValue.Cli.pdb" />
-    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.runtimeconfig.json" target="tools/net8.0/EncryptedConfigValue.Cli.runtimeconfig.json" />
-    <file src="bin/Release/net8.0/EncryptedConfigValue.dll" target="tools/net8.0/EncryptedConfigValue.dll" />
-    <file src="bin/Release/net8.0/EncryptedConfigValue.pdb" target="tools/net8.0/EncryptedConfigValue.pdb" />
-    <file src="bin/Release/net8.0/McMaster.Extensions.CommandLineUtils.dll" target="tools/net8.0/McMaster.Extensions.CommandLineUtils.dll" />
-    <file src="../Readme.md" target="/" />
-    <file src="./DotnetToolSettings.xml" target="/" />
   </files>
 </package>

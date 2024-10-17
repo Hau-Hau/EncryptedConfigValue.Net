@@ -72,6 +72,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
           project: ${{ inputs.project }}
+          dry-run: ${{ inputs.dry-run }}
 
   tag:
     needs: [release]
