@@ -261,14 +261,25 @@ foreach ($targetFramework in $rootTargetFrameworks) {
   }
 }
 
+# $path can be path or docker like foo/source.ext:boo/target.ext
 foreach ($path in $AdditionalFiles) {
+  $source = $path -split ":"
+  $target = [System.IO.Path]::DirectorySeparatorChar.ToString()
+  if ($path -match ":" -and -not([string]::IsNullOrWhitespace($source[1]))) {
+    $target = $source[1]
+    $source = $source[0]
+  }
+
+  Write-Host $source
+  Write-Host $target
+
   $fileNode = $nuspecXml.CreateElement("file", $nuspecXmlNamespace)
   $srcAttr = $nuspecXml.CreateAttribute('src')
-  $srcAttr.Value = Get-RelativePath -RelativeTo $CsprojPath -Path $path
+  $srcAttr.Value = Get-RelativePath -RelativeTo $CsprojPath -Path $source
   $fileNode.Attributes.Append($srcAttr) | Out-Null
 
   $targetAttr = $nuspecXml.CreateAttribute('target')
-  $targetAttr.Value = [System.IO.Path]::DirectorySeparatorChar.ToString()
+  $targetAttr.Value = $target
   $fileNode.Attributes.Append($targetAttr) | Out-Null
 
   $filesNode.AppendChild($fileNode) | Out-Null
