@@ -119,4 +119,3 @@ jobs:
             EncryptedConfigValue
           additional-files: |
             ./Readme.md
-            ./EncryptedConfigValue.Cli/DotnetToolSettings.xml

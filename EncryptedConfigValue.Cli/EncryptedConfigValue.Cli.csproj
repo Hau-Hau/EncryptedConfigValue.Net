@@ -13,8 +13,10 @@
 
 	<ItemGroup>
 		<None Include="$(SolutionDir)\Readme.md" Pack="true" PackagePath="Readme.md" />
-		<None Include="DotnetToolSettings.xml" Pack="true" PackagePath="DotnetToolSettings.xml" />
-	</ItemGroup>
+  	  	<None Update="DotnetToolSettings.xml">
+  	    	<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  	  	</None>
+  	</ItemGroup>
 
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
