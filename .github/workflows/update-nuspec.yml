@@ -76,7 +76,7 @@ jobs:
 
   module:
     needs: [has-changes]
-    if: inputs.force == 'true' || needs.has-changes.outputs.module == 'true'
+    if: inputs.force == true || needs.has-changes.outputs.module == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -92,7 +92,7 @@ jobs:
 
   aspnetcore:
     needs: [has-changes]
-    if: inputs.force == 'true' || needs.has-changes.outputs.aspnetcore == 'true'
+    if: inputs.force == true || needs.has-changes.outputs.aspnetcore == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -109,7 +109,7 @@ jobs:
             ./Readme.md
   cli:
     needs: [has-changes]
-    if: inputs.force == 'true' || needs.has-changes.outputs.cli == 'true'
+    if: inputs.force == true || needs.has-changes.outputs.cli == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
