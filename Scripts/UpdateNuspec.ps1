@@ -238,7 +238,7 @@ foreach ($node in $nuspecXml.package.SelectNodes("//*[local-name() = 'files']"))
 }
 
 $filesNode = $nuspecXml.CreateElement("files", $nuspecXmlNamespace)
-$allowedFileExtensions = @(".dll", ".pdb", ".exe", ".json") 
+$allowedFileExtensions = @(".dll", ".pdb", ".exe", ".json", ".xml") 
 foreach ($targetFramework in $rootTargetFrameworks) {
   foreach ($file in (Get-ChildItem -Path "$([IO.Path]::Combine($rootCsprojDirectory, "bin", "Release", $targetFramework))")) {
     if (-not($allowedFileExtensions -Contains $file.Extension)) {
