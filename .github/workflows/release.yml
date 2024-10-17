@@ -98,7 +98,7 @@ jobs:
           hash=$(sed -n 's:.*commit="\([^"]*\)".*:\1:p' ./${{ inputs.project }}/${{ inputs.project }}.nuspec)
  
           if [[ "${{ inputs.dry-run }}" == "true" ]]; then
-            echo "git tag -a \"${{ inputs.project }}/$version\" -m \"${{ inputs.project }} v$version\" $hash'
+            echo "git tag -a \"${{ inputs.project }}/$version\" -m \"${{ inputs.project }} v$version\" $hash"
             echo "git push origin tag \"${{ inputs.project }}/$version\""
           else
             git tag -a "${{ inputs.project }}/$version" -m "${{ inputs.project }} v$version" $hash
