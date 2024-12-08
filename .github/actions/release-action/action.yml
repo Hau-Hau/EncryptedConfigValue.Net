@@ -10,6 +10,9 @@ inputs:
   project:
     required: true
     description: "Allowed values: EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore | EncryptedConfigValue.Cli"
+  dotnet-version:
+    required: true
+    description: "Indicates release branch from which changes will be deployed"
   dry-run:
     description: "Dry run to do necessary check before actual release"
     default: "false"
@@ -19,6 +22,14 @@ runs:
     - uses: actions/checkout@v4
 
     - uses: ./.github/actions/setup-dotnet-action
+
+    - name: Setup git
+      shell: bash
+      run: |
+        git config --global user.name "GitHub Action"
+        git config --global user.email "action@github.com"
+        git checkout -b "release/${{ inputs.dotnet-version }}"
+
 
     - name: Build
       shell: bash

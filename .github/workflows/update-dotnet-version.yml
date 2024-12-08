@@ -63,13 +63,18 @@ jobs:
     if: needs.validate.outputs.result == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
       - name: Setup env variables
         shell: bash
         run: |
           TARGET_BRANCH_NAME="release/net${{ needs.prepare.outputs.dotnet-version }}"
           echo "TARGET_BRANCH_NAME=$TARGET_BRANCH_NAME" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-dotnet-action
+
+      - name: Setup dotnet-outdated
+        run: dotnet tool install --global dotnet-outdated-tool
 
       - name: Setup git
         run: |
@@ -105,5 +110,16 @@ jobs:
                   }
               }
           }
-          
+          exit 0
 
+      - name: Update dependencies files
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path "." -Recurse -Filter "*.csproj" | ForEach-Object {
+            dotnet-outdated "$($_.FullName)" --upgrade
+          }
+          exit 0
+
+      - name: Update pipelines
+        run: |
+         exit 0
