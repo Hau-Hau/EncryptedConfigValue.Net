@@ -52,17 +52,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/has-changes-action
+      - uses: ./.github/actions/has-changes
         id: has-changes-module
         with:
           project: EncryptedConfigValue.Module
 
-      - uses: ./.github/actions/has-changes-action
+      - uses: ./.github/actions/has-changes
         id: has-changes-aspnetcore
         with:
           project: EncryptedConfigValue.AspNetCore
 
-      - uses: ./.github/actions/has-changes-action
+      - uses: ./.github/actions/has-changes
         id: has-changes-cli
         with:
           project: EncryptedConfigValue.Cli

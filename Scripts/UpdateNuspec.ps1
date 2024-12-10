@@ -272,9 +272,6 @@ foreach ($path in $AdditionalFiles) {
     $source = $source[0]
   }
 
-  Write-Host $source
-  Write-Host $target
-
   $fileNode = $nuspecXml.CreateElement("file", $nuspecXmlNamespace)
   $srcAttr = $nuspecXml.CreateAttribute('src')
   $srcAttr.Value = Get-RelativePath -RelativeTo $CsprojPath -Path $source

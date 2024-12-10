@@ -1,0 +1,45 @@
+name: Update dotnet version
+description: Update dotnet version in selected project
+inputs:
+  project:
+    required: true
+    description: "Allowed values: EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore | EncryptedConfigValue.Cli"
+  target-dotnet-versions:
+    required: true
+    description: "Allowed values: string[]"
+
+runs:
+  using: "composite"
+  steps:
+      - name: Setup dotnet-outdated
+        shell: bash
+        run: dotnet tool install --global dotnet-outdated-tool
+    
+      - name: Update csproj files
+        shell: pwsh
+        run: |
+          $TargetDotnetVersions = "${{ inputs.target-dotnet-versions }}" -split ","
+          $SelectedProject = "${{ inputs.project }}"
+          $csprojPath = "$([IO.Path]::Combine(".", "$($SelectedProject)", "$($SelectedProject).csproj"))"
+
+          $csprojContent = Get-Content $csprojPath
+          $csprojContent | ForEach-Object {
+              if ($_ -match '<TargetFramework>(net[0-9]+\.[0-9]+)</TargetFramework>') {
+                  $newVersion = "net$((($TargetDotnetVersions -replace "^net" | ForEach-Object { [decimal]$_ }) | Measure-Object -Maximum).Maximum)"
+                  $currentFramework = $matches[1]
+                  if ($currentFramework -match '^net[0-9]+\.[0-9]+$') {
+                      $updatedContent = $csprojContent -replace "<TargetFramework>$currentFramework</TargetFramework>", "<TargetFramework>$newVersion</TargetFramework>"
+                      Set-Content -Path $csprojPath -Value $updatedContent
+                  } else {
+                      Write-Host "No update needed for $currentFramework"
+                  }
+              }
+              else if ($_ -match '<TargetFrameworks>(net[0-9]+\.[0-9]+(;net[0-9]+\.[0-9]+)*)</TargetFrameworks>') {
+                  $newVersion = "net$((($TargetDotnetVersions -replace "^net" | ForEach-Object { [decimal]$_ }) | Measure-Object -Maximum).Maximum)"
+                  $currentFrameworks = $matches[1]
+                  $updatedContent = $csprojContent -replace "<TargetFrameworks>$currentFrameworks</TargetFrameworks>", "<TargetFrameworks>$($TargetDotnetVersions -join ";")</TargetFrameworks>"
+                  Set-Content -Path $csprojPath -Value $updatedContent
+              }
+
+          }
+          exit 0

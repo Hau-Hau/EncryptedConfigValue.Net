@@ -1,0 +1,286 @@
+name: Update dotnet version
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * MON'
+
+concurrency:
+  group: update-dotnet-version
+  cancel-in-progress: true
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    outputs:
+      active-dotnet-version: ${{ steps.active-dotnet-version.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=update-dotnet-version" >> $GITHUB_OUTPUT
+      - name: Get active .NET versions
+        id: active-dotnet-version
+        shell: pwsh
+        run: |
+          $activeVersions = ((((Invoke-WebRequest -Uri "https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/releases-index.json" -UseBasicParsing | ConvertFrom-Json)."releases-index" | Where-Object { $_."product" -eq ".NET" -and $_."support-phase" -eq "active" | Sort-Object -Property channel-version -Descending } | Select -Property channel-version)."channel-version") -split "," | ForEach-Object { "net$_" }) -join ","
+          if ([string]::IsNullOrWhitespace($activeVersions)) {
+            exit 1
+          }
+          echo "value=$($activeVersions)" >> $GITHUB_OUTPUT
+          exit 0
+
+  should-updated-targetframeworks:
+    needs: [init]
+    runs-on: ubuntu-latest
+    outputs:
+      module: ${{ steps.finalize.outputs.module }}
+      aspnetcore: ${{ steps.finalize.outputs.aspnetcore }}
+      cli: ${{ steps.finalize.outputs.cli }}
+      
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/can-update-targetframeworks
+        id: should-update-targetframeworks-module
+        with:
+          project: EncryptedConfigValue.Module
+          target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
+
+      - uses: ./.github/actions/can-update-targetframeworks
+        id: should-update-targetframeworks-aspnetcore
+        with:
+          project: EncryptedConfigValue.AspNetCore
+          target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
+
+      - uses: ./.github/actions/can-update-targetframeworks
+        id: should-update-targetframeworks-cli
+        with:
+          project: EncryptedConfigValue.Cli
+          target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
+
+      - name: Finalize
+        id: finalize
+        run: |
+          echo "module=${{ steps.should-update-targetframeworks-module.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "aspnetcore=${{ steps.should-update-targetframeworks-aspnetcore.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "cli=${{ steps.should-update-targetframeworks-cli.outputs.result }}" >> $GITHUB_OUTPUT
+
+  update-dotnet-module:
+    needs: [init, should-updated-targetframeworks]
+    if: needs.should-updated-targetframeworks.outputs.module == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-dotnet
+      - uses: ./.github/actions/update-dotnet-version
+        with:
+          project: EncryptedConfigValue.Module
+          target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
+      - name: Build
+        shell: bash
+        run: dotnet build ./EncryptedConfigValue.sln --configuration Release
+
+  update-dotnet-aspnetcore:
+    needs: [init, should-updated-targetframeworks]
+    if: needs.should-updated-targetframeworks.outputs.aspnetcore == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-dotnet
+      - uses: ./.github/actions/update-dotnet-version
+        with:
+          project: EncryptedConfigValue.AspNetCore
+          target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
+      - name: Build
+        shell: bash
+        run: dotnet build ./EncryptedConfigValue.sln --configuration Release
+
+
+  update-dotnet-cli:
+    needs: [init, should-updated-targetframeworks]
+    if: needs.should-updated-targetframeworks.outputs.cli == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-dotnet
+      - uses: ./.github/actions/update-dotnet-version
+        with:
+          project: EncryptedConfigValue.Cli
+          target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
+      - uses: ./.github/actions/commit-changes
+        with:
+          message: Update module nuspec
+      - uses: ./.github/actions/push-changes
+        with:
+          branch: ${{ needs.init.outputs.branch }}
+          force: true
+
+  has-changes:
+    needs: [update-dotnet-module, update-dotnet-aspnetcore, update-dotnet-cli]
+    runs-on: ubuntu-latest
+    outputs:
+      module: ${{ steps.finalize.outputs.module }}
+      aspnetcore: ${{ steps.finalize.outputs.aspnetcore }}
+      cli: ${{ steps.finalize.outputs.cli }}
+      
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/has-changes
+        id: has-changes-module
+        with:
+          project: EncryptedConfigValue.Module
+
+      - uses: ./.github/actions/has-changes
+        id: has-changes-aspnetcore
+        with:
+          project: EncryptedConfigValue.AspNetCore
+
+      - uses: ./.github/actions/has-changes
+        id: has-changes-cli
+        with:
+          project: EncryptedConfigValue.Cli
+
+      - name: Finalize
+        id: finalize
+        run: |
+          echo "module=${{ steps.has-changes-module.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "aspnetcore=${{ steps.has-changes-aspnetcore.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "cli=${{ steps.has-changes-cli.outputs.result }}" >> $GITHUB_OUTPUT
+
+  update-nuspec-module:
+    needs: [init, has-changes]
+    if: needs.has-changes.outputs.module == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/update-nuspec-file-action
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          project: EncryptedConfigValue.Module
+          additional-files: |
+            ./Readme.md
+      - uses: ./.github/actions/commit-changes
+        with:
+          message: Update module nuspec
+      - uses: ./.github/actions/push-changes
+        with:
+          branch: ${{ needs.init.outputs.branch }}
+          force: true
+
+  update-nuspec-aspnetcore:
+    needs: [init, has-changes]
+    if: needs.has-changes.outputs.aspnetcore == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/update-nuspec-file-action
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          project: EncryptedConfigValue.AspNetCore
+          external-dependencies-sources: |
+            EncryptedConfigValue
+          additional-files: |
+            ./Readme.md
+      - uses: ./.github/actions/commit-changes
+        with:
+          message: Update aspnetcore nuspec
+      - uses: ./.github/actions/push-changes
+        with:
+          branch: ${{ needs.init.outputs.branch }}
+          force: true
+
+  update-nuspec-cli:
+    needs: [init, has-changes]
+    if: needs.has-changes.outputs.cli == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/update-nuspec-file-action
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          project: EncryptedConfigValue.Cli
+          external-dependencies-sources: |
+            EncryptedConfigValue
+          additional-files: |
+            ./Readme.md
+      - uses: ./.github/actions/commit-changes
+        with:
+          message: Update cli nuspec
+      - uses: ./.github/actions/push-changes
+        with:
+          branch: ${{ needs.init.outputs.branch }}
+          force: true
+
+  update-pipelines:
+    needs: [init, should-updated-targetframeworks]
+    if: needs.should-updated-targetframeworks.outputs.module == 'true' || needs.should-updated-targetframeworks.outputs.aspnetcore == 'true' ||  needs.should-updated-targetframeworks.outputs.cli == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update setup-dotnet action
+        shell: pwsh
+        run: |
+          $versionString = "${{ needs.init.outputs.active-dotnet-version }}"
+          $filePath = "./.github/actions/setup-dotnet/action.yml"
+          $versions = $versionString -split ',' | ForEach-Object { ($_ -replace 'net', '') + ".x" }
+          $yamlContent = Get-Content $filePath -Raw
+          $dotnetVersionPattern = "(?sm)dotnet-version:\s*\|.*?(?=\w+:|\z)"
+          $indentation = if ($yamlContent -match "([ \t]*)dotnet-version: \|") { "$($matches[1])  " } else { "" }
+          $newDotnetVersionSection = "dotnet-version: |`r`n${indentation}" + ($versions | ForEach-Object { "${indentation}$_" } | Out-String).Trim()
+          $updatedYamlContent = $yamlContent -replace $dotnetVersionPattern, $newDotnetVersionSection
+          Set-Content $filePath -Value $updatedYamlContent
+
+      - uses: ./.github/actions/commit-changes
+        with:
+          message: Update pipelines
+
+      - uses: ./.github/actions/push-changes
+        with:
+          branch: ${{ needs.init.outputs.branch }}
+          force: true
+
+  finalize:
+    needs: [
+        init,
+        should-updated-targetframeworks,
+        update-dotnet-module,
+        update-dotnet-aspnetcore,
+        update-dotnet-cli,
+        update-nuspec-module, 
+        update-nuspec-aspnetcore, 
+        update-nuspec-cli, 
+        update-pipelines
+    ]
+    if: needs.should-updated-targetframeworks.outputs.module == 'true' || needs.should-updated-targetframeworks.outputs.aspnetcore == 'true' ||  needs.should-updated-targetframeworks.outputs.cli == 'true'
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v4
+        - uses: ./.github/actions/put-pull-request
+          with:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            title: Update .NET versions
+            body: This PR updates .NET version used in project and pipelines.
+            from: ${{ needs.init.outputs.branch }}
+            into: main
