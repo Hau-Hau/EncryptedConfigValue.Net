@@ -42,6 +42,11 @@ runs:
           exit 1
         }
 
+        if ($projectTargetFramework -like 'netstandard*') {
+          "result=false" >> $env:GITHUB_OUTPUT
+          exit 0
+        }
+
         $numericVersions = $TargetDotnetVersions -replace "^net" | ForEach-Object { [decimal]$_ }
         $checkNumeric = $projectTargetFramework -replace "^net" | ForEach-Object { [decimal]$_ }
         
