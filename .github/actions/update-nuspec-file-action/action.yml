@@ -37,7 +37,7 @@ runs:
             git checkout -b $TARGET_BRANCH_NAME
           fi
       
-      - uses: ./.github/actions/setup-dotnet-action
+      - uses: ./.github/actions/setup-dotnet
     
       - name: Build
         shell: bash
