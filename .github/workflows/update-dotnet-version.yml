@@ -82,9 +82,13 @@ jobs:
         with:
           project: EncryptedConfigValue.Module
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
-      - name: Build
-        shell: bash
-        run: dotnet build ./EncryptedConfigValue.sln --configuration Release
+      - uses: ./.github/actions/commit-changes
+        with:
+          message: Update .NET version in EncryptedConfigValue.Module
+      - uses: ./.github/actions/push-changes
+        with:
+          branch: ${{ needs.init.outputs.branch }}
+          force: true
 
   update-dotnet-aspnetcore:
     needs: [init, should-updated-targetframeworks]
@@ -100,9 +104,13 @@ jobs:
         with:
           project: EncryptedConfigValue.AspNetCore
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
-      - name: Build
-        shell: bash
-        run: dotnet build ./EncryptedConfigValue.sln --configuration Release
+      - uses: ./.github/actions/commit-changes
+        with:
+          message: Update .NET version in EncryptedConfigValue.AspNetCore
+      - uses: ./.github/actions/push-changes
+        with:
+          branch: ${{ needs.init.outputs.branch }}
+          force: true
 
   update-dotnet-cli:
     needs: [init, should-updated-targetframeworks]
@@ -120,7 +128,7 @@ jobs:
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
       - uses: ./.github/actions/commit-changes
         with:
-          message: Update module nuspec
+          message: Update .NET version in EncryptedConfigValue.Cli
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ needs.init.outputs.branch }}

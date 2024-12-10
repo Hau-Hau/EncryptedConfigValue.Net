@@ -34,7 +34,7 @@ runs:
                       Write-Host "No update needed for $currentFramework"
                   }
               }
-              else if ($_ -match '<TargetFrameworks>(net[0-9]+\.[0-9]+(;net[0-9]+\.[0-9]+)*)</TargetFrameworks>') {
+              elseif ($_ -match '<TargetFrameworks>(net[0-9]+\.[0-9]+(;net[0-9]+\.[0-9]+)*)</TargetFrameworks>') {
                   $newVersion = "net$((($TargetDotnetVersions -replace "^net" | ForEach-Object { [decimal]$_ }) | Measure-Object -Maximum).Maximum)"
                   $currentFrameworks = $matches[1]
                   $updatedContent = $csprojContent -replace "<TargetFrameworks>$currentFrameworks</TargetFrameworks>", "<TargetFrameworks>$($TargetDotnetVersions -join ";")</TargetFrameworks>"
