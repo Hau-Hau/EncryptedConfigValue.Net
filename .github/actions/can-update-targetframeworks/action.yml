@@ -26,7 +26,7 @@ runs:
         $TargetDotnetVersions = "${{ inputs.target-dotnet-versions }}" -split ","
         $SelectedProject = "${{ inputs.project }}"
         $csProjPath = "$([IO.Path]::Combine(".", "$($SelectedProject)", "$($SelectedProject).csproj"))"
-        $csprojXml = [xml](Get-Content $path)
+        $csprojXml = [xml](Get-Content $csProjPath)
 
         $projectTargetFrameworksStr = $Xml.Project.PropertyGroup.TargetFrameworks
         if (![string]::IsNullOrWhitespace($projectTargetFrameworksStr)) {
