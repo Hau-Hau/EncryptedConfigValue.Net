@@ -28,7 +28,7 @@ runs:
         $csProjPath = "$([IO.Path]::Combine(".", "$($SelectedProject)", "$($SelectedProject).csproj"))"
         $csprojXml = [xml](Get-Content $csProjPath)
 
-        $projectTargetFrameworksStr = $Xml.Project.PropertyGroup.TargetFrameworks
+        $projectTargetFrameworksStr = $csprojXml.Project.PropertyGroup.TargetFrameworks
         if (![string]::IsNullOrWhitespace($projectTargetFrameworksStr)) {
           $projectTargetFrameworks = @($projectTargetFrameworksStr -split ';' -match '\S')
           $hasDifferences = [Bool](Compare-Object -ReferenceObject $projectTargetFrameworks -DifferenceObject $TargetDotnetVersions)
@@ -36,7 +36,7 @@ runs:
           exit 0  
         }
 
-        $projectTargetFramework = $Xml.Project.PropertyGroup.TargetFramework
+        $projectTargetFramework = $csprojXml.Project.PropertyGroup.TargetFramework
         if ([string]::IsNullOrWhitespace($projectTargetFramework)) {
           Write-Host "No TargetFrameworks or TargetFramework found in $($path)"
           exit 1
