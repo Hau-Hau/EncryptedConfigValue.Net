@@ -4,6 +4,9 @@ inputs:
   branch:
     description: Branch name
     required: true
+  pull-before-push:
+    description: "Allowed values: true | false | undefined"
+    required: false
   force:
     description: "Allowed values: true | false | undefined"
     required: false
@@ -17,11 +20,20 @@ runs:
         IS_BRANCH_EXISTS=$(git ls-remote --heads origin "${{ inputs.branch }}" | grep -q "refs/heads/${{ inputs.branch }}" && echo true || echo false)
         if [[ "$IS_BRANCH_EXISTS" == "true" ]]; then
           if [[ "${{ inputs.force }}" == "true" ]]; then
+            if [[ "${{ inputs.pull-before-push }}" == "true" ]]; then
+              git pull
+            fi
             git push --force origin "${{ inputs.branch }}"
-          else 
+          else
+            if [[ "${{ inputs.pull-before-push }}" == "true" ]]; then
+              git pull
+            fi
             git push origin "${{ inputs.branch }}"
           fi
         else
+          if [[ "${{ inputs.pull-before-push }}" == "true" ]]; then
+            git pull
+          fi
           git push --set-upstream origin "${{ inputs.branch }}"
         fi
 
