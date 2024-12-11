@@ -151,6 +151,36 @@ jobs:
           branch: ${{ needs.init.outputs.branch }}
           force: true
 
+  update-pipelines:
+    needs: [init, should-updated-targetframeworks]
+    if: needs.should-updated-targetframeworks.outputs.module == 'true' || needs.should-updated-targetframeworks.outputs.aspnetcore == 'true' ||  needs.should-updated-targetframeworks.outputs.cli == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-git
+        with:
+          branch: ${{ needs.init.outputs.branch }}
+      - name: Update setup-dotnet action
+        shell: pwsh
+        run: |
+          $versionString = "${{ needs.init.outputs.active-dotnet-version }}"
+          write-host $versionString
+          $filePath = "./.github/actions/setup-dotnet/action.yml"
+          $versions = $versionString -split ',' | ForEach-Object { ($_ -replace 'net', '') + ".x" }
+          $yamlContent = Get-Content $filePath -Raw
+          $dotnetVersionPattern = "(?sm)dotnet-version:\s*\|.*?(?=\w+:|\z)"
+          $indentation = if ($yamlContent -match "([ \t]*)dotnet-version: \|") { "$($matches[1])  " } else { "" }
+          $newDotnetVersionSection = "dotnet-version: |`r`n${indentation}" + ($versions | ForEach-Object { "${indentation}$_" } | Out-String).Trim()
+          $updatedYamlContent = $yamlContent -replace $dotnetVersionPattern, $newDotnetVersionSection
+          Set-Content $filePath -Value $updatedYamlContent
+      - uses: ./.github/actions/commit-changes
+        with:
+          message: Update pipelines
+      - uses: ./.github/actions/push-changes
+        with:
+          branch: ${{ needs.init.outputs.branch }}
+          force: true
+
   has-changes:
     needs: [update-dotnet-module, update-dotnet-aspnetcore, update-dotnet-cli]
     runs-on: ubuntu-latest
@@ -196,7 +226,7 @@ jobs:
       - uses: ./.github/actions/setup-git
         with:
           branch: ${{ needs.init.outputs.branch }}
-      - uses: ./.github/actions/update-nuspec-file-action
+      - uses: ./.github/actions/update-nuspec-file
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: EncryptedConfigValue.Module
@@ -222,7 +252,7 @@ jobs:
       - uses: ./.github/actions/setup-git
         with:
           branch: ${{ needs.init.outputs.branch }}
-      - uses: ./.github/actions/update-nuspec-file-action
+      - uses: ./.github/actions/update-nuspec-file
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: EncryptedConfigValue.AspNetCore
@@ -250,7 +280,7 @@ jobs:
       - uses: ./.github/actions/setup-git
         with:
           branch: ${{ needs.init.outputs.branch }}
-      - uses: ./.github/actions/update-nuspec-file-action
+      - uses: ./.github/actions/update-nuspec-file
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: EncryptedConfigValue.Cli
@@ -261,35 +291,6 @@ jobs:
       - uses: ./.github/actions/commit-changes
         with:
           message: Update cli nuspec
-      - uses: ./.github/actions/push-changes
-        with:
-          branch: ${{ needs.init.outputs.branch }}
-          force: true
-
-  update-pipelines:
-    needs: [init, should-updated-targetframeworks]
-    if: needs.should-updated-targetframeworks.outputs.module == 'true' || needs.should-updated-targetframeworks.outputs.aspnetcore == 'true' ||  needs.should-updated-targetframeworks.outputs.cli == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-git
-        with:
-          branch: ${{ needs.init.outputs.branch }}
-      - name: Update setup-dotnet action
-        shell: pwsh
-        run: |
-          $versionString = "${{ needs.init.outputs.active-dotnet-version }}"
-          $filePath = "./.github/actions/setup-dotnet/action.yml"
-          $versions = $versionString -split ',' | ForEach-Object { ($_ -replace 'net', '') + ".x" }
-          $yamlContent = Get-Content $filePath -Raw
-          $dotnetVersionPattern = "(?sm)dotnet-version:\s*\|.*?(?=\w+:|\z)"
-          $indentation = if ($yamlContent -match "([ \t]*)dotnet-version: \|") { "$($matches[1])  " } else { "" }
-          $newDotnetVersionSection = "dotnet-version: |`r`n${indentation}" + ($versions | ForEach-Object { "${indentation}$_" } | Out-String).Trim()
-          $updatedYamlContent = $yamlContent -replace $dotnetVersionPattern, $newDotnetVersionSection
-          Set-Content $filePath -Value $updatedYamlContent
-      - uses: ./.github/actions/commit-changes
-        with:
-          message: Update pipelines
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ needs.init.outputs.branch }}
