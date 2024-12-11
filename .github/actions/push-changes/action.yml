@@ -18,7 +18,7 @@ runs:
         if [[ "$IS_BRANCH_EXISTS" == "true" ]]; then
           if [[ "${{ inputs.force }}" == "true" ]]; then
             git push --force origin "${{ inputs.branch }}"
-          else 
+          else
             git push origin "${{ inputs.branch }}"
           fi
         else

@@ -11,9 +11,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-      - name: Setup dotnet-outdated
-        shell: bash
-        run: dotnet tool install --global dotnet-outdated-tool
       - name: Update csproj files
         shell: pwsh
         run: |

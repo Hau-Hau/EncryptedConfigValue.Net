@@ -20,7 +20,7 @@ jobs:
       - name: Set branch name
         id: set-branch-name
         run: |
-          echo "value=update-dotnet-version" >> $GITHUB_OUTPUT
+          echo "value=bot/update-dotnet-version" >> $GITHUB_OUTPUT
       - name: Get active .NET versions
         id: active-dotnet-version
         shell: pwsh
@@ -29,16 +29,23 @@ jobs:
           if ([string]::IsNullOrWhitespace($activeVersions)) {
             exit 1
           }
-          echo "value=$($activeVersions)" >> $GITHUB_OUTPUT
+          "value=$($activeVersions)" >> $env:GITHUB_OUTPUT
           exit 0
-      - uses: ./.github/actions/setup-git
-        with:
-          branch: ${{ steps.set-branch-name.outputs.value }}
-          hard-reset: true
-      - uses: ./.github/actions/push-changes
-        with:
-          branch: ${{ steps.set-branch-name.outputs.value }}
-          force: true
+      - name: "Reset branches"
+        run: |
+           BRANCHES=(
+             "${{ steps.set-branch-name.outputs.value }}"
+             "${{ steps.set-branch-name.outputs.value }}/partial/EncryptedConfigValue.Module"
+             "${{ steps.set-branch-name.outputs.value }}/partial/EncryptedConfigValue.AspNetCore"
+             "${{ steps.set-branch-name.outputs.value }}/partial/EncryptedConfigValue.Cli"
+             "${{ steps.set-branch-name.outputs.value }}/partial/pipelines"
+           )
+           for BRANCH in "${BRANCHES[@]}"; do
+             is_branch_exists_origin=$(git ls-remote --heads origin $BRANCH | grep -q "refs/heads/$BRANCH" && echo true || echo false)
+             if [[ "$is_branch_exists_origin" == "true" ]]; then
+               git push origin --delete $BRANCH || { echo "Failed to delete branch $BRANCH on origin."; exit 1; }
+             fi
+           done
 
   should-updated-targetframeworks:
     needs: [init]
@@ -50,19 +57,16 @@ jobs:
       
     steps:
       - uses: actions/checkout@v4
-
       - uses: ./.github/actions/can-update-targetframeworks
         id: should-update-targetframeworks-module
         with:
           project: EncryptedConfigValue.Module
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
-
       - uses: ./.github/actions/can-update-targetframeworks
         id: should-update-targetframeworks-aspnetcore
         with:
           project: EncryptedConfigValue.AspNetCore
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
-
       - uses: ./.github/actions/can-update-targetframeworks
         id: should-update-targetframeworks-cli
         with:
@@ -83,23 +87,53 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}  
+      status: ${{ steps.set-status.outputs.value }}  
     steps:
       - uses: actions/checkout@v4
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.Module" >> $GITHUB_OUTPUT
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
       - uses: ./.github/actions/setup-dotnet
       - uses: ./.github/actions/setup-git
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          hard-reset: true
       - uses: ./.github/actions/update-dotnet-version
         with:
-          project: EncryptedConfigValue.Module
+          project: ${{ steps.set-project-name.outputs.value }}
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
       - uses: ./.github/actions/commit-changes
         with:
-          message: Update .NET version in EncryptedConfigValue.Module
+          message: Update .NET version in ${{ steps.set-project-name.outputs.value }}
       - uses: ./.github/actions/push-changes
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
           force: true
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=true" >> $GITHUB_OUTPUT
+
+
+  update-dotnet-module-status-tracker:
+    needs: [update-dotnet-module]
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      completed: ${{ steps.set-status.outputs.value }}
+    steps:
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=${{needs.update-dotnet-module.outputs.status || 'false'}}" >> $GITHUB_OUTPUT
 
   update-dotnet-aspnetcore:
     needs: [init, should-updated-targetframeworks]
@@ -108,23 +142,52 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}
+      status: ${{ steps.set-status.outputs.value }}
     steps:
       - uses: actions/checkout@v4
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.AspNetCore" >> $GITHUB_OUTPUT
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
       - uses: ./.github/actions/setup-dotnet
       - uses: ./.github/actions/setup-git
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          hard-reset: true
       - uses: ./.github/actions/update-dotnet-version
         with:
-          project: EncryptedConfigValue.AspNetCore
+          project: ${{ steps.set-project-name.outputs.value }}
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
       - uses: ./.github/actions/commit-changes
         with:
-          message: Update .NET version in EncryptedConfigValue.AspNetCore
+          message: Update .NET version in ${{ steps.set-project-name.outputs.value }}
       - uses: ./.github/actions/push-changes
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
           force: true
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=true" >> $GITHUB_OUTPUT
+
+  update-dotnet-aspnetcore-status-tracker:
+    needs: [update-dotnet-aspnetcore]
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      completed: ${{ steps.set-status.outputs.value }}
+    steps:
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=${{needs.update-dotnet-aspnetcore.outputs.status || 'false'}}" >> $GITHUB_OUTPUT
 
   update-dotnet-cli:
     needs: [init, should-updated-targetframeworks]
@@ -133,33 +196,70 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}
+      status: ${{ steps.set-status.outputs.value }}
     steps:
       - uses: actions/checkout@v4
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.Cli" >> $GITHUB_OUTPUT
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
       - uses: ./.github/actions/setup-dotnet
       - uses: ./.github/actions/setup-git
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          hard-reset: true
       - uses: ./.github/actions/update-dotnet-version
         with:
-          project: EncryptedConfigValue.Cli
+          project: ${{ steps.set-project-name.outputs.value }}
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
       - uses: ./.github/actions/commit-changes
         with:
-          message: Update .NET version in EncryptedConfigValue.Cli
+          message: Update .NET version in ${{ steps.set-project-name.outputs.value }}
       - uses: ./.github/actions/push-changes
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
           force: true
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=true" >> $GITHUB_OUTPUT
+
+  update-dotnet-cli-status-tracker:
+    needs: [update-dotnet-cli]
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      completed: ${{ steps.set-status.outputs.value }}
+    steps:
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=${{needs.update-dotnet-cli.outputs.status || 'false'}}" >> $GITHUB_OUTPUT
 
   update-pipelines:
     needs: [init, should-updated-targetframeworks]
     if: needs.should-updated-targetframeworks.outputs.module == 'true' || needs.should-updated-targetframeworks.outputs.aspnetcore == 'true' ||  needs.should-updated-targetframeworks.outputs.cli == 'true'
     runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.set-branch-name.outputs.value }}
+      status: ${{ steps.set-status.outputs.value }}
     steps:
       - uses: actions/checkout@v4
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=${{ needs.init.outputs.branch }}/partial/pipelines" >> $GITHUB_OUTPUT
       - uses: ./.github/actions/setup-git
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          hard-reset: true
       - name: Update setup-dotnet action
         shell: pwsh
         run: |
@@ -178,140 +278,98 @@ jobs:
           message: Update pipelines
       - uses: ./.github/actions/push-changes
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
           force: true
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=true" >> $GITHUB_OUTPUT
 
-  has-changes:
-    needs: [update-dotnet-module, update-dotnet-aspnetcore, update-dotnet-cli]
+  update-pipelines-status-tracker:
+    needs: [update-pipelines]
+    if: always()
     runs-on: ubuntu-latest
     outputs:
-      module: ${{ steps.finalize.outputs.module }}
-      aspnetcore: ${{ steps.finalize.outputs.aspnetcore }}
-      cli: ${{ steps.finalize.outputs.cli }}
-      
+      completed: ${{ steps.set-status.outputs.value }}
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/has-changes
-        id: has-changes-module
-        with:
-          project: EncryptedConfigValue.Module
-
-      - uses: ./.github/actions/has-changes
-        id: has-changes-aspnetcore
-        with:
-          project: EncryptedConfigValue.AspNetCore
-
-      - uses: ./.github/actions/has-changes
-        id: has-changes-cli
-        with:
-          project: EncryptedConfigValue.Cli
-
-      - name: Finalize
-        id: finalize
+      - name: Set status
+        id: set-status
         run: |
-          echo "module=${{ steps.has-changes-module.outputs.result }}" >> $GITHUB_OUTPUT
-          echo "aspnetcore=${{ steps.has-changes-aspnetcore.outputs.result }}" >> $GITHUB_OUTPUT
-          echo "cli=${{ steps.has-changes-cli.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "value=${{needs.update-pipelines.outputs.status || 'false'}}" >> $GITHUB_OUTPUT
 
-  update-nuspec-module:
-    needs: [init, has-changes]
-    if: needs.has-changes.outputs.module == 'true'
+  collect:
+    needs: [
+      update-dotnet-module-status-tracker,
+      update-dotnet-aspnetcore-status-tracker,
+      update-dotnet-cli-status-tracker,
+      update-pipelines-status-tracker
+    ]
+    if: always() && contains(needs.*.outputs.completed, 'true') 
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
+    outputs:
+      result: ${{ steps.set-status.outputs.value }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-git
-        with:
-          branch: ${{ needs.init.outputs.branch }}
-      - uses: ./.github/actions/update-nuspec-file
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          project: EncryptedConfigValue.Module
-          additional-files: |
-            ./Readme.md
-      - uses: ./.github/actions/commit-changes
-        with:
-          message: Update module nuspec
-      - uses: ./.github/actions/push-changes
-        with:
-          branch: ${{ needs.init.outputs.branch }}
-          force: true
-
-  update-nuspec-aspnetcore:
-    needs: [init, has-changes]
-    if: needs.has-changes.outputs.aspnetcore == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-git
-        with:
-          branch: ${{ needs.init.outputs.branch }}
-      - uses: ./.github/actions/update-nuspec-file
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          project: EncryptedConfigValue.AspNetCore
-          external-dependencies-sources: |
-            EncryptedConfigValue
-          additional-files: |
-            ./Readme.md
-      - uses: ./.github/actions/commit-changes
-        with:
-          message: Update aspnetcore nuspec
-      - uses: ./.github/actions/push-changes
-        with:
-          branch: ${{ needs.init.outputs.branch }}
-          force: true
-
-  update-nuspec-cli:
-    needs: [init, has-changes]
-    if: needs.has-changes.outputs.cli == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-git
-        with:
-          branch: ${{ needs.init.outputs.branch }}
-      - uses: ./.github/actions/update-nuspec-file
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          project: EncryptedConfigValue.Cli
-          external-dependencies-sources: |
-            EncryptedConfigValue
-          additional-files: |
-            ./Readme.md
-      - uses: ./.github/actions/commit-changes
-        with:
-          message: Update cli nuspec
-      - uses: ./.github/actions/push-changes
-        with:
-          branch: ${{ needs.init.outputs.branch }}
-          force: true
+      - name: Set status
+        id: set-status
+        run: |
+          values=(
+            '${{ needs.update-dotnet-module-status-tracker.outputs.completed || 'false' }}'
+            '${{ needs.update-dotnet-aspnetcore-status-tracker.outputs.completed || 'false' }}'
+            '${{ needs.update-dotnet-cli-status-tracker.outputs.completed || 'false' }}'
+            '${{ needs.update-pipelines-status-tracker.outputs.completed || 'false' }}'
+          )
+          result='false'
+          for value in "${values[@]}"; do
+            if [ "$value" == "true" ]; then
+              result='true'
+              break
+            fi
+          done
+          echo "value=$result" >> $GITHUB_OUTPUT
 
   finalize:
     needs: [
         init,
-        should-updated-targetframeworks,
-        update-dotnet-module,
-        update-dotnet-aspnetcore,
-        update-dotnet-cli,
-        update-nuspec-module, 
-        update-nuspec-aspnetcore, 
-        update-nuspec-cli, 
-        update-pipelines
+        collect
     ]
-    if: needs.should-updated-targetframeworks.outputs.module == 'true' || needs.should-updated-targetframeworks.outputs.aspnetcore == 'true' ||  needs.should-updated-targetframeworks.outputs.cli == 'true'
+    if: always() && needs.collect.outputs.result == 'true'
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v4
+        - uses: ./.github/actions/setup-git
+          with:
+            branch: ${{ needs.init.outputs.branch }}
+            hard-reset: true
+        - name: Merge
+          run: |
+           TARGET_BRANCH="${{ needs.init.outputs.branch }}"
+           PARTIAL_BRANCHES=(
+             "${{ needs.init.outputs.branch }}/partial/EncryptedConfigValue.Module"
+             "${{ needs.init.outputs.branch }}/partial/EncryptedConfigValue.AspNetCore"
+             "${{ needs.init.outputs.branch }}/partial/EncryptedConfigValue.Cli"
+             "${{ needs.init.outputs.branch }}/partial/pipelines"
+           )
+           for BRANCH in "${PARTIAL_BRANCHES[@]}"; do
+             is_branch_exists=$(git ls-remote --heads origin $BRANCH | grep -q "refs/heads/$BRANCH" && echo true || echo false)
+             if [[ "$is_branch_exists" == "true" ]]; then
+               git fetch origin "$BRANCH"
+               hash=$(git ls-remote origin "$BRANCH" | cut -f1)
+               git rebase "$hash"
+               echo "Rebase successful for $BRANCH."
+             fi
+           done
+
+           for BRANCH in "${PARTIAL_BRANCHES[@]}"; do
+             is_branch_exists_origin=$(git ls-remote --heads origin $BRANCH | grep -q "refs/heads/$BRANCH" && echo true || echo false)
+             if [[ "$is_branch_exists_origin" == "true" ]]; then           
+               echo "Deleting branch $BRANCH on origin..."
+               git push origin --delete $BRANCH || { echo "Failed to delete branch $BRANCH on origin. Continuing."; }
+             fi 
+           done
+        - uses: ./.github/actions/push-changes
+          with:
+            branch: ${{ needs.init.outputs.branch }}
+            force: true
         - uses: ./.github/actions/put-pull-request
           with:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
