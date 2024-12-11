@@ -81,14 +81,43 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/update-nuspec-file-action
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.Module" >> $GITHUB_OUTPUT
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=bot/${{ steps.set-project-name.outputs.value }}/update-nuspec" >> $GITHUB_OUTPUT
+      - uses: ./.github/actions/setup-git
+        with:
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          hard-reset: true
+      - uses: ./.github/actions/update-nuspec-file
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          project: EncryptedConfigValue.Module
+          project: ${{ steps.set-project-name.outputs.value }}
           additional-files: |
             ./Readme.md
+      - uses: ./.github/actions/commit-changes
+        with:
+          message: Update ${{ steps.set-project-name.outputs.value }}.nuspec
+      - uses: ./.github/actions/push-changes
+        with:
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          force: true
+      - uses: ./.github/actions/put-pull-request
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          title: Update ${{ steps.set-project-name.outputs.value }}.nuspec
+          body: This PR updates the  ${{ steps.set-project-name.outputs.value }}.nuspec file to ensure correct project dependencies, metadata, or versioning. Please review the changes for accuracy and compliance.
+          from: ${{ steps.set-branch-name.outputs.value }}
+          into: main
 
   aspnetcore:
     needs: [has-changes]
@@ -97,16 +126,46 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/update-nuspec-file-action
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.AspNetCore" >> $GITHUB_OUTPUT
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=bot/${{ steps.set-project-name.outputs.value }}/update-nuspec" >> $GITHUB_OUTPUT
+      - uses: ./.github/actions/setup-git
+        with:
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          hard-reset: true
+      - uses: ./.github/actions/update-nuspec-file
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          project: EncryptedConfigValue.AspNetCore
+          project: ${{ steps.set-project-name.outputs.value }}
           external-dependencies-sources: |
             EncryptedConfigValue
           additional-files: |
             ./Readme.md
+      - uses: ./.github/actions/commit-changes
+        with:
+          message: Update ${{ steps.set-project-name.outputs.value }}.nuspec
+      - uses: ./.github/actions/push-changes
+        with:
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          force: true
+      - uses: ./.github/actions/put-pull-request
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          title: Update ${{ steps.set-project-name.outputs.value }}.nuspec
+          body: This PR updates the  ${{ steps.set-project-name.outputs.value }}.nuspec file to ensure correct project dependencies, metadata, or versioning. Please review the changes for accuracy and compliance.
+          from: ${{ steps.set-branch-name.outputs.value }}
+          into: main
+
   cli:
     needs: [has-changes]
     if: inputs.force == true || needs.has-changes.outputs.cli == 'true'
@@ -114,13 +173,43 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/update-nuspec-file-action
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.Cli" >> $GITHUB_OUTPUT
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=bot/${{ steps.set-project-name.outputs.value }}/update-nuspec" >> $GITHUB_OUTPUT
+      - uses: ./.github/actions/setup-git
+        with:
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          hard-reset: true
+      - uses: ./.github/actions/update-nuspec-file
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          project: EncryptedConfigValue.Cli
+          project:  ${{ steps.set-project-name.outputs.value }}
           external-dependencies-sources: |
             EncryptedConfigValue
           additional-files: |
             ./Readme.md
+      - uses: ./.github/actions/commit-changes
+        with:
+          message: Update ${{ steps.set-project-name.outputs.value }}.nuspec
+      - uses: ./.github/actions/push-changes
+        with:
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          force: true
+      - uses: ./.github/actions/put-pull-request
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          title: Update ${{ steps.set-project-name.outputs.value }}.nuspec
+          body: This PR updates the  ${{ steps.set-project-name.outputs.value }}.nuspec file to ensure correct project dependencies, metadata, or versioning. Please review the changes for accuracy and compliance.
+          from: ${{ steps.set-branch-name.outputs.value }}
+          into: main
+
