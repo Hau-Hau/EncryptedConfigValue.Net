@@ -21,18 +21,18 @@ runs:
         if [[ "$IS_BRANCH_EXISTS" == "true" ]]; then
           if [[ "${{ inputs.force }}" == "true" ]]; then
             if [[ "${{ inputs.pull-before-push }}" == "true" ]]; then
-              git pull origin "${{ inputs.branch }}" 
+              git pull origin "${{ inputs.branch }}" --rebase 
             fi
             git push --force origin "${{ inputs.branch }}"
           else
             if [[ "${{ inputs.pull-before-push }}" == "true" ]]; then
-              git pull origin "${{ inputs.branch }}"
+              git pull origin "${{ inputs.branch }}" --rebase 
             fi
             git push origin "${{ inputs.branch }}"
           fi
         else
           if [[ "${{ inputs.pull-before-push }}" == "true" ]]; then
-            git pull origin "${{ inputs.branch }}"
+            git pull origin "${{ inputs.branch }}" --rebase 
           fi
           git push --set-upstream origin "${{ inputs.branch }}"
         fi
