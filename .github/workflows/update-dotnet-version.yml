@@ -20,7 +20,7 @@ jobs:
       - name: Set branch name
         id: set-branch-name
         run: |
-          echo "value=bot/update-dotnet-version" >> $GITHUB_OUTPUT
+          echo "value=update-dotnet-version" >> $GITHUB_OUTPUT
       - name: Get active .NET versions
         id: active-dotnet-version
         shell: pwsh
@@ -29,7 +29,7 @@ jobs:
           if ([string]::IsNullOrWhitespace($activeVersions)) {
             exit 1
           }
-          "value=$($activeVersions)" >> $env:GITHUB_OUTPUT
+          echo "value=$($activeVersions)" >> $GITHUB_OUTPUT
           exit 0
       - uses: ./.github/actions/setup-git
         with:
@@ -99,7 +99,6 @@ jobs:
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ needs.init.outputs.branch }}
-          force: true
 
   update-dotnet-aspnetcore:
     needs: [init, should-updated-targetframeworks]
@@ -124,7 +123,6 @@ jobs:
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ needs.init.outputs.branch }}
-          force: true
 
   update-dotnet-cli:
     needs: [init, should-updated-targetframeworks]
@@ -149,7 +147,6 @@ jobs:
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ needs.init.outputs.branch }}
-          force: true
 
   update-pipelines:
     needs: [init, should-updated-targetframeworks]
@@ -179,7 +176,6 @@ jobs:
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ needs.init.outputs.branch }}
-          force: true
 
   has-changes:
     needs: [update-dotnet-module, update-dotnet-aspnetcore, update-dotnet-cli]
@@ -238,7 +234,6 @@ jobs:
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ needs.init.outputs.branch }}
-          force: true
 
   update-nuspec-aspnetcore:
     needs: [init, has-changes]
@@ -266,7 +261,6 @@ jobs:
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ needs.init.outputs.branch }}
-          force: true
 
   update-nuspec-cli:
     needs: [init, has-changes]
@@ -294,7 +288,6 @@ jobs:
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ needs.init.outputs.branch }}
-          force: true
 
   finalize:
     needs: [
