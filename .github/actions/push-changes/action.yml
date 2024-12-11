@@ -11,11 +11,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: setup
-      shell: bash
-      run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
     - name: Push changes
       shell: bash
       run: |
