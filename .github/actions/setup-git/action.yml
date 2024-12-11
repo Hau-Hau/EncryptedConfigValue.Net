@@ -20,7 +20,7 @@ runs:
           echo "IS_TARGET_BRANCH_EXISTS=$IS_TARGET_BRANCH_EXISTS" >> $GITHUB_ENV
           if [[ "$IS_TARGET_BRANCH_EXISTS" == "true" ]]; then
             git fetch origin $TARGET_BRANCH_NAME:$TARGET_BRANCH_NAME
-            git checkout $TARGET_BRANCH_NAME
+            git checkout -B $TARGET_BRANCH_NAME
             if [[ "${{ inputs.hard-reset }}" == "true" ]]; then
               git reset --hard origin/main
             fi
