@@ -33,8 +33,11 @@ jobs:
           exit 0
       - name: "Reset target branch"
         run: |
-          git branch -d ${{ steps.set-branch-name.outputs.value }} || { echo "Failed to delete branch ${{ steps.set-branch-name.outputs.value }}."; exit 1; }
-          git push origin --delete ${{ steps.set-branch-name.outputs.value }} || { echo "Failed to delete branch ${{ steps.set-branch-name.outputs.value }} on origin."; exit 1; }
+          is_target_branch_exists=$(git ls-remote --heads origin "${{ steps.set-branch-name.outputs.value }}" | grep -q "refs/heads/${{ steps.set-branch-name.outputs.value }}" && echo true || echo false)
+          if [[ "$is_target_branch_exists" == "true" ]]; then
+            git branch -d ${{ steps.set-branch-name.outputs.value }} || { echo "Failed to delete branch ${{ steps.set-branch-name.outputs.value }}."; exit 1; }
+            git push origin --delete ${{ steps.set-branch-name.outputs.value }} || { echo "Failed to delete branch ${{ steps.set-branch-name.outputs.value }} on origin."; exit 1; }
+          fi
 
   should-updated-targetframeworks:
     needs: [init]
