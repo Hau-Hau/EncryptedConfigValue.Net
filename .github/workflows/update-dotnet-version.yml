@@ -41,9 +41,8 @@ jobs:
              "${{ steps.set-branch-name.outputs.value }}/partial/pipelines"
            )
            for BRANCH in "${BRANCHES[@]}"; do
-             is_branch_exists=$(git ls-remote --heads origin $BRANCH | grep -q "refs/heads/$BRANCH" && echo true || echo false)
-             if [[ "$is_branch_exists" == "true" ]]; then
-               git branch -d $BRANCH || { echo "Failed to delete branch $BRANCH on local."; exit 1; }
+             is_branch_exists_origin=$(git ls-remote --heads origin $BRANCH | grep -q "refs/heads/$BRANCH" && echo true || echo false)
+             if [[ "$is_branch_exists_origin" == "true" ]]; then
                git push origin --delete $BRANCH || { echo "Failed to delete branch $BRANCH on origin."; exit 1; }
              fi
            done
@@ -446,11 +445,8 @@ jobs:
            done
            git checkout $TARGET_BRANCH           
            for BRANCH in "${PARTIAL_BRANCHES[@]}"; do
-             is_branch_exists=$(git ls-remote --heads origin $BRANCH | grep -q "refs/heads/$BRANCH" && echo true || echo false)
-             if [[ "$is_branch_exists" == "true" ]]; then           
-               echo "Deleting branch $BRANCH locally..."
-               git branch -d $BRANCH || { echo "Failed to delete branch $BRANCH locally. Continuing."; }
-               
+             is_branch_exists_origin=$(git ls-remote --heads origin $BRANCH | grep -q "refs/heads/$BRANCH" && echo true || echo false)
+             if [[ "$is_branch_exists_origin" == "true" ]]; then           
                echo "Deleting branch $BRANCH on origin..."
                git push origin --delete $BRANCH || { echo "Failed to delete branch $BRANCH on origin. Continuing."; }
              fi 
