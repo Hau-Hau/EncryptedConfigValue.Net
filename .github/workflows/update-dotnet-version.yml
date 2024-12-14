@@ -50,19 +50,16 @@ jobs:
       
     steps:
       - uses: actions/checkout@v4
-
       - uses: ./.github/actions/can-update-targetframeworks
         id: should-update-targetframeworks-module
         with:
           project: EncryptedConfigValue.Module
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
-
       - uses: ./.github/actions/can-update-targetframeworks
         id: should-update-targetframeworks-aspnetcore
         with:
           project: EncryptedConfigValue.AspNetCore
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
-
       - uses: ./.github/actions/can-update-targetframeworks
         id: should-update-targetframeworks-cli
         with:
@@ -83,23 +80,34 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}  
     steps:
       - uses: actions/checkout@v4
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.Module" >> $GITHUB_OUTPUT
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
       - uses: ./.github/actions/setup-dotnet
       - uses: ./.github/actions/setup-git
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          hard-reset: true
       - uses: ./.github/actions/update-dotnet-version
         with:
-          project: EncryptedConfigValue.Module
+          project: ${{ steps.set-project-name.outputs.value }}
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
       - uses: ./.github/actions/commit-changes
         with:
-          message: Update .NET version in EncryptedConfigValue.Module
+          message: Update .NET version in ${{ steps.set-project-name.outputs.value }}
       - uses: ./.github/actions/push-changes
         with:
-          branch: ${{ needs.init.outputs.branch }}
-          pull-before-push: true
+          branch: ${{ steps.set-branch-name.outputs.value }}
 
   update-dotnet-aspnetcore:
     needs: [init, should-updated-targetframeworks]
@@ -108,23 +116,34 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}  
     steps:
       - uses: actions/checkout@v4
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.AspNetCore" >> $GITHUB_OUTPUT
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
       - uses: ./.github/actions/setup-dotnet
       - uses: ./.github/actions/setup-git
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          hard-reset: true
       - uses: ./.github/actions/update-dotnet-version
         with:
-          project: EncryptedConfigValue.AspNetCore
+          project: ${{ steps.set-project-name.outputs.value }}
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
       - uses: ./.github/actions/commit-changes
         with:
-          message: Update .NET version in EncryptedConfigValue.AspNetCore
+          message: Update .NET version in ${{ steps.set-project-name.outputs.value }}
       - uses: ./.github/actions/push-changes
         with:
-          branch: ${{ needs.init.outputs.branch }}
-          pull-before-push: true
+          branch: ${{ steps.set-branch-name.outputs.value }}
 
   update-dotnet-cli:
     needs: [init, should-updated-targetframeworks]
@@ -133,33 +152,51 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}  
     steps:
       - uses: actions/checkout@v4
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.Cli" >> $GITHUB_OUTPUT
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
       - uses: ./.github/actions/setup-dotnet
       - uses: ./.github/actions/setup-git
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          hard-reset: true
       - uses: ./.github/actions/update-dotnet-version
         with:
-          project: EncryptedConfigValue.Cli
+          project: ${{ steps.set-project-name.outputs.value }}
           target-dotnet-versions: ${{ needs.init.outputs.active-dotnet-version }}
       - uses: ./.github/actions/commit-changes
         with:
-          message: Update .NET version in EncryptedConfigValue.Cli
+          message: Update .NET version in ${{ steps.set-project-name.outputs.value }}
       - uses: ./.github/actions/push-changes
         with:
-          branch: ${{ needs.init.outputs.branch }}
-          pull-before-push: true
+          branch: ${{ steps.set-branch-name.outputs.value }}
 
   update-pipelines:
     needs: [init, should-updated-targetframeworks]
     if: needs.should-updated-targetframeworks.outputs.module == 'true' || needs.should-updated-targetframeworks.outputs.aspnetcore == 'true' ||  needs.should-updated-targetframeworks.outputs.cli == 'true'
     runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.set-branch-name.outputs.value }}  
     steps:
       - uses: actions/checkout@v4
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=${{ needs.init.outputs.branch }}/partial/pipelines" >> $GITHUB_OUTPUT
       - uses: ./.github/actions/setup-git
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
+          hard-reset: true
       - name: Update setup-dotnet action
         shell: pwsh
         run: |
@@ -178,8 +215,7 @@ jobs:
           message: Update pipelines
       - uses: ./.github/actions/push-changes
         with:
-          branch: ${{ needs.init.outputs.branch }}
-          pull-before-push: true
+          branch: ${{ steps.set-branch-name.outputs.value }}
 
   has-changes:
     needs: [update-dotnet-module, update-dotnet-aspnetcore, update-dotnet-cli]
@@ -188,25 +224,20 @@ jobs:
       module: ${{ steps.finalize.outputs.module }}
       aspnetcore: ${{ steps.finalize.outputs.aspnetcore }}
       cli: ${{ steps.finalize.outputs.cli }}
-      
     steps:
       - uses: actions/checkout@v4
-
       - uses: ./.github/actions/has-changes
         id: has-changes-module
         with:
           project: EncryptedConfigValue.Module
-
       - uses: ./.github/actions/has-changes
         id: has-changes-aspnetcore
         with:
           project: EncryptedConfigValue.AspNetCore
-
       - uses: ./.github/actions/has-changes
         id: has-changes-cli
         with:
           project: EncryptedConfigValue.Cli
-
       - name: Finalize
         id: finalize
         run: |
@@ -221,15 +252,27 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}  
     steps:
+      - uses: actions/checkout@v4
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.Module" >> $GITHUB_OUTPUT
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-git
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
       - uses: ./.github/actions/update-nuspec-file
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          project: EncryptedConfigValue.Module
+          project: ${{ steps.set-project-name.outputs.value }}
           additional-files: |
             ./Readme.md
       - uses: ./.github/actions/commit-changes
@@ -237,8 +280,7 @@ jobs:
           message: Update module nuspec
       - uses: ./.github/actions/push-changes
         with:
-          branch: ${{ needs.init.outputs.branch }}
-          pull-before-push: true
+          branch: ${{ steps.set-branch-name.outputs.value }}
 
   update-nuspec-aspnetcore:
     needs: [init, has-changes]
@@ -247,15 +289,26 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}  
     steps:
       - uses: actions/checkout@v4
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.AspNetCore" >> $GITHUB_OUTPUT
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
       - uses: ./.github/actions/setup-git
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
       - uses: ./.github/actions/update-nuspec-file
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          project: EncryptedConfigValue.AspNetCore
+          project: ${{ steps.set-project-name.outputs.value }}
           external-dependencies-sources: |
             EncryptedConfigValue
           additional-files: |
@@ -265,8 +318,7 @@ jobs:
           message: Update aspnetcore nuspec
       - uses: ./.github/actions/push-changes
         with:
-          branch: ${{ needs.init.outputs.branch }}
-          pull-before-push: true
+          branch: ${{ steps.set-branch-name.outputs.value }}
 
   update-nuspec-cli:
     needs: [init, has-changes]
@@ -275,15 +327,26 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      branch: ${{ steps.set-branch-name.outputs.value }}  
     steps:
       - uses: actions/checkout@v4
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.Cli" >> $GITHUB_OUTPUT
+      - name: Set branch name
+        id: set-branch-name
+        run: |
+          echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
       - uses: ./.github/actions/setup-git
         with:
-          branch: ${{ needs.init.outputs.branch }}
+          branch: ${{ steps.set-branch-name.outputs.value }}
       - uses: ./.github/actions/update-nuspec-file
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          project: EncryptedConfigValue.Cli
+          project: ${{ steps.set-project-name.outputs.value }}
           external-dependencies-sources: |
             EncryptedConfigValue
           additional-files: |
@@ -293,8 +356,7 @@ jobs:
           message: Update cli nuspec
       - uses: ./.github/actions/push-changes
         with:
-          branch: ${{ needs.init.outputs.branch }}
-          pull-before-push: true
+          branch: ${{ steps.set-branch-name.outputs.value }}
 
   finalize:
     needs: [
@@ -312,6 +374,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v4
+        - name: Merge
+          run:
+           TARGET_BRANCH="${{ needs.init.outputs.branch }}"
+           PARTIAL_BRANCHES=(
+             "${{ needs.init.outputs.branch }}/partial/EncryptedConfigValue.Module"
+             "${{ needs.init.outputs.branch }}/partial/EncryptedConfigValue.AspNetCore"
+             "${{ needs.init.outputs.branch }}/partial/EncryptedConfigValue.Cli"
+             "${{ needs.init.outputs.branch }}/partial/pipelines"
+           )
+           git checkout $TARGET_BRANCH || exit 1
+           for BRANCH in "${PARTIAL_BRANCHES[@]}"; do
+             echo "Rebasing $BRANCH onto $TARGET_BRANCH..."
+             git checkout $BRANCH || exit 1
+             git rebase $TARGET_BRANCH || { echo "Rebase failed for $BRANCH. Aborting."; exit 1; }
+             echo "Rebase successful for $BRANCH."
+           done
+           git checkout $TARGET_BRANCH           
+           for BRANCH in "${PARTIAL_BRANCHES[@]}"; do
+             echo "Deleting branch $BRANCH..."
+             git branch -d $BRANCH || { echo "Failed to delete branch $BRANCH. Continuing."; }
+           done
+
         - uses: ./.github/actions/put-pull-request
           with:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
