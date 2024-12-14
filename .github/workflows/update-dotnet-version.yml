@@ -312,10 +312,10 @@ jobs:
         id: set-status
         run: |
           values=(
-            '${{ needs.update-dotnet-module-status-tracker || 'false' }}'
-            '${{ needs.update-dotnet-aspnetcore-status-tracker || 'false' }}'
-            '${{ needs.update-dotnet-cli-status-tracker || 'false' }}'
-            '${{ needs.update-pipelines-status-tracker || 'false' }}'
+            '${{ needs.update-dotnet-module-status-tracker.outputs.completed || 'false' }}'
+            '${{ needs.update-dotnet-aspnetcore-status-tracker.outputs.completed || 'false' }}'
+            '${{ needs.update-dotnet-cli-status-tracker.outputs.completed || 'false' }}'
+            '${{ needs.update-pipelines-status-tracker.outputs.completed || 'false' }}'
           )
           result='false'
           for value in "${values[@]}"; do
