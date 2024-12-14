@@ -297,15 +297,41 @@ jobs:
         run: |
           echo "value=${{needs.update-pipelines.outputs.status || 'false'}}" >> $GITHUB_OUTPUT
 
+  collect:
+    needs: [
+      update-dotnet-module-status-tracker,
+      update-dotnet-aspnetcore-status-tracker,
+      update-dotnet-cli-status-tracker,
+      update-pipelines-status-tracker
+    ]
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.set-status.outputs.value }}
+    steps:
+      - name: Set status
+        id: set-status
+        run: |
+          values=(
+            '${{ needs.update-dotnet-module-status-tracker || 'false' }}'
+            '${{ needs.update-dotnet-aspnetcore-status-tracker || 'false' }}'
+            '${{ needs.update-dotnet-cli-status-tracker || 'false' }}'
+            '${{ needs.update-pipelines-status-tracker || 'false' }}'
+          )
+          result='false'
+          for value in "${values[@]}"; do
+            if [ "$value" == "true" ]; then
+              result='true'
+              break
+            fi
+          done
+          echo "value=$result" >> $GITHUB_OUTPUT
+
   finalize:
     needs: [
         init,
-        update-dotnet-module-status-tracker,
-        update-dotnet-aspnetcore-status-tracker,
-        update-dotnet-cli-status-tracker,
-        update-pipelines-status-tracker
+        collect
     ]
-    if: needs.update-dotnet-module-status-tracker.outputs.completed == 'true' || needs.update-dotnet-aspnetcore-status-tracker.outputs.completed == 'true' ||  needs.update-dotnet-cli-status-tracker.outputs.completed == 'true'
+    if: needs.collect.outputs.result == 'true'
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v4
