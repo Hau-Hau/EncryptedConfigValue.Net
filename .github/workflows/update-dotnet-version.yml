@@ -108,6 +108,7 @@ jobs:
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ steps.set-branch-name.outputs.value }}
+          force: true
 
   update-dotnet-aspnetcore:
     needs: [init, should-updated-targetframeworks]
@@ -144,6 +145,7 @@ jobs:
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ steps.set-branch-name.outputs.value }}
+          force: true
 
   update-dotnet-cli:
     needs: [init, should-updated-targetframeworks]
@@ -180,6 +182,7 @@ jobs:
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ steps.set-branch-name.outputs.value }}
+          force: true
 
   update-pipelines:
     needs: [init, should-updated-targetframeworks]
@@ -216,6 +219,7 @@ jobs:
       - uses: ./.github/actions/push-changes
         with:
           branch: ${{ steps.set-branch-name.outputs.value }}
+          force: true
 
   has-changes:
     needs: [update-dotnet-module, update-dotnet-aspnetcore, update-dotnet-cli]
@@ -395,7 +399,12 @@ jobs:
              echo "Deleting branch $BRANCH..."
              git branch -d $BRANCH || { echo "Failed to delete branch $BRANCH. Continuing."; }
            done
-
+        - uses: ./.github/actions/commit-changes
+          with:
+            message: Update cli nuspec
+        - uses: ./.github/actions/push-changes
+          with:
+            branch: ${{ needs.init.outputs.branch }}
         - uses: ./.github/actions/put-pull-request
           with:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
