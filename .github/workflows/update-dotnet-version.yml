@@ -34,7 +34,7 @@ jobs:
       - name: "Reset branches"
         run: |
            BRANCHES=(
-             "${{ steps.set-branch-name.outputs.value }}",
+             "${{ steps.set-branch-name.outputs.value }}"
              "${{ steps.set-branch-name.outputs.value }}/partial/EncryptedConfigValue.Module"
              "${{ steps.set-branch-name.outputs.value }}/partial/EncryptedConfigValue.AspNetCore"
              "${{ steps.set-branch-name.outputs.value }}/partial/EncryptedConfigValue.Cli"
@@ -304,7 +304,7 @@ jobs:
       update-dotnet-cli-status-tracker,
       update-pipelines-status-tracker
     ]
-    if: always()
+    if: always() && contains(needs.*.outputs.completed, 'true') 
     runs-on: ubuntu-latest
     outputs:
       result: ${{ steps.set-status.outputs.value }}
@@ -344,12 +344,11 @@ jobs:
           run:
            TARGET_BRANCH="${{ needs.init.outputs.branch }}"
            PARTIAL_BRANCHES=(
-             "${{ needs.init.outputs.branch }}/partial/EncryptedConfigValue.Module"
-             "${{ needs.init.outputs.branch }}/partial/EncryptedConfigValue.AspNetCore"
-             "${{ needs.init.outputs.branch }}/partial/EncryptedConfigValue.Cli"
-             "${{ needs.init.outputs.branch }}/partial/pipelines"
+             "$TARGET_BRANCH/partial/EncryptedConfigValue.Module"
+             "$TARGET_BRANCH/partial/EncryptedConfigValue.AspNetCore"
+             "$TARGET_BRANCH/partial/EncryptedConfigValue.Cli"
+             "$TARGET_BRANCH/partial/pipelines"
            )
-           git checkout $TARGET_BRANCH || exit 1
            for BRANCH in "${PARTIAL_BRANCHES[@]}"; do
              is_branch_exists=$(git ls-remote --heads origin $BRANCH | grep -q "refs/heads/$BRANCH" && echo true || echo false)
              if [[ "$is_branch_exists" == "true" ]]; then           
