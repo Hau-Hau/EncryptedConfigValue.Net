@@ -90,6 +90,7 @@ jobs:
     outputs:
       project: ${{ steps.set-project-name.outputs.value }}
       branch: ${{ steps.set-branch-name.outputs.value }}  
+      status: ${{ steps.set-status.outputs.value }}  
     steps:
       - uses: actions/checkout@v4
       - name: Set project name
@@ -116,6 +117,23 @@ jobs:
         with:
           branch: ${{ steps.set-branch-name.outputs.value }}
           force: true
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=true" >> $GITHUB_OUTPUT
+
+
+  update-dotnet-module-status-tracker:
+    needs: [update-dotnet-module]
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      completed: ${{ steps.set-status.outputs.value }}
+    steps:
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=${{needs.update-dotnet-module.outputs.status || 'false'}}" >> $GITHUB_OUTPUT
 
   update-dotnet-aspnetcore:
     needs: [init, should-updated-targetframeworks]
@@ -126,7 +144,8 @@ jobs:
       pull-requests: write
     outputs:
       project: ${{ steps.set-project-name.outputs.value }}
-      branch: ${{ steps.set-branch-name.outputs.value }}  
+      branch: ${{ steps.set-branch-name.outputs.value }}
+      status: ${{ steps.set-status.outputs.value }}
     steps:
       - uses: actions/checkout@v4
       - name: Set project name
@@ -153,6 +172,22 @@ jobs:
         with:
           branch: ${{ steps.set-branch-name.outputs.value }}
           force: true
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=true" >> $GITHUB_OUTPUT
+
+  update-dotnet-aspnetcore-status-tracker:
+    needs: [update-dotnet-aspnetcore]
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      completed: ${{ steps.set-status.outputs.value }}
+    steps:
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=${{needs.update-dotnet-aspnetcore.outputs.status || 'false'}}" >> $GITHUB_OUTPUT
 
   update-dotnet-cli:
     needs: [init, should-updated-targetframeworks]
@@ -163,7 +198,8 @@ jobs:
       pull-requests: write
     outputs:
       project: ${{ steps.set-project-name.outputs.value }}
-      branch: ${{ steps.set-branch-name.outputs.value }}  
+      branch: ${{ steps.set-branch-name.outputs.value }}
+      status: ${{ steps.set-status.outputs.value }}
     steps:
       - uses: actions/checkout@v4
       - name: Set project name
@@ -190,13 +226,30 @@ jobs:
         with:
           branch: ${{ steps.set-branch-name.outputs.value }}
           force: true
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=true" >> $GITHUB_OUTPUT
+
+  update-dotnet-cli-status-tracker:
+    needs: [update-dotnet-cli]
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      completed: ${{ steps.set-status.outputs.value }}
+    steps:
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=${{needs.update-dotnet-cli.outputs.status || 'false'}}" >> $GITHUB_OUTPUT
 
   update-pipelines:
     needs: [init, should-updated-targetframeworks]
     if: needs.should-updated-targetframeworks.outputs.module == 'true' || needs.should-updated-targetframeworks.outputs.aspnetcore == 'true' ||  needs.should-updated-targetframeworks.outputs.cli == 'true'
     runs-on: ubuntu-latest
     outputs:
-      branch: ${{ steps.set-branch-name.outputs.value }}  
+      branch: ${{ steps.set-branch-name.outputs.value }}
+      status: ${{ steps.set-status.outputs.value }}
     steps:
       - uses: actions/checkout@v4
       - name: Set branch name
@@ -227,194 +280,211 @@ jobs:
         with:
           branch: ${{ steps.set-branch-name.outputs.value }}
           force: true
+      - name: Set status
+        id: set-status
+        run: |
+          echo "value=true" >> $GITHUB_OUTPUT
 
-  has-changes-module:
-    needs: [update-dotnet-module]
+  update-pipelines-status-tracker:
+    needs: [update-pipelines]
+    if: always()
     runs-on: ubuntu-latest
     outputs:
-      project: ${{ steps.set-project-name.outputs.value }}
-      result: ${{ steps.finalize.outputs.result }}
+      completed: ${{ steps.set-status.outputs.value }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Set project name
-        id: set-project-name
+      - name: Set status
+        id: set-status
         run: |
-          echo "value=EncryptedConfigValue.Module" >> $GITHUB_OUTPUT
-      - uses: ./.github/actions/has-changes
-        id: has-changes
-        with:
-          project: ${{ steps.set-project-name.outputs.value }}
-      - name: Finalize
-        id: finalize
-        run: |
-          echo "result=${{ steps.has-changes.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "value=${{needs.update-pipelines.outputs.status || 'false'}}" >> $GITHUB_OUTPUT
 
-  has-changes-aspnetcore:
-    needs: [update-dotnet-aspnetcore]
-    runs-on: ubuntu-latest
-    outputs:
-      project: ${{ steps.set-project-name.outputs.value }}
-      result: ${{ steps.finalize.outputs.result }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set project name
-        id: set-project-name
-        run: |
-          echo "value=EncryptedConfigValue.AspNetCore" >> $GITHUB_OUTPUT
-      - uses: ./.github/actions/has-changes
-        id: has-changes
-        with:
-          project: ${{ steps.set-project-name.outputs.value }}
-      - name: Finalize
-        id: finalize
-        run: |
-          echo "result=${{ steps.has-changes.outputs.result }}" >> $GITHUB_OUTPUT
 
-  has-changes-cli:
-    needs: [update-dotnet-cli]
-    runs-on: ubuntu-latest
-    outputs:
-      project: ${{ steps.set-project-name.outputs.value }}
-      result: ${{ steps.finalize.outputs.result }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set project name
-        id: set-project-name
-        run: |
-          echo "value=EncryptedConfigValue.Cli" >> $GITHUB_OUTPUT
-      - uses: ./.github/actions/has-changes
-        id: has-changes
-        with:
-          project: ${{ steps.set-project-name.outputs.value }}
-      - name: Finalize
-        id: finalize
-        run: |
-          echo "result=${{ steps.has-changes.outputs.result }}" >> $GITHUB_OUTPUT
+  # has-changes-module:
+  #   needs: [update-dotnet-module]
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     project: ${{ steps.set-project-name.outputs.value }}
+  #     result: ${{ steps.finalize.outputs.result }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set project name
+  #       id: set-project-name
+  #       run: |
+  #         echo "value=EncryptedConfigValue.Module" >> $GITHUB_OUTPUT
+  #     - uses: ./.github/actions/has-changes
+  #       id: has-changes
+  #       with:
+  #         project: ${{ steps.set-project-name.outputs.value }}
+  #     - name: Finalize
+  #       id: finalize
+  #       run: |
+  #         echo "result=${{ steps.has-changes.outputs.result }}" >> $GITHUB_OUTPUT
 
-  update-nuspec-module:
-    needs: [init, has-changes-module]
-    if: needs.has-changes-module.outputs.result == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    outputs:
-      project: ${{ steps.set-project-name.outputs.value }}
-      branch: ${{ steps.set-branch-name.outputs.value }}  
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set project name
-        id: set-project-name
-        run: |
-          echo "value=EncryptedConfigValue.Module" >> $GITHUB_OUTPUT
-      - name: Set branch name
-        id: set-branch-name
-        run: |
-          echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-git
-        with:
-          branch: ${{ steps.set-branch-name.outputs.value }}
-      - uses: ./.github/actions/update-nuspec-file
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          project: ${{ steps.set-project-name.outputs.value }}
-          additional-files: |
-            ./Readme.md
-      - uses: ./.github/actions/commit-changes
-        with:
-          message: Update module nuspec
-      - uses: ./.github/actions/push-changes
-        with:
-          branch: ${{ steps.set-branch-name.outputs.value }}
+  # has-changes-aspnetcore:
+  #   needs: [update-dotnet-aspnetcore]
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     project: ${{ steps.set-project-name.outputs.value }}
+  #     result: ${{ steps.finalize.outputs.result }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set project name
+  #       id: set-project-name
+  #       run: |
+  #         echo "value=EncryptedConfigValue.AspNetCore" >> $GITHUB_OUTPUT
+  #     - uses: ./.github/actions/has-changes
+  #       id: has-changes
+  #       with:
+  #         project: ${{ steps.set-project-name.outputs.value }}
+  #     - name: Finalize
+  #       id: finalize
+  #       run: |
+  #         echo "result=${{ steps.has-changes.outputs.result }}" >> $GITHUB_OUTPUT
 
-  update-nuspec-aspnetcore:
-    needs: [init, has-changes-aspnetcore]
-    if: needs.has-changes-aspnetcore.outputs.result == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    outputs:
-      project: ${{ steps.set-project-name.outputs.value }}
-      branch: ${{ steps.set-branch-name.outputs.value }}  
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set project name
-        id: set-project-name
-        run: |
-          echo "value=EncryptedConfigValue.AspNetCore" >> $GITHUB_OUTPUT
-      - name: Set branch name
-        id: set-branch-name
-        run: |
-          echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
-      - uses: ./.github/actions/setup-git
-        with:
-          branch: ${{ steps.set-branch-name.outputs.value }}
-      - uses: ./.github/actions/update-nuspec-file
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          project: ${{ steps.set-project-name.outputs.value }}
-          external-dependencies-sources: |
-            EncryptedConfigValue
-          additional-files: |
-            ./Readme.md
-      - uses: ./.github/actions/commit-changes
-        with:
-          message: Update aspnetcore nuspec
-      - uses: ./.github/actions/push-changes
-        with:
-          branch: ${{ steps.set-branch-name.outputs.value }}
+  # has-changes-cli:
+  #   needs: [update-dotnet-cli]
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     project: ${{ steps.set-project-name.outputs.value }}
+  #     result: ${{ steps.finalize.outputs.result }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set project name
+  #       id: set-project-name
+  #       run: |
+  #         echo "value=EncryptedConfigValue.Cli" >> $GITHUB_OUTPUT
+  #     - uses: ./.github/actions/has-changes
+  #       id: has-changes
+  #       with:
+  #         project: ${{ steps.set-project-name.outputs.value }}
+  #     - name: Finalize
+  #       id: finalize
+  #       run: |
+  #         echo "result=${{ steps.has-changes.outputs.result }}" >> $GITHUB_OUTPUT
 
-  update-nuspec-cli:
-    needs: [init, has-changes-cli]
-    if: needs.has-changes-cli.outputs.result == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    outputs:
-      project: ${{ steps.set-project-name.outputs.value }}
-      branch: ${{ steps.set-branch-name.outputs.value }}  
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set project name
-        id: set-project-name
-        run: |
-          echo "value=EncryptedConfigValue.Cli" >> $GITHUB_OUTPUT
-      - name: Set branch name
-        id: set-branch-name
-        run: |
-          echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
-      - uses: ./.github/actions/setup-git
-        with:
-          branch: ${{ steps.set-branch-name.outputs.value }}
-      - uses: ./.github/actions/update-nuspec-file
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          project: ${{ steps.set-project-name.outputs.value }}
-          external-dependencies-sources: |
-            EncryptedConfigValue
-          additional-files: |
-            ./Readme.md
-      - uses: ./.github/actions/commit-changes
-        with:
-          message: Update cli nuspec
-      - uses: ./.github/actions/push-changes
-        with:
-          branch: ${{ steps.set-branch-name.outputs.value }}
+  # update-nuspec-module:
+  #   needs: [init, has-changes-module]
+  #   if: needs.has-changes-module.outputs.result == 'true'
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #     pull-requests: write
+  #   outputs:
+  #     project: ${{ steps.set-project-name.outputs.value }}
+  #     branch: ${{ steps.set-branch-name.outputs.value }}  
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set project name
+  #       id: set-project-name
+  #       run: |
+  #         echo "value=EncryptedConfigValue.Module" >> $GITHUB_OUTPUT
+  #     - name: Set branch name
+  #       id: set-branch-name
+  #       run: |
+  #         echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
+  #     - uses: actions/checkout@v4
+  #     - uses: ./.github/actions/setup-git
+  #       with:
+  #         branch: ${{ steps.set-branch-name.outputs.value }}
+  #     - uses: ./.github/actions/update-nuspec-file
+  #       with:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         project: ${{ steps.set-project-name.outputs.value }}
+  #         additional-files: |
+  #           ./Readme.md
+  #     - uses: ./.github/actions/commit-changes
+  #       with:
+  #         message: Update module nuspec
+  #     - uses: ./.github/actions/push-changes
+  #       with:
+  #         branch: ${{ steps.set-branch-name.outputs.value }}
+
+  # update-nuspec-aspnetcore:
+  #   needs: [init, has-changes-aspnetcore]
+  #   if: needs.has-changes-aspnetcore.outputs.result == 'true'
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #     pull-requests: write
+  #   outputs:
+  #     project: ${{ steps.set-project-name.outputs.value }}
+  #     branch: ${{ steps.set-branch-name.outputs.value }}  
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set project name
+  #       id: set-project-name
+  #       run: |
+  #         echo "value=EncryptedConfigValue.AspNetCore" >> $GITHUB_OUTPUT
+  #     - name: Set branch name
+  #       id: set-branch-name
+  #       run: |
+  #         echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
+  #     - uses: ./.github/actions/setup-git
+  #       with:
+  #         branch: ${{ steps.set-branch-name.outputs.value }}
+  #     - uses: ./.github/actions/update-nuspec-file
+  #       with:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         project: ${{ steps.set-project-name.outputs.value }}
+  #         external-dependencies-sources: |
+  #           EncryptedConfigValue
+  #         additional-files: |
+  #           ./Readme.md
+  #     - uses: ./.github/actions/commit-changes
+  #       with:
+  #         message: Update aspnetcore nuspec
+  #     - uses: ./.github/actions/push-changes
+  #       with:
+  #         branch: ${{ steps.set-branch-name.outputs.value }}
+
+  # update-nuspec-cli:
+  #   needs: [init, has-changes-cli]
+  #   if: needs.has-changes-cli.outputs.result == 'true'
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #     pull-requests: write
+  #   outputs:
+  #     project: ${{ steps.set-project-name.outputs.value }}
+  #     branch: ${{ steps.set-branch-name.outputs.value }}  
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set project name
+  #       id: set-project-name
+  #       run: |
+  #         echo "value=EncryptedConfigValue.Cli" >> $GITHUB_OUTPUT
+  #     - name: Set branch name
+  #       id: set-branch-name
+  #       run: |
+  #         echo "value=${{ needs.init.outputs.branch }}/partial/${{ steps.set-project-name.outputs.value }}" >> $GITHUB_OUTPUT
+  #     - uses: ./.github/actions/setup-git
+  #       with:
+  #         branch: ${{ steps.set-branch-name.outputs.value }}
+  #     - uses: ./.github/actions/update-nuspec-file
+  #       with:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         project: ${{ steps.set-project-name.outputs.value }}
+  #         external-dependencies-sources: |
+  #           EncryptedConfigValue
+  #         additional-files: |
+  #           ./Readme.md
+  #     - uses: ./.github/actions/commit-changes
+  #       with:
+  #         message: Update cli nuspec
+  #     - uses: ./.github/actions/push-changes
+  #       with:
+  #         branch: ${{ steps.set-branch-name.outputs.value }}
 
   finalize:
     needs: [
         init,
         should-updated-targetframeworks,
-        update-dotnet-module,
-        update-dotnet-aspnetcore,
-        update-dotnet-cli,
-        update-nuspec-module, 
-        update-nuspec-aspnetcore, 
-        update-nuspec-cli, 
-        update-pipelines
+        update-dotnet-module-status-tracker,
+        update-dotnet-aspnetcore-status-tracker,
+        update-dotnet-cli-status-tracker,
+        # update-nuspec-module, 
+        # update-nuspec-aspnetcore, 
+        # update-nuspec-cli, 
+        update-pipelines-status-tracker
     ]
     if: needs.should-updated-targetframeworks.outputs.module == 'true' || needs.should-updated-targetframeworks.outputs.aspnetcore == 'true' ||  needs.should-updated-targetframeworks.outputs.cli == 'true'
     runs-on: ubuntu-latest
