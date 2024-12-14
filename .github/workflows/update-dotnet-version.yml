@@ -31,14 +31,10 @@ jobs:
           }
           "value=$($activeVersions)" >> $env:GITHUB_OUTPUT
           exit 0
-      - uses: ./.github/actions/setup-git
-        with:
-          branch: ${{ steps.set-branch-name.outputs.value }}
-          hard-reset: true
-      - uses: ./.github/actions/push-changes
-        with:
-          branch: ${{ steps.set-branch-name.outputs.value }}
-          force: true
+      - name: "Reset target branch"
+        run: |
+          git branch -d ${{ steps.set-branch-name.outputs.value }} || { echo "Failed to delete branch ${{ steps.set-branch-name.outputs.value }}."; exit 1; }
+          git push origin --delete ${{ steps.set-branch-name.outputs.value }} || { echo "Failed to delete branch ${{ steps.set-branch-name.outputs.value }} on origin."; exit 1; }
 
   should-updated-targetframeworks:
     needs: [init]
@@ -378,6 +374,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v4
+        - uses: ./.github/actions/setup-git
+          with:
+            branch: ${{ needs.init.outputs.branch }}
+            hard-reset: true
         - name: Merge
           run:
            TARGET_BRANCH="${{ needs.init.outputs.branch }}"
@@ -396,8 +396,11 @@ jobs:
            done
            git checkout $TARGET_BRANCH           
            for BRANCH in "${PARTIAL_BRANCHES[@]}"; do
-             echo "Deleting branch $BRANCH..."
-             git branch -d $BRANCH || { echo "Failed to delete branch $BRANCH. Continuing."; }
+             echo "Deleting branch $BRANCH locally..."
+             git branch -d $BRANCH || { echo "Failed to delete branch $BRANCH locally. Continuing."; }
+             
+             echo "Deleting branch $BRANCH on origin..."
+             git push origin --delete $BRANCH || { echo "Failed to delete branch $BRANCH on origin. Continuing."; }
            done
         - uses: ./.github/actions/commit-changes
           with:
@@ -405,6 +408,7 @@ jobs:
         - uses: ./.github/actions/push-changes
           with:
             branch: ${{ needs.init.outputs.branch }}
+            force: true
         - uses: ./.github/actions/put-pull-request
           with:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
