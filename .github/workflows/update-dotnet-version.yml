@@ -31,13 +31,22 @@ jobs:
           }
           "value=$($activeVersions)" >> $env:GITHUB_OUTPUT
           exit 0
-      - name: "Reset target branch"
+      - name: "Reset branches"
         run: |
-          is_target_branch_exists=$(git ls-remote --heads origin "${{ steps.set-branch-name.outputs.value }}" | grep -q "refs/heads/${{ steps.set-branch-name.outputs.value }}" && echo true || echo false)
-          if [[ "$is_target_branch_exists" == "true" ]]; then
-            git branch -d ${{ steps.set-branch-name.outputs.value }} || { echo "Failed to delete branch ${{ steps.set-branch-name.outputs.value }}."; exit 1; }
-            git push origin --delete ${{ steps.set-branch-name.outputs.value }} || { echo "Failed to delete branch ${{ steps.set-branch-name.outputs.value }} on origin."; exit 1; }
-          fi
+           BRANCHES=(
+             "${{ steps.set-branch-name.outputs.value }}",
+             "${{ steps.set-branch-name.outputs.value }}/partial/EncryptedConfigValue.Module"
+             "${{ steps.set-branch-name.outputs.value }}/partial/EncryptedConfigValue.AspNetCore"
+             "${{ steps.set-branch-name.outputs.value }}/partial/EncryptedConfigValue.Cli"
+             "${{ steps.set-branch-name.outputs.value }}/partial/pipelines"
+           )
+           for BRANCH in "${BRANCHES[@]}"; do
+             is_branch_exists=$(git ls-remote --heads origin $BRANCH | grep -q "refs/heads/$BRANCH" && echo true || echo false)
+             if [[ "$is_branch_exists" == "true" ]]; then
+               git branch -d $BRANCH || { echo "Failed to delete branch $BRANCH on local."; exit 1; }
+               git push origin --delete $BRANCH || { echo "Failed to delete branch $BRANCH on origin."; exit 1; }
+             fi
+           done
 
   should-updated-targetframeworks:
     needs: [init]
@@ -220,37 +229,72 @@ jobs:
           branch: ${{ steps.set-branch-name.outputs.value }}
           force: true
 
-  has-changes:
-    needs: [update-dotnet-module, update-dotnet-aspnetcore, update-dotnet-cli]
+  has-changes-module:
+    needs: [update-dotnet-module]
     runs-on: ubuntu-latest
     outputs:
-      module: ${{ steps.finalize.outputs.module }}
-      aspnetcore: ${{ steps.finalize.outputs.aspnetcore }}
-      cli: ${{ steps.finalize.outputs.cli }}
+      project: ${{ steps.set-project-name.outputs.value }}
+      result: ${{ steps.finalize.outputs.result }}
     steps:
       - uses: actions/checkout@v4
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.Module" >> $GITHUB_OUTPUT
       - uses: ./.github/actions/has-changes
-        id: has-changes-module
+        id: has-changes
         with:
-          project: EncryptedConfigValue.Module
-      - uses: ./.github/actions/has-changes
-        id: has-changes-aspnetcore
-        with:
-          project: EncryptedConfigValue.AspNetCore
-      - uses: ./.github/actions/has-changes
-        id: has-changes-cli
-        with:
-          project: EncryptedConfigValue.Cli
+          project: ${{ steps.set-project-name.outputs.value }}
       - name: Finalize
         id: finalize
         run: |
-          echo "module=${{ steps.has-changes-module.outputs.result }}" >> $GITHUB_OUTPUT
-          echo "aspnetcore=${{ steps.has-changes-aspnetcore.outputs.result }}" >> $GITHUB_OUTPUT
-          echo "cli=${{ steps.has-changes-cli.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "result=${{ steps.has-changes.outputs.result }}" >> $GITHUB_OUTPUT
+
+  has-changes-aspnetcore:
+    needs: [update-dotnet-aspnetcore]
+    runs-on: ubuntu-latest
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      result: ${{ steps.finalize.outputs.result }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.AspNetCore" >> $GITHUB_OUTPUT
+      - uses: ./.github/actions/has-changes
+        id: has-changes
+        with:
+          project: ${{ steps.set-project-name.outputs.value }}
+      - name: Finalize
+        id: finalize
+        run: |
+          echo "result=${{ steps.has-changes.outputs.result }}" >> $GITHUB_OUTPUT
+
+  has-changes-cli:
+    needs: [update-dotnet-cli]
+    runs-on: ubuntu-latest
+    outputs:
+      project: ${{ steps.set-project-name.outputs.value }}
+      result: ${{ steps.finalize.outputs.result }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set project name
+        id: set-project-name
+        run: |
+          echo "value=EncryptedConfigValue.Cli" >> $GITHUB_OUTPUT
+      - uses: ./.github/actions/has-changes
+        id: has-changes
+        with:
+          project: ${{ steps.set-project-name.outputs.value }}
+      - name: Finalize
+        id: finalize
+        run: |
+          echo "result=${{ steps.has-changes.outputs.result }}" >> $GITHUB_OUTPUT
 
   update-nuspec-module:
-    needs: [init, has-changes]
-    if: needs.has-changes.outputs.module == 'true'
+    needs: [init, has-changes-module]
+    if: needs.has-changes-module.outputs.result == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -286,8 +330,8 @@ jobs:
           branch: ${{ steps.set-branch-name.outputs.value }}
 
   update-nuspec-aspnetcore:
-    needs: [init, has-changes]
-    if: needs.has-changes.outputs.aspnetcore == 'true'
+    needs: [init, has-changes-aspnetcore]
+    if: needs.has-changes-aspnetcore.outputs.result == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -324,8 +368,8 @@ jobs:
           branch: ${{ steps.set-branch-name.outputs.value }}
 
   update-nuspec-cli:
-    needs: [init, has-changes]
-    if: needs.has-changes.outputs.cli == 'true'
+    needs: [init, has-changes-cli]
+    if: needs.has-changes-cli.outputs.result == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -392,18 +436,24 @@ jobs:
            )
            git checkout $TARGET_BRANCH || exit 1
            for BRANCH in "${PARTIAL_BRANCHES[@]}"; do
-             echo "Rebasing $BRANCH onto $TARGET_BRANCH..."
-             git checkout $BRANCH || exit 1
-             git rebase $TARGET_BRANCH || { echo "Rebase failed for $BRANCH. Aborting."; exit 1; }
-             echo "Rebase successful for $BRANCH."
+             is_branch_exists=$(git ls-remote --heads origin $BRANCH | grep -q "refs/heads/$BRANCH" && echo true || echo false)
+             if [[ "$is_branch_exists" == "true" ]]; then           
+               echo "Rebasing $BRANCH onto $TARGET_BRANCH..."
+               git checkout $BRANCH || exit 1
+               git rebase $TARGET_BRANCH || { echo "Rebase failed for $BRANCH. Aborting."; exit 1; }
+               echo "Rebase successful for $BRANCH."
+             fi
            done
            git checkout $TARGET_BRANCH           
            for BRANCH in "${PARTIAL_BRANCHES[@]}"; do
-             echo "Deleting branch $BRANCH locally..."
-             git branch -d $BRANCH || { echo "Failed to delete branch $BRANCH locally. Continuing."; }
-             
-             echo "Deleting branch $BRANCH on origin..."
-             git push origin --delete $BRANCH || { echo "Failed to delete branch $BRANCH on origin. Continuing."; }
+             is_branch_exists=$(git ls-remote --heads origin $BRANCH | grep -q "refs/heads/$BRANCH" && echo true || echo false)
+             if [[ "$is_branch_exists" == "true" ]]; then           
+               echo "Deleting branch $BRANCH locally..."
+               git branch -d $BRANCH || { echo "Failed to delete branch $BRANCH locally. Continuing."; }
+               
+               echo "Deleting branch $BRANCH on origin..."
+               git push origin --delete $BRANCH || { echo "Failed to delete branch $BRANCH on origin. Continuing."; }
+             fi 
            done
         - uses: ./.github/actions/commit-changes
           with:
