@@ -353,7 +353,7 @@ jobs:
              is_branch_exists=$(git ls-remote --heads origin $BRANCH | grep -q "refs/heads/$BRANCH" && echo true || echo false)
              if [[ "$is_branch_exists" == "true" ]]; then           
                git rebase $BRANCH
-               echo "Rebase successful for $BRANCH."
+               echo "Rebase successful for origin/$BRANCH."
              fi
            done
 
