@@ -366,9 +366,6 @@ jobs:
                git push origin --delete $BRANCH || { echo "Failed to delete branch $BRANCH on origin. Continuing."; }
              fi 
            done
-        - uses: ./.github/actions/commit-changes
-          with:
-            message: Update cli nuspec
         - uses: ./.github/actions/push-changes
           with:
             branch: ${{ needs.init.outputs.branch }}
