@@ -41,4 +41,4 @@ runs:
           exit 0
       - name: Update dependencies files
         shell: bash
-        run: dotnet-outdated ./${{ inputs.project }}/${{ inputs.project }}.csproj --upgrade
+        run: dotnet-outdated ./${{ inputs.project }}/${{ inputs.project }}.csproj --upgrade --no-restore
