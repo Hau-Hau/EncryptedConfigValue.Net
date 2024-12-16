@@ -39,3 +39,6 @@ runs:
               }
           }
           exit 0
+      - name: Update dependencies files
+        shell: bash
+        run: dotnet-outdated .\${{ inputs.target-dotnet-versions }}\${{ inputs.target-dotnet-versions }}.csproj
