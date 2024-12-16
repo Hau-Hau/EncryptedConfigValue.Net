@@ -3,7 +3,7 @@ description: Update dotnet version in selected project
 inputs:
   project:
     required: true
-    description: "Allowed values: EncryptedConfigValue.Module | EncryptedConfigValue.AspNetCore | EncryptedConfigValue.Cli"
+    description: "Allowed values: EncryptedConfigValue.Module | EncryptedConfigValue.Module.Test | EncryptedConfigValue.AspNetCore | EncryptedConfigValue.AspNetCore.Test | EncryptedConfigValue.Cli | EncryptedConfigValue.Cli.Test"
   target-dotnet-versions:
     required: true
     description: "Allowed values: string[]"
