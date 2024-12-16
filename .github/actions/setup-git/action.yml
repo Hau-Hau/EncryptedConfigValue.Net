@@ -26,6 +26,5 @@ runs:
             fi
           else
             git checkout -b $TARGET_BRANCH_NAME
-            git branch --set-upstream-to=origin/$TARGET_BRANCH_NAME $TARGET_BRANCH_NAME
           fi
 
