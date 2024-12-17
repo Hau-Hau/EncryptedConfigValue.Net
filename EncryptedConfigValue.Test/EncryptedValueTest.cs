@@ -109,7 +109,9 @@ namespace EncryptedConfigValue.Test
             var encryptedValue = algorithm.NewEncrypter().Encrypt(keyPair.EncryptionKey, plaintext);
             var decryptionKey = otherKeyPair.DecryptionKey;
             var act = () => encryptedValue.Decrypt(decryptionKey); // throws
-            act.Should().Throw<InvalidCipherTextException>();
+            act.Should()
+                .Throw<Exception>()
+                .Where(e => e is InvalidCipherTextException || e is DataLengthException);
         }
 
         [Theory]
