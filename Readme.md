@@ -2,7 +2,7 @@ EncryptedConfigValue.NET
 =========================
 [![Test](https://github.com/Hau-Hau/EncryptedConfigValue.Net/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Hau-Hau/EncryptedConfigValue.Net/actions/workflows/test.yml)
 
-> In sync with encrypted-config-value v5.2.0 ([a104ddefd48e2fb322f5db205f7c93f0ad4ae1d7](https://github.com/palantir/encrypted-config-value/tree/a104ddefd48e2fb322f5db205f7c93f0ad4ae1d7))
+> In sync with encrypted-config-value v6.0.0 ([249bbf7c5522fa1e703cadaf7be53f7e5d270bde](https://github.com/palantir/encrypted-config-value/tree/249bbf7c5522fa1e703cadaf7be53f7e5d270bde))
 
 `EncryptedConfigValue.NET` is a .NET implementation of the Palantir's [encrypted-config-value](https://github.com/palantir/encrypted-config-value)
 library.
@@ -52,7 +52,7 @@ A `EncryptedConfigValue.Cli` project provides CLI tools for generating keys and 
 
 The CLI tool provides following commands:
  - `encrypt-config-value [-v <value>] [-k <keyfile>]` for encrypting values. In the case of non-symmetric algorithms (e.g. RSA) specify the public key. If `-v <value>` not provided, program will explicitly ask about value by running interactive mode. On Windows OS it is recommended to provide `keyfile` parameter as default path points to `var\conf\encrypted-config-value.key`.
- - `generate-random-key -a <algorithm> [-f <keyfile>]` for generating random keys with the specified algorithm. In the case of non-symmetric algorithms (e.g. RSA) the private key will have a .private extension. On Windows OS it is recommended to provide `keyfile` parameter as default path points to `var\conf\encrypted-config-value.key`.
+ - `generate-random-key -a <algorithm> [-f <keyfile>]` for generating random keys with the specified algorithm. In the case of non-symmetric algorithms (e.g. RSA) the private key will have a .private extension. On Windows OS it is recommended to provide `keyfile` parameter as default path points to `var\conf\encrypted-config-value.key`. 
  
 Currently supported algorithms:
  - AES: (AES/GCM/NoPadding) with random IV
@@ -86,8 +86,9 @@ Install-Package EncryptedConfigValue.Net.Module
 
 Differences from [palantir/encrypted-config-value](https://github.com/palantir/encrypted-config-value)
 -----------------------------
-- Name of environmental variable containing path to key is _EncryptedConfigValue_Config_KeyPath_ instead of _palantir.config.key_path_
-- Commands _encrypt-config-value_ and _generate-random-key_ don't need explicit _-v_ parameter. If _-v_ not provided then program will start interactive mode
+- Name of environmental variable containing path to key is _EncryptedConfigValue_Config_KeyPath_ instead of _palantir.config.key_path_.
+- Since [palantir/encrypted-config-value v6.0.0]([https://github.com/palantir/encrypted-config-value](https://github.com/palantir/encrypted-config-value/releases/tag/6.0.0)) there is no CLI tool included in Java version. `EncryptedConfigValue.NET` still provides support for commandline tools.
+- Commands _encrypt-config-value_ and _generate-random-key_ don't need explicit _-v_ parameter. If _-v_ not provided then program will start interactive mode.
 
 Note
 -----------------------------
