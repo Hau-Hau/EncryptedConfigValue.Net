@@ -166,7 +166,7 @@ foreach ($targetFramework in $nuspecDependencies.Keys) {
   $targetFrameworkAttr = $nuspecXml.CreateAttribute('targetFramework')
   $targetFrameworkAttr.Value = $targetFramework
   $groupNode.Attributes.Append($targetFrameworkAttr) | Out-Null
-  foreach ($packageId in $nuspecDependencies[$targetFramework].Keys) {
+  foreach ($packageId in $nuspecDependencies[$targetFramework].Keys | Sort-Object) {
     $item = $nuspecDependencies[$targetFramework][$packageId]
     $dependencyNode = $nuspecXml.CreateElement("dependency", $nuspecXmlNamespace)
 
