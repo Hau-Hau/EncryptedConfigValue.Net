@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>EncryptedConfigValue.Net.Cli</id>
-    <version>1.1.5</version>
+    <version>1.1.6</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,7 +10,7 @@
     <readme>Readme.md</readme>
     <description>Tooling for encrypting certain configuration parameter values in dotnet apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="42a4f8b0dd2406ae69993147fe8301abc3909623" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="3c3b0de21b7a339b0855c9fa3b1e8c6203085e39" />
     <dependencies>
       <group targetFramework="net9.0">
         <dependency id="McMaster.Extensions.CommandLineUtils" version="4.1.1" exclude="Build,Analyzers" />
@@ -20,6 +20,7 @@
     </dependencies>
   </metadata>
   <files>
+    <file src="bin/Release/net9.0/BouncyCastle.Crypto.dll" target="tools/net9.0/any/BouncyCastle.Crypto.dll" />
     <file src="bin/Release/net9.0/DotnetToolSettings.xml" target="tools/net9.0/any/DotnetToolSettings.xml" />
     <file src="bin/Release/net9.0/EncryptedConfigValue.Cli.deps.json" target="tools/net9.0/any/EncryptedConfigValue.Cli.deps.json" />
     <file src="bin/Release/net9.0/EncryptedConfigValue.Cli.dll" target="tools/net9.0/any/EncryptedConfigValue.Cli.dll" />
