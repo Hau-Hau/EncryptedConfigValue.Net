@@ -92,7 +92,7 @@ runs:
         }
 
         # Fetch hash of last release based on the project input
-        $lastReleaseHash = git tag -l "$($SelectedProject)/*" | Sort-Object -V | Select-Object -Last 1 | ForEach-Object { git rev-list -n 1 $_ }
+        $lastReleaseHash = git tag -l "$($SelectedProject)/*" | Sort-Object { [version]($_ -split '/' | Select-Object -Last 1) } | Select-Object -Last 1 | ForEach-Object { git rev-list -n 1 $_ }
         if (-not $lastReleaseHash) {
           Write-Host "Cannot fetch hash of last release"
           exit 1
