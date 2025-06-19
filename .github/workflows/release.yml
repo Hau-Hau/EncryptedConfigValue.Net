@@ -67,6 +67,13 @@ jobs:
     outputs:
       result: ${{ steps.test.outputs.result }}
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-dotnet
+
+      - name: Build
+        run: dotnet build ./EncryptedConfigValue.sln --configuration Release
+    
       - name: Test
         id: test
         shell: bash
