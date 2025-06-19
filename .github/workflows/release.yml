@@ -19,7 +19,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     outputs:
-      module: ${{ steps.validate.outputs.result }}
+      result: ${{ steps.validate.outputs.result }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -60,9 +60,26 @@ jobs:
 
           echo "result=true" >> $GITHUB_OUTPUT
 
-  release:
+  test:
     needs: [validate]
-    if: needs.validate.outputs.module == 'true'
+    if: needs.validate.outputs.result == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.test.outputs.result }}
+    steps:
+      - name: Test
+        id: test
+        shell: bash
+        run: |
+          if dotnet test --no-restore --verbosity normal; then
+            echo "result=true" >> $GITHUB_OUTPUT
+          else
+            echo "result=false" >> $GITHUB_OUTPUT
+          fi
+        
+  release:
+    needs: [test]
+    if: needs.test.outputs.result == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
