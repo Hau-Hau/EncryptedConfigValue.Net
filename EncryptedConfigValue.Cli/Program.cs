@@ -10,7 +10,15 @@ namespace EncryptedConfigValue.Cli
             app.HelpOption("-?|-h|--help");
             app.AddSubcommand(new GenerateKeyCommand());
             app.AddSubcommand(new EncryptConfigValueCommand());
-            await app.ExecuteAsync(args);
+            try
+            {
+                await app.ExecuteAsync(args);
+            }
+            catch (CommandParsingException ex)
+            {
+                Console.Error.WriteLine($"Error: {ex.Message}");
+                Environment.ExitCode = 1;
+            }
         }
     }
 }
