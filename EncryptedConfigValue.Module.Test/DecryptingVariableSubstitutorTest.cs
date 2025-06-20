@@ -43,11 +43,16 @@ namespace EncryptedConfigValue.AspNetCore.Test
             {
                 if (Directory.Exists(tempKeyPath))
                 {
-                    if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                    {
-                        Array.ForEach(Directory.GetFiles(tempKeyPathDir), x => File.Move(x, Path.Combine(tempKeyPathDir, $"{Guid.NewGuid()}")));
-                    }
-                    Array.ForEach(Directory.GetFiles(tempKeyPathDir), File.Delete);
+                    Directory
+                        .GetFiles(tempKeyPath)
+                        .Select(file =>
+                        {
+                            var newPath = Path.Combine(tempKeyPath, Path.GetFileName(file) + ".deleted");
+                            File.Move(file, newPath);
+                            return newPath;
+                        })
+                        .ToList()
+                        .ForEach(File.Delete);
                 }
             }
 

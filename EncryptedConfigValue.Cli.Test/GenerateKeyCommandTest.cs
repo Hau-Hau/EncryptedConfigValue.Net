@@ -4,6 +4,7 @@ using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Xunit;
 
 namespace EncryptedConfigValue.Cli.Test
@@ -15,18 +16,23 @@ namespace EncryptedConfigValue.Cli.Test
 
         [Theory]
         [MemberData(nameof(Data))]
-        private void WeGenerateAValidKey(Algorithm algorithm)
+        public void WeGenerateAValidKey(Algorithm algorithm)
         {
             var tempDirectory = Path.Combine(Path.GetTempPath(), $"temp-key-directory");
             var tempFilePath = Path.Combine(tempDirectory, "test.key");
 
             if (Directory.Exists(tempDirectory))
             {
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                {
-                    Array.ForEach(Directory.GetFiles(tempDirectory), x => File.Move(x, Path.Combine(tempDirectory, $"{Guid.NewGuid()}")));
-                }
-                Array.ForEach(Directory.GetFiles(tempDirectory), File.Delete);
+                Directory
+                    .GetFiles(tempDirectory)
+                    .Select(file =>
+                    {
+                        var newPath = Path.Combine(tempDirectory, Path.GetFileName(file) + ".deleted");
+                        File.Move(file, newPath);
+                        return newPath;
+                    })
+                    .ToList()
+                    .ForEach(File.Delete);
             }
             Directory.CreateDirectory(tempDirectory);
 

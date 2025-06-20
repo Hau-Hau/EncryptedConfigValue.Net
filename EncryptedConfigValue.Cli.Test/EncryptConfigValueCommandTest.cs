@@ -4,6 +4,7 @@ using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -44,14 +45,16 @@ namespace EncryptedConfigValue.Cli.Test
 
             if (Directory.Exists(tempDirectory))
             {
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                {
-                    foreach (var file in Directory.GetFiles(tempDirectory))
+                Directory
+                    .GetFiles(tempDirectory)
+                    .Select(file =>
                     {
-                        File.Move(file, Path.Combine(tempDirectory, $"{Guid.NewGuid()}"));
-                    }
-                }
-                Array.ForEach(Directory.GetFiles(tempDirectory), File.Delete);
+                        var newPath = Path.Combine(tempDirectory, Path.GetFileName(file) + ".deleted");
+                        File.Move(file, newPath);
+                        return newPath;
+                    })
+                    .ToList()
+                    .ForEach(File.Delete);
             }
             Directory.CreateDirectory(tempDirectory);
 
@@ -75,11 +78,16 @@ namespace EncryptedConfigValue.Cli.Test
 
             if (Directory.Exists(tempDirectory))
             {
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                {
-                    Array.ForEach(Directory.GetFiles(tempDirectory), x => File.Move(x, Path.Combine(tempDirectory, $"{Guid.NewGuid()}")));
-                }
-                Array.ForEach(Directory.GetFiles(tempDirectory), File.Delete);
+                Directory
+                    .GetFiles(tempDirectory)
+                    .Select(file =>
+                    {
+                        var newPath = Path.Combine(tempDirectory, Path.GetFileName(file) + ".deleted");
+                        File.Move(file, newPath);
+                        return newPath;
+                    })
+                    .ToList()
+                    .ForEach(File.Delete);
             }
             Directory.CreateDirectory(tempDirectory);
 
