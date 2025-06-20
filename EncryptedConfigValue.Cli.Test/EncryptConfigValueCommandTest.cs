@@ -40,7 +40,9 @@ namespace EncryptedConfigValue.Cli.Test
         [MemberData(nameof(Data))]
         internal void WeEncryptAndPrintAValue(Algorithm algorithm)
         {
-            var tempDirectory = Path.Combine(Path.GetTempPath(), "temp-key-directory");
+            var version = Environment.Version;
+            var targetFrameworkVersion = $"{version.Major}.{version.Minor}";
+            var tempDirectory = Path.Combine(Path.GetTempPath(), "temp-key-directory", targetFrameworkVersion);
             var tempFilePath = Path.Combine(tempDirectory, "test.key");
 
             if (Directory.Exists(tempDirectory))
@@ -73,7 +75,9 @@ namespace EncryptedConfigValue.Cli.Test
         [Fact]
         internal void WeFailIfTheKeyfileDoesNotExist()
         {
-            var tempDirectory = Path.Combine(Path.GetTempPath(), "temp-key-directory");
+            var version = Environment.Version;
+            var targetFrameworkVersion = $"{version.Major}.{version.Minor}";
+            var tempDirectory = Path.Combine(Path.GetTempPath(), "temp-key-directory", targetFrameworkVersion);
             var tempFilePath = Path.Combine(tempDirectory, "test.key");
 
             if (Directory.Exists(tempDirectory))

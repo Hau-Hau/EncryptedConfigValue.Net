@@ -130,8 +130,10 @@ namespace EncryptedConfigValue.Test
         [MemberData(nameof(Data))]
         internal void WeCanDecryptUsingAKeyFile(Algorithm algorithm)
         {
+            var version = Environment.Version;
+            var targetFrameworkVersion = $"{version.Major}.{version.Minor}";
             KeyPair keyPair = algorithm.NewKeyPair();
-            var tempDirectory = Path.Combine(Path.GetTempPath(), "keys");
+            var tempDirectory = Path.Combine(Path.GetTempPath(), "keys", targetFrameworkVersion);
 
             if (Directory.Exists(tempDirectory))
             {

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Xunit;
 
 namespace EncryptedConfigValue.Cli.Test
@@ -18,7 +19,9 @@ namespace EncryptedConfigValue.Cli.Test
         [MemberData(nameof(Data))]
         public void WeGenerateAValidKey(Algorithm algorithm)
         {
-            var tempDirectory = Path.Combine(Path.GetTempPath(), $"temp-key-directory");
+            var version = Environment.Version;
+            var targetFrameworkVersion = $"{version.Major}.{version.Minor}";
+            var tempDirectory = Path.Combine(Path.GetTempPath(), $"temp-key-directory", targetFrameworkVersion);
             var tempFilePath = Path.Combine(tempDirectory, "test.key");
 
             if (Directory.Exists(tempDirectory))
@@ -45,7 +48,9 @@ namespace EncryptedConfigValue.Cli.Test
         [Fact]
         public void WeDoNotOverwriteAnExistingKeyfile()
         {
-            var tempDirectory = Path.Combine(Path.GetTempPath(), "temp-key-directory");
+            var version = Environment.Version;
+            var targetFrameworkVersion = $"{version.Major}.{version.Minor}";
+            var tempDirectory = Path.Combine(Path.GetTempPath(), "temp-key-directory", targetFrameworkVersion);
             var tempFilePath = Path.Combine(tempDirectory, "test.key");
             var algorithm = "AES";
 

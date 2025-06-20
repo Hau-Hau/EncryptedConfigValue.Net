@@ -17,7 +17,7 @@ namespace EncryptedConfigValue.AspNetCore.Test
     {
         private static readonly Algorithm Algorithm = Algorithm.RSA;
         private static readonly KeyPair KeyPair = Algorithm.NewKeyPair();
-        public const string TEST_KEY_PATH = nameof(DecryptingVariableSubstitutorTest) + "test-key";
+        public static readonly string TEST_KEY_PATH = nameof(DecryptingVariableSubstitutorTest) + "test-key" + $"{Environment.Version.Major}.{Environment.Version.Minor}";
         private static string? previousProperty;
 
         private readonly DecryptingVariableSubstitutor substitutor = new DecryptingVariableSubstitutor();
@@ -153,6 +153,7 @@ namespace EncryptedConfigValue.AspNetCore.Test
             {
                 return;
             }
+
 
             var tempDirectory = Path.Combine(Directory.CreateTempSubdirectory().ToString(), "temp-key-directory");
             Directory.CreateDirectory(tempDirectory);
