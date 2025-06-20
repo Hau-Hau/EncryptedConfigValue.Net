@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>EncryptedConfigValue.Net.Cli</id>
-    <version>1.1.7</version>
+    <version>1.2.0</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,9 +10,14 @@
     <readme>Readme.md</readme>
     <description>Tooling for encrypting certain configuration parameter values in dotnet apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="f7e26fae795b21e9f14df5cc7afa05a73b1a6ad2" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="5fb29398f282bb823afc580ddc3efad0ace88ee3" />
     <dependencies>
       <group targetFramework="net9.0">
+        <dependency id="McMaster.Extensions.CommandLineUtils" version="4.1.1" exclude="Build,Analyzers" />
+        <dependency id="Portable.BouncyCastle" version="1.9.0" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="9.0.6" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net8.0">
         <dependency id="McMaster.Extensions.CommandLineUtils" version="4.1.1" exclude="Build,Analyzers" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" exclude="Build,Analyzers" />
         <dependency id="System.Text.Json" version="9.0.6" exclude="Build,Analyzers" />
@@ -29,6 +34,18 @@
     <file src="bin/Release/net9.0/EncryptedConfigValue.dll" target="tools/net9.0/any/EncryptedConfigValue.dll" />
     <file src="bin/Release/net9.0/EncryptedConfigValue.pdb" target="tools/net9.0/any/EncryptedConfigValue.pdb" />
     <file src="bin/Release/net9.0/McMaster.Extensions.CommandLineUtils.dll" target="tools/net9.0/any/McMaster.Extensions.CommandLineUtils.dll" />
+    <file src="bin/Release/net8.0/BouncyCastle.Crypto.dll" target="tools/net8.0/any/BouncyCastle.Crypto.dll" />
+    <file src="bin/Release/net8.0/DotnetToolSettings.xml" target="tools/net8.0/any/DotnetToolSettings.xml" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.deps.json" target="tools/net8.0/any/EncryptedConfigValue.Cli.deps.json" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.dll" target="tools/net8.0/any/EncryptedConfigValue.Cli.dll" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.pdb" target="tools/net8.0/any/EncryptedConfigValue.Cli.pdb" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.Cli.runtimeconfig.json" target="tools/net8.0/any/EncryptedConfigValue.Cli.runtimeconfig.json" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.dll" target="tools/net8.0/any/EncryptedConfigValue.dll" />
+    <file src="bin/Release/net8.0/EncryptedConfigValue.pdb" target="tools/net8.0/any/EncryptedConfigValue.pdb" />
+    <file src="bin/Release/net8.0/McMaster.Extensions.CommandLineUtils.dll" target="tools/net8.0/any/McMaster.Extensions.CommandLineUtils.dll" />
+    <file src="bin/Release/net8.0/System.IO.Pipelines.dll" target="tools/net8.0/any/System.IO.Pipelines.dll" />
+    <file src="bin/Release/net8.0/System.Text.Encodings.Web.dll" target="tools/net8.0/any/System.Text.Encodings.Web.dll" />
+    <file src="bin/Release/net8.0/System.Text.Json.dll" target="tools/net8.0/any/System.Text.Json.dll" />
     <file src="../Readme.md" target="/" />
   </files>
 </package>
