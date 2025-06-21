@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>EncryptedConfigValue.Net.Module</id>
-    <version>1.1.15</version>
+    <version>1.1.16</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,10 +10,10 @@
     <readme>Readme.md</readme>
     <description>Base package to create decrypt provider.</description>
     <tags>config appsettings cryptography tool</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="837894c2c3ab0da50585f74197e8a3368dfe327a" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="aca3318178e48788239fd37098783ef57cfd1597" />
     <dependencies>
       <group targetFramework="netstandard2.0">
-        <dependency id="Portable.BouncyCastle" version="1.9.0" exclude="Build,Analyzers" />
+        <dependency id="BouncyCastle.Cryptography" version="2.6.1" exclude="Build,Analyzers" />
         <dependency id="System.Text.Json" version="9.0.6" exclude="Build,Analyzers" />
       </group>
     </dependencies>
