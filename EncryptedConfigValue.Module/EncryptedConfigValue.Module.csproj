@@ -2,7 +2,6 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-
 		<SolutionDir>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))$([System.IO.Path]::DirectorySeparatorChar)</SolutionDir>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
 		<NuspecFile>.\EncryptedConfigValue.Module.nuspec</NuspecFile>
@@ -12,30 +11,10 @@
 		<None Include="$(SolutionDir)Readme.md" Pack="true" PackagePath="Readme.md" />
 	</ItemGroup>
 
-    <!-- P.Michalewicz: Disabled as managed through CI/CD -->
-	<!-- <Target Name="UpdateNuspec" BeforeTargets="_IntermediatePack" Condition="'$(Configuration)' == 'Release'">
-		<Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(SolutionDir)Scripts$([System.IO.Path]::DirectorySeparatorChar)UpdateNuspec.ps1&quot; -CsprojPath &quot;$(ProjectDir)EncryptedConfigValue.Module.csproj&quot; -NuspecPath &quot;$(ProjectDir)EncryptedConfigValue.Net.Module.nuspec&quot; -ReadmePath &quot;$(SolutionDir)Readme.md&quot;" />
-	</Target> -->
-
 	<ItemGroup>
-		<ProjectReference Include="..\EncryptedConfigValue\EncryptedConfigValue.csproj" PrivateAssets="All">
+		<ProjectReference Include="..\EncryptedConfigValue\EncryptedConfigValue.csproj" PrivateAssets="contentfiles;analyzers">
 			<ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-			<IncludeAssets>EncryptedConfigValue.dll</IncludeAssets>
 		</ProjectReference>
 	</ItemGroup>
-
-	<PropertyGroup>
-		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
-	</PropertyGroup>
-
-	<Target Name="CopyProjectReferencesToPackage" DependsOnTargets="BuildOnlySettings;ResolveReferences">
-		<ItemGroup>
-			<_ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference')-&gt;WithMetadataValue('PrivateAssets', 'All'))" />
-		</ItemGroup>
-		<Message Text="Batch for .nupkg: ReferenceCopyLocalPaths = @(_ReferenceCopyLocalPaths), ReferenceCopyLocalPaths.DestinationSubDirectory = %(_ReferenceCopyLocalPaths.DestinationSubDirectory) Filename = %(_ReferenceCopyLocalPaths.Filename) Extension = %(_ReferenceCopyLocalPaths.Extension)" Importance="High" Condition="'@(_ReferenceCopyLocalPaths)' != ''" />
-		<ItemGroup>
-			<BuildOutputInPackage Include="@(_ReferenceCopyLocalPaths)" TargetPath="%(_ReferenceCopyLocalPaths.DestinationSubDirectory)" />
-		</ItemGroup>
-	</Target>
 
 </Project>

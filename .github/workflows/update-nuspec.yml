@@ -7,6 +7,7 @@ on:
         required: true
         type: boolean
         default: false
+        description: "Force recreation of nuspec files"
   pull_request:
     types: 
       - closed
@@ -102,6 +103,8 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: ${{ steps.set-project-name.outputs.value }}
+          external-dependencies-sources: |
+            EncryptedConfigValue
           additional-files: |
             ./Readme.md
       - uses: ./.github/actions/commit-changes
@@ -147,8 +150,6 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: ${{ steps.set-project-name.outputs.value }}
-          external-dependencies-sources: |
-            EncryptedConfigValue
           additional-files: |
             ./Readme.md
       - uses: ./.github/actions/commit-changes
