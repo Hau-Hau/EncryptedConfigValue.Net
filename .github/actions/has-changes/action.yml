@@ -65,14 +65,9 @@ runs:
           $csproj = [xml](Get-Content "$($CsprojPath)")
           $projectReferences = $csproj.Project.ItemGroup.ProjectReference | Where-Object { $_ -ne $null }
           foreach ($projectReference in $projectReferences) {
-            if ($projectReference.PrivateAssets -ne "All") {
+            if (-not([string]::IsNullOrWhitespace($projectReference.IncludeAssets)) -and $projectReference.IncludeAssets -ne "All") {
               continue;
             }
-            
-            if ([string]::IsNullOrWhitespace($projectReference.IncludeAssets)) {
-              continue;
-            }
-
 
             $output = HasChanges -CsprojPath "$(Resolve-RelativePath $([IO.Path]::Combine($projectDirectoryPath, $projectReference.Include)))" -CurrentHash $CurrentHash -PrevHash $PrevHash
             if ($output) {
