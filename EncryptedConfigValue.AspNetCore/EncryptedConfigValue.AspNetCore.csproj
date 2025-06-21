@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net9.0;net8.0</TargetFrameworks>
@@ -22,7 +22,7 @@
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-		<PackageReference Include="EncryptedConfigValue.Net.Module" Version="1.1.15" />
+		<PackageReference Include="EncryptedConfigValue.Net.Module" Version="1.1.16" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.6" />
