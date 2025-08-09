@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>EncryptedConfigValue.Net.Cli</id>
-    <version>1.2.2</version>
+    <version>1.2.3</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,15 +10,15 @@
     <readme>Readme.md</readme>
     <description>Tooling for encrypting certain configuration parameter values in dotnet apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="a1cbfee973a6d5929429db02a5fc9792c402a6cf" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="97525705d97c41672826a0e7a2d07251f143cc3d" />
     <dependencies>
       <group targetFramework="net8.0">
-        <dependency id="BouncyCastle.Cryptography" version="2.6.1" exclude="Build,Analyzers" />
+        <dependency id="BouncyCastle.Cryptography" version="2.6.2" exclude="Build,Analyzers" />
         <dependency id="McMaster.Extensions.CommandLineUtils" version="4.1.1" exclude="Build,Analyzers" />
         <dependency id="System.Text.Json" version="9.0.7" exclude="Build,Analyzers" />
       </group>
       <group targetFramework="net9.0">
-        <dependency id="BouncyCastle.Cryptography" version="2.6.1" exclude="Build,Analyzers" />
+        <dependency id="BouncyCastle.Cryptography" version="2.6.2" exclude="Build,Analyzers" />
         <dependency id="McMaster.Extensions.CommandLineUtils" version="4.1.1" exclude="Build,Analyzers" />
         <dependency id="System.Text.Json" version="9.0.7" exclude="Build,Analyzers" />
       </group>
