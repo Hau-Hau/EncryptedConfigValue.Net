@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>EncryptedConfigValue.Net.AspNetCore</id>
-    <version>1.2.10</version>
+    <version>1.2.11</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,15 +10,15 @@
     <readme>Readme.md</readme>
     <description>Provides a way of using encrypted values in ASP.NET Core apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="4616d82242a8b9dd48438c05ef6a146f55bc2549" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="43fbb6327be36fcdd652197539f1553dd005978d" />
     <dependencies>
-      <group targetFramework="net9.0">
+      <group targetFramework="net8.0">
         <dependency id="EncryptedConfigValue.Net.Module" version="1.1.19" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration" version="9.0.8" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="9.0.8" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration.Json" version="9.0.8" exclude="Build,Analyzers" />
       </group>
-      <group targetFramework="net8.0">
+      <group targetFramework="net9.0">
         <dependency id="EncryptedConfigValue.Net.Module" version="1.1.19" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration" version="9.0.8" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="9.0.8" exclude="Build,Analyzers" />
