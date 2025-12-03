@@ -26,7 +26,8 @@ jobs:
           
           Write-Host "Fetching open PRs..."
           
-          $prs = gh pr list --json number,title,createdAt,mergeable,isDraft,headRefOid --limit 100 | ConvertFrom-Json
+          $prs = gh pr list --json number,title,createdAt,mergeable,isDraft,headRefOid,author --limit 100 | ConvertFrom-Json
+          $prs = $prs | Where-Object { @("Hau-Hau", "app/dependabot") -contains $_.author.login }
           $prs = $prs | Sort-Object createdAt
           
           if ($prs.Count -eq 0) {
