@@ -63,30 +63,20 @@ jobs:
               break
             }
             
-            $failedChecks = $checksJson | Where-Object { 
-              $_.conclusion -notin @("success", "skipped", "neutral") -and $_.status -eq "completed"
+            $allChecksPassed = $true
+            foreach ($check in $checksJson) {
+                Write-Host "    - $($check.name): $($check.state)"
+                if ($check.state -ne "SUCCESS") {
+                    $allChecksPassed = $false
+                    break;
+                }
             }
             
-            $pendingChecks = $checksJson | Where-Object { 
-              $_.status -ne "completed"
+            if (-not $allChecksPassed) {
+                Write-Host "  Skipping: Not all checks passed"
+                continue
             }
-            
-            if ($failedChecks.Count -gt 0) {
-              Write-Host "  Failed checks found:"
-              foreach ($check in $failedChecks) {
-                Write-Host "    - $($check.name): $($check.conclusion)"
-              }
-              continue
-            }
-            
-            if ($pendingChecks.Count -gt 0) {
-              Write-Host "  Pending checks found:"
-              foreach ($check in $pendingChecks) {
-                Write-Host "    - $($check.name): $($check.status)"
-              }
-              continue
-            }
-            
+
             Write-Host "  All checks passed!"
             $completablePr = $pr
             break
