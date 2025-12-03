@@ -1,0 +1,128 @@
+name: Auto-Complete PR
+
+on:
+  schedule:
+    # Run every 3 hours
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-complete-pr:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get and complete oldest PR
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          
+          Write-Host "Fetching open PRs..."
+          
+          # Get all open PRs sorted by creation date (oldest first)
+          $prs = gh pr list --json number,title,createdAt,mergeable,isDraft,headRefOid --limit 100 | ConvertFrom-Json
+          $prs = $prs | Sort-Object createdAt
+          
+          if ($prs.Count -eq 0) {
+            Write-Host "No open PRs found"
+            exit 0
+          }
+          
+          Write-Host "Found $($prs.Count) open PR(s)"
+          
+          # Find the first completable PR
+          $completablePr = $null
+          
+          foreach ($pr in $prs) {
+            Write-Host "`nChecking PR #$($pr.number): $($pr.title)"
+            Write-Host "  Created: $($pr.createdAt)"
+            Write-Host "  Mergeable: $($pr.mergeable)"
+            Write-Host "  Draft: $($pr.isDraft)"
+            
+            # Skip if draft or not mergeable
+            if ($pr.isDraft -eq $true) {
+              Write-Host "  Skipping: PR is in draft"
+              continue
+            }
+            
+            if ($pr.mergeable -ne "MERGEABLE") {
+              Write-Host "  Skipping: PR is not mergeable (state: $($pr.mergeable))"
+              continue
+            }
+            
+            # Check CI status using GitHub CLI
+            Write-Host "  Checking CI status..."
+            $checksJson = gh pr checks $pr.number --json bucket,conclusion,name,status,title | ConvertFrom-Json
+            
+            if ($checksJson.Count -eq 0) {
+              Write-Host "  No checks found, considering as passed"
+              $completablePr = $pr
+              break
+            }
+            
+            $failedChecks = $checksJson | Where-Object { 
+              $_.conclusion -notin @("success", "skipped", "neutral") -and $_.status -eq "completed"
+            }
+            
+            $pendingChecks = $checksJson | Where-Object { 
+              $_.status -ne "completed"
+            }
+            
+            if ($failedChecks.Count -gt 0) {
+              Write-Host "  Failed checks found:"
+              foreach ($check in $failedChecks) {
+                Write-Host "    - $($check.name): $($check.conclusion)"
+              }
+              continue
+            }
+            
+            if ($pendingChecks.Count -gt 0) {
+              Write-Host "  Pending checks found:"
+              foreach ($check in $pendingChecks) {
+                Write-Host "    - $($check.name): $($check.status)"
+              }
+              continue
+            }
+            
+            Write-Host "  All checks passed!"
+            $completablePr = $pr
+            break
+          }
+          
+          if ($null -eq $completablePr) {
+            Write-Host "`n No completable PRs found"
+            exit 0
+          }
+          
+          # Complete the PR
+          Write-Host "`n Completing PR #$($completablePr.number): $($completablePr.title)"
+          
+          try {
+            # Merge the PR (options: --merge, --squash, --rebase)
+            gh pr merge $completablePr.number --merge --delete-branch
+            
+            Write-Host "Successfully completed PR #$($completablePr.number)"
+            
+            # Add a comment
+            gh pr comment $completablePr.number --body "Automatically completed by workflow"
+            
+            # Set output for workflow summary
+            Write-Host "`n## Workflow Summary" >> $env:GITHUB_STEP_SUMMARY
+            Write-Host "Completed PR #$($completablePr.number): $($completablePr.title)" >> $env:GITHUB_STEP_SUMMARY
+            
+          } catch {
+            Write-Host "Failed to complete PR #$($completablePr.number)"
+            Write-Host "Error: $_"
+            
+            Write-Host "`n## Workflow Summary" >> $env:GITHUB_STEP_SUMMARY
+            Write-Host "Failed to complete PR #$($completablePr.number): $_" >> $env:GITHUB_STEP_SUMMARY
+            
+            exit 1
+          }
