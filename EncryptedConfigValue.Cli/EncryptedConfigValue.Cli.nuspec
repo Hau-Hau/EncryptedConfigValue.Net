@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>EncryptedConfigValue.Net.Cli</id>
-    <version>1.2.5</version>
+    <version>1.3.0</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,9 +10,14 @@
     <readme>Readme.md</readme>
     <description>Tooling for encrypting certain configuration parameter values in dotnet apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="16de71e9223227c7a67029a46a9cd59ee0ec3a0d" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="94723d356dba9dcdcd5793e7bfb5972a39945c0f" />
     <dependencies>
       <group targetFramework="net9.0">
+        <dependency id="BouncyCastle.Cryptography" version="2.6.2" exclude="Build,Analyzers" />
+        <dependency id="McMaster.Extensions.CommandLineUtils" version="4.1.1" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="9.0.9" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net10.0">
         <dependency id="BouncyCastle.Cryptography" version="2.6.2" exclude="Build,Analyzers" />
         <dependency id="McMaster.Extensions.CommandLineUtils" version="4.1.1" exclude="Build,Analyzers" />
         <dependency id="System.Text.Json" version="9.0.9" exclude="Build,Analyzers" />
@@ -25,6 +30,15 @@
     </dependencies>
   </metadata>
   <files>
+    <file src="bin/Release/net10.0/BouncyCastle.Cryptography.dll" target="tools/net10.0/any/BouncyCastle.Cryptography.dll" />
+    <file src="bin/Release/net10.0/DotnetToolSettings.xml" target="tools/net10.0/any/DotnetToolSettings.xml" />
+    <file src="bin/Release/net10.0/EncryptedConfigValue.Cli.deps.json" target="tools/net10.0/any/EncryptedConfigValue.Cli.deps.json" />
+    <file src="bin/Release/net10.0/EncryptedConfigValue.Cli.dll" target="tools/net10.0/any/EncryptedConfigValue.Cli.dll" />
+    <file src="bin/Release/net10.0/EncryptedConfigValue.Cli.pdb" target="tools/net10.0/any/EncryptedConfigValue.Cli.pdb" />
+    <file src="bin/Release/net10.0/EncryptedConfigValue.Cli.runtimeconfig.json" target="tools/net10.0/any/EncryptedConfigValue.Cli.runtimeconfig.json" />
+    <file src="bin/Release/net10.0/EncryptedConfigValue.dll" target="tools/net10.0/any/EncryptedConfigValue.dll" />
+    <file src="bin/Release/net10.0/EncryptedConfigValue.pdb" target="tools/net10.0/any/EncryptedConfigValue.pdb" />
+    <file src="bin/Release/net10.0/McMaster.Extensions.CommandLineUtils.dll" target="tools/net10.0/any/McMaster.Extensions.CommandLineUtils.dll" />
     <file src="bin/Release/net9.0/BouncyCastle.Cryptography.dll" target="tools/net9.0/any/BouncyCastle.Cryptography.dll" />
     <file src="bin/Release/net9.0/DotnetToolSettings.xml" target="tools/net9.0/any/DotnetToolSettings.xml" />
     <file src="bin/Release/net9.0/EncryptedConfigValue.Cli.deps.json" target="tools/net9.0/any/EncryptedConfigValue.Cli.deps.json" />
