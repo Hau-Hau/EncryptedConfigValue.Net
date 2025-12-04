@@ -11,6 +11,9 @@
     <description>Tooling for encrypting certain configuration parameter values in dotnet apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
     <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="94723d356dba9dcdcd5793e7bfb5972a39945c0f" />
+    <packageTypes>
+      <packageType name="DotnetTool" />
+    </packageTypes>
     <dependencies>
       <group targetFramework="net9.0">
         <dependency id="BouncyCastle.Cryptography" version="2.6.2" exclude="Build,Analyzers" />
