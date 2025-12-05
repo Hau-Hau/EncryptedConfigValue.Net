@@ -148,7 +148,7 @@ jobs:
           hard-reset: true
       - uses: ./.github/actions/update-nuspec-file
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
           project: ${{ steps.set-project-name.outputs.value }}
           additional-files: |
             ./Readme.md
