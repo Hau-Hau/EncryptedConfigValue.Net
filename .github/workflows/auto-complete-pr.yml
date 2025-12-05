@@ -59,8 +59,11 @@ jobs:
             $checksJson = gh pr checks $pr.number --json bucket,name,state | ConvertFrom-Json
             
             if ($checksJson.Count -eq 0) {
-              Write-Host "  No checks found, considering as passed"
-              $completablePr = $pr
+              Write-Host "  No checks found"
+              if ($pr.title.StartsWith("Update") -and $pr.title.EndsWith(".nuspec")) {
+                Write-Host "`n  PR updates nuspec file - considering as passed"
+                $completablePr = $pr
+              }
               break
             }
             
@@ -91,7 +94,12 @@ jobs:
           Write-Host "`n Completing PR #$($completablePr.number): $($completablePr.title)"
           
           try {
-            gh pr merge $completablePr.number --merge --delete-branch
+            if ($completablePr.title.StartsWith("Update") -and $completablePr.title.EndsWith(".nuspec")) {
+                gh pr merge $completablePr.number --merge --delete-branch --admin
+            } else {
+              gh pr merge $completablePr.number --merge --delete-branch
+            }
+            
             
             Write-Host "Successfully completed PR #$($completablePr.number)"
             
