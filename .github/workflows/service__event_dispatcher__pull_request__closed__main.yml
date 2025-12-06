@@ -9,4 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Emit metadata
-        run: echo "Running for PR ${{ github.event.number }} state=${{ github.event.action }}"
+        run: |
+          echo "Running for PR ${{ github.event.number }}"
+          echo "State: ${{ github.event.pull_request.state }}"
+          echo "Base ref: ${{ github.event.pull_request.base.ref }}"
+          echo "Merged: ${{ github.event.pull_request.merged }}"
