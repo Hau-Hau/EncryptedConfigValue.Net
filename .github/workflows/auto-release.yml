@@ -1,0 +1,342 @@
+name: Auto-Release
+
+on:
+  schedule:
+    - cron: '0 0 * * 6'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: dry-run
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.validate.outputs.result }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+  
+      - name: Validate
+        id: validate
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "Scheduled run - skipping user validation"
+            echo "result=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          IFS=',' read -r -a username_array <<< "${{ secrets.ACCEPT_RELEASE_PR_ALLOW_LIST }}"
+          user_found=false
+          for username in "${username_array[@]}"
+          do
+              if [ "$username" == "${{ github.actor }}" ]; then
+                  user_found=true
+                  break
+              fi
+          done
+          if [ "$user_found" = "false" ]; then
+            echo "User ${{ github.actor }} is not authorized to execute this workflow."
+            echo "result=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "result=true" >> $GITHUB_OUTPUT
+
+  has-changes:
+    needs: [validate]
+    if: needs.validate.outputs.result == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      module: ${{ steps.finalize.outputs.module }}
+      aspnetcore: ${{ steps.finalize.outputs.aspnetcore }}
+      cli: ${{ steps.finalize.outputs.cli }}
+      
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/has-changes
+        id: has-changes-module
+        with:
+          project: EncryptedConfigValue.Module
+
+      - uses: ./.github/actions/has-changes
+        id: has-changes-aspnetcore
+        with:
+          project: EncryptedConfigValue.AspNetCore
+
+      - uses: ./.github/actions/has-changes
+        id: has-changes-cli
+        with:
+          project: EncryptedConfigValue.Cli
+
+      - name: Finalize
+        id: finalize
+        run: |
+          echo "module=${{ steps.has-changes-module.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "aspnetcore=${{ steps.has-changes-aspnetcore.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "cli=${{ steps.has-changes-cli.outputs.result }}" >> $GITHUB_OUTPUT
+
+  test:
+    needs: [has-changes]
+    if: needs.has-changes.outputs.module == 'true' || needs.has-changes.outputs.aspnetcore == 'true' || needs.has-changes.outputs.cli == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.test.outputs.result }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-dotnet
+
+      - name: Build
+        run: dotnet build ./EncryptedConfigValue.sln --configuration Release
+    
+      - name: Test
+        id: test
+        shell: bash
+        run: |
+          if dotnet test --no-restore --verbosity normal; then
+            echo "result=true" >> $GITHUB_OUTPUT
+          else
+            echo "result=false" >> $GITHUB_OUTPUT
+          fi
+
+  validate-module:
+    needs: [has-changes, test]
+    if: needs.has-changes.outputs.module == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.validate.outputs.result }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+  
+      - name: Validate
+        id: validate
+        run: |
+          version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ./EncryptedConfigValue.Module/EncryptedConfigValue.Module.nuspec)
+          version_of_last_release=$(git tag -l "EncryptedConfigValue.Module/*" | sort -V | tail -n 1 | sed 's/EncryptedConfigValue.Module\///')
+          if [[ "$version" == "$version_of_last_release" ]]; then
+            echo "Version in EncryptedConfigValue.Module.nuspec is same as version of last release. Please update the nuspec file before proceeding with the release."
+            echo "result=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [[ "$(printf '%s\n' "$version" "$version_of_last_release" | sort -V | tail -n 1 | xargs)" != "$version" ]]; then
+            echo "Version in EncryptedConfigValue.Module.nuspec is lower than or equal to the version of the last release. Please update the nuspec file with a higher version."
+            echo "result=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "result=true" >> $GITHUB_OUTPUT
+
+  validate-aspnetcore:
+    needs: [has-changes, test]
+    if: needs.has-changes.outputs.aspnetcore == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.validate.outputs.result }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+  
+      - name: Validate
+        id: validate
+        run: |
+          version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ./EncryptedConfigValue.AspNetCore/EncryptedConfigValue.AspNetCore.nuspec)
+          version_of_last_release=$(git tag -l "EncryptedConfigValue.AspNetCore/*" | sort -V | tail -n 1 | sed 's/EncryptedConfigValue.AspNetCore\///')
+          if [[ "$version" == "$version_of_last_release" ]]; then
+            echo "Version in EncryptedConfigValue.AspNetCore.nuspec is same as version of last release. Please update the nuspec file before proceeding with the release."
+            echo "result=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [[ "$(printf '%s\n' "$version" "$version_of_last_release" | sort -V | tail -n 1 | xargs)" != "$version" ]]; then
+            echo "Version in EncryptedConfigValue.AspNetCore.nuspec is lower than or equal to the version of the last release. Please update the nuspec file with a higher version."
+            echo "result=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "result=true" >> $GITHUB_OUTPUT
+
+  validate-cli:
+    needs: [has-changes, test]
+    if: needs.has-changes.outputs.cli == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.validate.outputs.result }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+  
+      - name: Validate
+        id: validate
+        run: |
+          version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ./EncryptedConfigValue.Cli/EncryptedConfigValue.Cli.nuspec)
+          version_of_last_release=$(git tag -l "EncryptedConfigValue.Cli/*" | sort -V | tail -n 1 | sed 's/EncryptedConfigValue.Cli\///')
+          if [[ "$version" == "$version_of_last_release" ]]; then
+            echo "Version in EncryptedConfigValue.Cli.nuspec is same as version of last release. Please update the nuspec file before proceeding with the release."
+            echo "result=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [[ "$(printf '%s\n' "$version" "$version_of_last_release" | sort -V | tail -n 1 | xargs)" != "$version" ]]; then
+            echo "Version in EncryptedConfigValue.Cli.nuspec is lower than or equal to the version of the last release. Please update the nuspec file with a higher version."
+            echo "result=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "result=true" >> $GITHUB_OUTPUT
+
+
+  release-module:
+    needs: [validate-module]
+    if: needs.validate-module.outputs.result == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/release-action
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          project: EncryptedConfigValue.Module
+          dry-run: ${{ inputs.dry-run }}
+
+  release-aspnetcore:
+    needs: [validate-aspnetcore]
+    if: needs.validate-aspnetcore.outputs.result == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/release-action
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          project: EncryptedConfigValue.AspNetCore
+          dry-run: ${{ inputs.dry-run }}
+
+  release-cli:
+    needs: [validate-cli]
+    if: needs.validate-cli.outputs.result == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/release-action
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          project: EncryptedConfigValue.Cli
+          dry-run: ${{ inputs.dry-run }}
+
+  tag-module:
+    needs: [release-module]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      
+      - name: Setup git
+        shell: bash
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+
+      - name: Tag
+        shell: bash
+        run: |
+          version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ./EncryptedConfigValue.Module/EncryptedConfigValue.Module.nuspec)
+          hash=$(sed -n 's:.*commit="\([^"]*\)".*:\1:p' ./EncryptedConfigValue.Module/EncryptedConfigValue.Module.nuspec)
+ 
+          if [[ "${{ inputs.dry-run }}" == "true" ]]; then
+            echo "git tag -a \"EncryptedConfigValue.Module/$version\" -m \"EncryptedConfigValue.Module v$version\" $hash"
+            echo "git push origin tag \"EncryptedConfigValue.Module/$version\""
+          else
+            git tag -a "EncryptedConfigValue.Module/$version" -m "EncryptedConfigValue.Module v$version" $hash
+            git push origin tag "EncryptedConfigValue.Module/$version"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  tag-aspnetcore:
+    needs: [release-aspnetcore]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      
+      - name: Setup git
+        shell: bash
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+
+      - name: Tag
+        shell: bash
+        run: |
+          version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ./EncryptedConfigValue.AspNetCore/EncryptedConfigValue.AspNetCore.nuspec)
+          hash=$(sed -n 's:.*commit="\([^"]*\)".*:\1:p' ./EncryptedConfigValue.AspNetCore/EncryptedConfigValue.AspNetCore.nuspec)
+ 
+          if [[ "${{ inputs.dry-run }}" == "true" ]]; then
+            echo "git tag -a \"EncryptedConfigValue.AspNetCore/$version\" -m \"EncryptedConfigValue.AspNetCore v$version\" $hash"
+            echo "git push origin tag \"EncryptedConfigValue.AspNetCore/$version\""
+          else
+            git tag -a "EncryptedConfigValue.AspNetCore/$version" -m "EncryptedConfigValue.AspNetCore v$version" $hash
+            git push origin tag "EncryptedConfigValue.AspNetCore/$version"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  tag-cli:
+    needs: [release-cli]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      
+      - name: Setup git
+        shell: bash
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+
+      - name: Tag
+        shell: bash
+        run: |
+          version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ./EncryptedConfigValue.Cli/EncryptedConfigValue.Cli.nuspec)
+          hash=$(sed -n 's:.*commit="\([^"]*\)".*:\1:p' ./EncryptedConfigValue.Cli/EncryptedConfigValue.Cli.nuspec)
+ 
+          if [[ "${{ inputs.dry-run }}" == "true" ]]; then
+            echo "git tag -a \"EncryptedConfigValue.Cli/$version\" -m \"EncryptedConfigValue.Cli v$version\" $hash"
+            echo "git push origin tag \"EncryptedConfigValue.Cli/$version\""
+          else
+            git tag -a "EncryptedConfigValue.Cli/$version" -m "EncryptedConfigValue.Cli v$version" $hash
+            git push origin tag "EncryptedConfigValue.Cli/$version"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

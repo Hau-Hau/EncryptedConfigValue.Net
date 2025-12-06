@@ -1,0 +1,12 @@
+name: "service::event_dispatcher::pull_request::closed::main"
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  mark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Emit metadata
+        run: echo "Running for PR ${{ github.event.number }} state=${{ github.event.action }}"

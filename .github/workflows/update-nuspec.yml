@@ -1,18 +1,10 @@
 name: Update nuspec files
 
 on:
-  workflow_dispatch:
-    inputs:
-      force:
-        required: true
-        type: boolean
-        default: false
-        description: "Force recreation of nuspec files"
-  pull_request:
-    types: 
-      - closed
-    branches:
-      - main
+  workflow_run:
+    workflows: ["service::event_dispatcher::pull_request::closed::main"]
+    types:
+      - completed
 
 concurrency:
   group: update-nuspec
@@ -21,6 +13,11 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      fromJson(github.event.workflow_run.payload).pull_request.state == 'closed' &&
+      fromJson(github.event.workflow_run.payload).pull_request.base.ref == 'main'
     env:
       PULL_REQUEST_MERGED: ${{ github.event.pull_request.merged }}
     outputs:
@@ -101,7 +98,7 @@ jobs:
           hard-reset: true
       - uses: ./.github/actions/update-nuspec-file
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
           project: ${{ steps.set-project-name.outputs.value }}
           external-dependencies-sources: |
             EncryptedConfigValue
@@ -148,7 +145,7 @@ jobs:
           hard-reset: true
       - uses: ./.github/actions/update-nuspec-file
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
           project: ${{ steps.set-project-name.outputs.value }}
           additional-files: |
             ./Readme.md
@@ -193,7 +190,7 @@ jobs:
           hard-reset: true
       - uses: ./.github/actions/update-nuspec-file
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
           project:  ${{ steps.set-project-name.outputs.value }}
           external-dependencies-sources: |
             EncryptedConfigValue
