@@ -24,6 +24,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT }}
           WORKFLOW_EVENT: ${{ github.event.workflow_run.event }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "[skip] workflow_dispatch"
@@ -37,7 +38,7 @@ jobs:
             exit 0
           fi
           
-          PR_JSON=$(gh pr list --repo ${{ github.repository }} --state all --json number,mergeCommit,headRefName,baseRefName,state --search "$HEAD_SHA" --limit 1)
+          PR_JSON=$(gh pr list --repo ${{ github.repository }} --state all --json number,mergeCommit,headRefName,baseRefName,state --search "$HEAD_SHA" --limit 1 --jq '.[0]')
           if [ "$(echo "$PR_JSON" | jq '. | length')" -eq 0 ]; then
             echo "[skip] No PR found for commit $HEAD_SHA"
             echo "pull_request_merged=false" >> $GITHUB_OUTPUT
@@ -45,7 +46,6 @@ jobs:
             exit 0
           fi
           
-          PR_JSON=$(gh pr view "$PR_NUMBER" --repo ${{ github.repository }} --json headRefName,baseRefName,state)
           PR_STATE=$(echo "$PR_JSON" | jq -r '.state')
           PR_BASE_REF_NAME=$(echo "$PR_JSON" | jq -r '.baseRefName')
           PR_HEAD_REF=$(echo "$PR_JSON" | jq -r '.headRefName')
