@@ -1,5 +1,5 @@
 ﻿using EncryptedConfigValue.Crypto.Algorithm.Aes;
-using FluentAssertions;
+using Shouldly;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
 using Xunit;
@@ -19,7 +19,7 @@ namespace EncryptedConfigValue.Test.Aes
         public void TestEqualityFromSameSecretKey()
         {
             var secretKey = NewSecretKey();
-            new AesKey(secretKey).Should().BeEquivalentTo(new AesKey(secretKey));
+            new AesKey(secretKey).ShouldBeEquivalentTo(new AesKey(secretKey));
         }
     }
 }

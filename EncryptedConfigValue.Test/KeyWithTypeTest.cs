@@ -1,5 +1,5 @@
 ﻿using EncryptedConfigValue.Crypto;
-using FluentAssertions;
+using Shouldly;
 using System.Text.Json;
 using Xunit;
 
@@ -18,10 +18,10 @@ namespace EncryptedConfigValue.Test
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             var expectedSerialization = string.Format("\"{0}\"", kwtString);
-            serialized.Should().BeEquivalentTo(expectedSerialization);
+            serialized.ShouldBeEquivalentTo(expectedSerialization);
 
             var deserialized = JsonSerializer.Deserialize<KeyWithType>(serialized);
-            deserialized!.ToString().Should().BeEquivalentTo(kwt.ToString());
+            deserialized!.ToString().ShouldBeEquivalentTo(kwt.ToString());
         }
     }
 }

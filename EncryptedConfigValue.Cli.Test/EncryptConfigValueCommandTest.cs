@@ -1,6 +1,6 @@
 ﻿using EncryptedConfigValue.Crypto;
 using EncryptedConfigValue.Crypto.Algorithm;
-using FluentAssertions;
+using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -69,7 +69,7 @@ namespace EncryptedConfigValue.Cli.Test
             var decryptionKey = keyPair.DecryptionKey;
             var decryptedValue = configValue.Decrypt(decryptionKey);
 
-            decryptedValue.Should().BeEquivalentTo(plaintext);
+            decryptedValue.ShouldBeEquivalentTo(plaintext);
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace EncryptedConfigValue.Cli.Test
                 command.Execute("--keyfile", tempFilePath, "--value", plaintext);
             };
 
-            act.Should().Throw<FileNotFoundException>();
+            act.ShouldThrow<FileNotFoundException>();
         }
 
         public static IEnumerable<object[]> Data() =>

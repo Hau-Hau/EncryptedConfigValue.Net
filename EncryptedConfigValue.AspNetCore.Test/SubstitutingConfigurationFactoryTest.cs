@@ -1,12 +1,13 @@
 using EncryptedConfigValue.AspNetCore.Test.Util;
 using EncryptedConfigValue.Crypto;
 using EncryptedConfigValue.Crypto.Util;
-using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Xunit;
+using Shouldly;
+using System.Text.RegularExpressions;
 
 namespace EncryptedConfigValue.AspNetCore.Test
 {
@@ -25,25 +26,25 @@ namespace EncryptedConfigValue.AspNetCore.Test
                 .AddEncryptedConfigValueProvider()
                 .Build();
 
-            configuration["Unencrypted"].Should().Be("value");
-            configuration["Encrypted"].Should().Be("value");
-            configuration["EncryptedWithSingleQuote"].Should().Be("don't use quotes");
-            configuration["EncryptedWithDoubleQuote"].Should().Be("double quote is \"");
-            configuration["EncryptedMalformedYaml"].Should().Be("[oh dear");
+            configuration["Unencrypted"].ShouldBe("value");
+            configuration["Encrypted"].ShouldBe("value");
+            configuration["EncryptedWithSingleQuote"].ShouldBe("don't use quotes");
+            configuration["EncryptedWithDoubleQuote"].ShouldBe("double quote is \"");
+            configuration["EncryptedMalformedYaml"].ShouldBe("[oh dear");
 
             configuration
                 .GetSection("ArrayWithSomeEncryptedValues")
                 .GetChildren()
                 .Select(x => x.Value)
-                .Should()
-                .BeEquivalentTo(new List<string> { "value", "value", "other value", "[oh dear" });
+                .ToList()
+                .ShouldBeEquivalentTo(new List<string> { "value", "value", "other value", "[oh dear" });
 
             var person = new Person();
             configuration
                 .GetSection("PocoWithEncryptedValues")
                 .Bind(person);
-            person.Username.Should().BeEquivalentTo("some-user");
-            person.Password.Should().BeEquivalentTo("value");
+            person.Username.ShouldBeEquivalentTo("some-user");
+            person.Password.ShouldBeEquivalentTo("value");
         }
 
         [Fact]
@@ -53,11 +54,10 @@ namespace EncryptedConfigValue.AspNetCore.Test
                 .AddJsonFile(Path.Combine("Resources", "testConfigWithError.json"), optional: false, reloadOnChange: false)
                 .AddEncryptedConfigValueProvider()
                 .Build();
-            act.Should()
-                .Throw<ConfigurationDecryptionException>()
-                .WithMessage($"Configuration decryption error at {Path.Combine("Resources", "testConfigWithError.json")} (*)")
-                .WithInnerExceptionExactly<StringSubstitutionException>()
-                .WithMessage("The value 'enc:ERROR' for field 'arrayWithSomeEncryptedValues:3' could not be replaced");
+            var ex = Should.Throw<ConfigurationDecryptionException>(act);
+            ex.Message.ShouldMatch($@"Configuration decryption error at {Regex.Escape(Path.Combine("Resources", "testConfigWithError.json"))} \(.*\)");
+            ex.InnerException.ShouldBeOfType<StringSubstitutionException>();
+            ex.InnerException.Message.ShouldBe("The value 'enc:ERROR' for field 'ArrayWithSomeEncryptedValues:3' could not be replaced");
         }
     }
 }
