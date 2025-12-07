@@ -2,7 +2,7 @@
 using EncryptedConfigValue.Crypto.Algorithm;
 using EncryptedConfigValue.Crypto.Util;
 using EncryptedConfigValue.Module;
-using FluentAssertions;
+using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -63,7 +63,7 @@ namespace EncryptedConfigValue.AspNetCore.Test
         public void ConstantsAreNotModified()
         {
             substitutor.TryReplace("abc", out var output);
-            output.Should().BeEquivalentTo("abc");
+            output.ShouldBeEquivalentTo("abc");
         }
 
         [Fact]
@@ -76,8 +76,8 @@ namespace EncryptedConfigValue.AspNetCore.Test
             }
             catch (StringSubstitutionException e)
             {
-                e.Value.Should().BeEquivalentTo("enc:invalid-contents");
-                e.Field.Should().BeEmpty();
+                e.Value.ShouldBeEquivalentTo("enc:invalid-contents");
+                e.Field.ShouldBeEmpty();
             }
         }
 
@@ -85,21 +85,21 @@ namespace EncryptedConfigValue.AspNetCore.Test
         public void NonEncryptedVariablesAreNotModified()
         {
             substitutor.TryReplace("${abc}", out var output);
-            output.Should().BeEquivalentTo("${abc}");
+            output.ShouldBeEquivalentTo("${abc}");
         }
 
         [Fact]
         public void VariableIsDecrypted()
         {
             substitutor.TryReplace("${" + Encrypt("abc") + "}", out var output);
-            output.Should().BeEquivalentTo("abc");
+            output.ShouldBeEquivalentTo("abc");
         }
 
         [Fact]
         public void VariableIsDecryptedWithRegex()
         {
             substitutor.TryReplace("${" + Encrypt("$5") + "}", out var output);
-            output.Should().Be("$5");
+            output.ShouldBe("$5");
         }
 
         [Fact]
@@ -110,7 +110,7 @@ namespace EncryptedConfigValue.AspNetCore.Test
             var hello = "${" + Encrypt("enc:hello") + "}";
             var source = abc + ":" + def + '.' + hello;
             substitutor.TryReplace(source, out var output);
-            output.Should().Be("abc:def.enc:hello");
+            output.ShouldBe("abc:def.enc:hello");
         }
 
         [Fact]
@@ -120,7 +120,7 @@ namespace EncryptedConfigValue.AspNetCore.Test
             var def = "${" + Encrypt("${enc:test}") + "}";
             var source = abc + ":" + def;
             substitutor.TryReplace(source, out var output);
-            output.Should().BeEquivalentTo("abc:${enc:test}");
+            output.ShouldBeEquivalentTo("abc:${enc:test}");
         }
 
         [SkippableTheory]
@@ -131,7 +131,7 @@ namespace EncryptedConfigValue.AspNetCore.Test
             Skip.If(Encoding.UTF8.GetBytes(plaintext).Length > 190);
             EnsureTestKeysExist();
             substitutor.TryReplace("${" + Encrypt(plaintext) + "}", out var output);
-            output.Should().BeEquivalentTo(plaintext);
+            output.ShouldBeEquivalentTo(plaintext);
         }
 
         public static IEnumerable<object[]> PropertyTestData(int tries)

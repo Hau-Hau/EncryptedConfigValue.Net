@@ -1,6 +1,6 @@
 ﻿using EncryptedConfigValue.Crypto;
 using EncryptedConfigValue.Crypto.Algorithm;
-using FluentAssertions;
+using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -42,7 +42,7 @@ namespace EncryptedConfigValue.Cli.Test
             command.Execute("--algorithm", algorithm.ToString(), "--file", tempFilePath);
 
             var keyPair = KeyFileUtils.KeyPairFromPath(tempFilePath);
-            keyPair.EncryptionKey.Type.Algorithm.Should().BeEquivalentTo(algorithm);
+            keyPair.EncryptionKey.Type.Algorithm.ShouldBeEquivalentTo(algorithm);
         }
 
         [Fact]
@@ -62,8 +62,8 @@ namespace EncryptedConfigValue.Cli.Test
             {
                 command.Execute("--algorithm", algorithm.ToString(), "--file", tempFilePath);
             };
-
-            act.Should().Throw<IOException>().WithMessage("*already exists*");
+            var ex = Should.Throw<IOException>(act);
+            ex.Message.ShouldMatch("(.*)already exists*");
         }
 
         public static IEnumerable<object[]> Data() =>

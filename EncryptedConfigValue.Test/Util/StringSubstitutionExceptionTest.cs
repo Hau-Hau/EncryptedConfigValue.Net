@@ -1,5 +1,5 @@
 ﻿using EncryptedConfigValue.Crypto.Util;
-using FluentAssertions;
+using Shouldly;
 using NSubstitute;
 using System;
 using Xunit;
@@ -70,9 +70,9 @@ namespace EncryptedConfigValue.Test.Util
 
         private void AssertException(StringSubstitutionException exception, String field)
         {
-            exception.Value.Should().BeEquivalentTo(VALUE);
-            exception.Field.Should().BeEquivalentTo(field);
-            exception.Cause.Should().BeEquivalentTo(cause);
+            exception.Value.ShouldBeEquivalentTo(VALUE);
+            exception.Field.ShouldBeEquivalentTo(field);
+            exception.Cause.ShouldBeEquivalentTo(cause);
         }
     }
 }

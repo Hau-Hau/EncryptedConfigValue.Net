@@ -1,5 +1,5 @@
 using EncryptedConfigValue.Crypto.Algorithm;
-using FluentAssertions;
+using Shouldly;
 using System.Collections.Generic;
 using Xunit;
 
@@ -15,7 +15,8 @@ namespace EncryptedConfigValueTest
         {
             var keyPair1 = algorithm.NewKeyPair();
             var keyPair2 = algorithm.NewKeyPair();
-            keyPair1.Should().NotBe(keyPair2).And.NotBeSameAs(keyPair2);
+            keyPair1.ShouldNotBe(keyPair2);
+            keyPair1.ShouldNotBeSameAs(keyPair2);
         }
 
         [Theory]
@@ -26,7 +27,7 @@ namespace EncryptedConfigValueTest
             var encryptedValue = algorithm.NewEncrypter().Encrypt(keyPair.EncryptionKey, plaintext);
             var decryptionKey = keyPair.DecryptionKey;
             var decrypted = encryptedValue.Decrypt(decryptionKey);
-            decrypted.Should().Be(plaintext);
+            decrypted.ShouldBe(plaintext);
         }
 
         [Theory]
@@ -38,17 +39,18 @@ namespace EncryptedConfigValueTest
             var encrypted2 = algorithm.NewEncrypter().Encrypt(keyPair.EncryptionKey, plaintext);
 
             // we don't want to leak that certain values are the same
-            encrypted1.Should().NotBe(encrypted2).And.NotBeSameAs(encrypted2);
+            encrypted1.ShouldNotBe(encrypted2);
+            encrypted1.ShouldNotBeSameAs(encrypted2);
             // paranoia, let's say the equals method is badly behaved
-            encrypted1.GetHashCode().Should().NotBe(encrypted2.GetHashCode());
+            encrypted1.GetHashCode().ShouldNotBe(encrypted2.GetHashCode());
 
             // we should naturally decrypt back to the same thing - the plaintext
             var decryptionKey = keyPair.DecryptionKey;
             var decryptedString1 = encrypted1.Decrypt(decryptionKey);
             var decryptedString2 = encrypted2.Decrypt(decryptionKey);
 
-            decryptedString1.Should().Be(plaintext);
-            decryptedString2.Should().Be(plaintext);
+            decryptedString1.ShouldBe(plaintext);
+            decryptedString2.ShouldBe(plaintext);
         }
 
         public static IEnumerable<object[]> Data() => new[]

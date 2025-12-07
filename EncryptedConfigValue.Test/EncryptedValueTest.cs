@@ -1,6 +1,6 @@
 ﻿using EncryptedConfigValue.Crypto;
 using EncryptedConfigValue.Crypto.Algorithm;
-using FluentAssertions;
+using Shouldly;
 using Org.BouncyCastle.Crypto;
 using System;
 using System.Collections.Generic;
@@ -49,7 +49,7 @@ namespace EncryptedConfigValue.Test
                     + "1un/+KvpJ2mZfMH0tifu+htRVxEPyXmt88lyKB83NpesNJEoLFLL+wBWCkppaLRuc/1w==";
 
             var encryptedValue = EncryptedValue.FromString(valid);
-            encryptedValue.Decrypt(aesKey).Should().Be(plaintext);
+            encryptedValue.Decrypt(aesKey).ShouldBe(plaintext);
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace EncryptedConfigValue.Test
                     + "K1RXSkZwckpHWGdUVXVRRmx4Nnd0a0lwNVFUcE1RPT0iLCJ0YWciOiJZTUNURlY2b2dsemxwV3FOVlp3YVp3PT0ifQ==";
 
             EncryptedValue encryptedValue = EncryptedValue.FromString(valid);
-            encryptedValue.Decrypt(aesKey).Should().Be(plaintext);
+            encryptedValue.Decrypt(aesKey).ShouldBe(plaintext);
         }
 
         [Fact]
@@ -73,7 +73,7 @@ namespace EncryptedConfigValue.Test
                     + "qVr2DaTwtV3htxtCB36Jk6Lg5abdcc9B/ZqV7lfUIddGEuXFzhz8KIIGtwVVXqi"
                     + "s15Dw1ECSNJhicHZp43vSYN9y9NJTnvTAhCQ==";
             EncryptedValue encryptedValue = EncryptedValue.FromString(valid);
-            encryptedValue.Decrypt(rsaPrivKey).Should().Be(plaintext);
+            encryptedValue.Decrypt(rsaPrivKey).ShouldBe(plaintext);
         }
 
         [Fact]
@@ -82,7 +82,7 @@ namespace EncryptedConfigValue.Test
             EncryptedValue encryptedValue = Algorithm.RSA
                 .NewEncrypter()
                 .Encrypt(rsaPubKey, plaintext);
-            encryptedValue.Decrypt(rsaPrivKey).Should().Be(plaintext);
+            encryptedValue.Decrypt(rsaPrivKey).ShouldBe(plaintext);
         }
 
         [Fact]
@@ -90,7 +90,7 @@ namespace EncryptedConfigValue.Test
         {
             var invalid = "anc:TCkE/OT7xsKWqP4SRNBEj54Pk7wDMQzMGJtX90toFuGeejM/LQBDTZ8hEaKQt/3i";
             var act = () => EncryptedValue.FromString(invalid);
-            act.Should().Throw<ArgumentException>(); // throws
+            act.ShouldThrow<ArgumentException>(); // throws
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace EncryptedConfigValue.Test
         {
             var invalid = "enc:verysecret^^";
             var act = () => EncryptedValue.FromString(invalid); // throws if suffix is not a base64-encoded string
-            act.Should().Throw<FormatException>();
+            act.ShouldThrow<FormatException>();
         }
 
         [Theory]
@@ -110,9 +110,8 @@ namespace EncryptedConfigValue.Test
             var encryptedValue = algorithm.NewEncrypter().Encrypt(keyPair.EncryptionKey, plaintext);
             var decryptionKey = otherKeyPair.DecryptionKey;
             var act = () => encryptedValue.Decrypt(decryptionKey); // throws
-            act.Should()
-                .Throw<Exception>()
-                .Where(e => e is InvalidCipherTextException || e is DataLengthException);
+            var ex = Should.Throw<Exception>(act);
+            (ex is InvalidCipherTextException || ex is DataLengthException).ShouldBeTrue();
         }
 
         [Theory]
@@ -123,7 +122,7 @@ namespace EncryptedConfigValue.Test
             var encryptedValue = algorithm.NewEncrypter().Encrypt(keyPair.EncryptionKey, plaintext);
             var decryptionKey = keyPair.DecryptionKey;
             var decryptedValue = encryptedValue.Decrypt(decryptionKey);
-            decryptedValue.Should().Be(plaintext);
+            decryptedValue.ShouldBe(plaintext);
         }
 
         [Theory]
@@ -155,7 +154,7 @@ namespace EncryptedConfigValue.Test
             Environment.SetEnvironmentVariable(KeyFileUtils.KeyPathProperty, testKeyPath);
             var encryptedValue = algorithm.NewEncrypter().Encrypt(keyPair.EncryptionKey, plaintext);
             var decryptedValue = encryptedValue.Decrypt(keyPair.DecryptionKey);
-            decryptedValue.Should().Be(plaintext);
+            decryptedValue.ShouldBe(plaintext);
         }
 
         public static IEnumerable<object[]> Data() =>

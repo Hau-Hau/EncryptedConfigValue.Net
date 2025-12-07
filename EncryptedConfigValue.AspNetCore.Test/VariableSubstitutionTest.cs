@@ -1,6 +1,6 @@
 ﻿using EncryptedConfigValue.AspNetCore.Test.Util;
 using EncryptedConfigValue.Crypto;
-using FluentAssertions;
+using Shouldly;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -31,25 +31,25 @@ namespace EncryptedConfigValue.AspNetCore.Test
         [Fact]
         public void TestCanDecryptValueInConfig()
         {
-            aspnet.Configuration["Unencrypted"].Should().Be("value");
-            aspnet.Configuration["Encrypted"].Should().Be("value");
-            aspnet.Configuration["EncryptedWithSingleQuote"].Should().Be("don't use quotes");
-            aspnet.Configuration["EncryptedWithDoubleQuote"].Should().Be("double quote is \"");
-            aspnet.Configuration["EncryptedMalformedYaml"].Should().Be("[oh dear");
+            aspnet.Configuration["Unencrypted"].ShouldBe("value");
+            aspnet.Configuration["Encrypted"].ShouldBe("value");
+            aspnet.Configuration["EncryptedWithSingleQuote"].ShouldBe("don't use quotes");
+            aspnet.Configuration["EncryptedWithDoubleQuote"].ShouldBe("double quote is \"");
+            aspnet.Configuration["EncryptedMalformedYaml"].ShouldBe("[oh dear");
 
             aspnet.Configuration
                 .GetSection("ArrayWithSomeEncryptedValues")
                 .GetChildren()
                 .Select(x => x.Value)
-                .Should()
-                .BeEquivalentTo(new List<string> { "value", "value", "other value", "[oh dear" });
+                .ToList()
+                .ShouldBeEquivalentTo(new List<string> { "value", "value", "other value", "[oh dear" });
 
             var person = new Person();
             aspnet.Configuration
                 .GetSection("PocoWithEncryptedValues")
                 .Bind(person);
-            person.Username.Should().BeEquivalentTo("some-user");
-            person.Password.Should().BeEquivalentTo("value");
+            person.Username.ShouldBeEquivalentTo("some-user");
+            person.Password.ShouldBeEquivalentTo("value");
         }
     }
 }
