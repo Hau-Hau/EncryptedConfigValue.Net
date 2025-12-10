@@ -4,7 +4,8 @@ param (
   [Parameter(Mandatory = $true)]
   [string] $NuspecPath,
   [string[]] $AdditionalFiles = @(),
-  [string[]] $ExternalCsprojDependencies = @()
+  [string[]] $ExternalCsprojDependencies = @(),
+  [switch] $SkipVersionBump = $false
 )
 
 if (!(Test-Path -Path $csprojPath)) {
@@ -288,18 +289,21 @@ $nuspecXml.package.AppendChild($filesNode) | Out-Null
 
 
 # Increment version
-$currentTargetFrameworks = @(([xml](Get-Content $NuspecPath)).package.metadata.dependencies.group.targetFramework)
-$hasTargetFrameworksChanged = [Bool](Compare-Object -ReferenceObject $rootTargetFrameworks -DifferenceObject $currentTargetFrameworks)
-
-$currentVersion = $nuspecXml.package.metadata.version
-$versionSplitted = $currentVersion -split '\.'
-if ($hasTargetFrameworksChanged) {
-  $versionSplitted[1] = ([int]$versionSplitted[1]) + 1
-  $versionSplitted[2] = 0
-} else {
-  $versionSplitted[2] = ([int]$versionSplitted[2]) + 1
+if (-not $SkipVersionBump) {
+  $currentTargetFrameworks = @(([xml](Get-Content $NuspecPath)).package.metadata.dependencies.group.targetFramework)
+  $hasTargetFrameworksChanged = [Bool](Compare-Object -ReferenceObject $rootTargetFrameworks -DifferenceObject $currentTargetFrameworks)
+  
+  $currentVersion = $nuspecXml.package.metadata.version
+  $versionSplitted = $currentVersion -split '\.'
+  if ($hasTargetFrameworksChanged) {
+    $versionSplitted[1] = ([int]$versionSplitted[1]) + 1
+    $versionSplitted[2] = 0
+  } else {
+    $versionSplitted[2] = ([int]$versionSplitted[2]) + 1
+  }
+  $nuspecXml.package.metadata.version = $versionSplitted -join '.'
 }
-$nuspecXml.package.metadata.version = $versionSplitted -join '.'
+
 
 # Update commit hash
 $commitAttr = $nuspecXml.CreateAttribute('commit')

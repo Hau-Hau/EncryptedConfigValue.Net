@@ -13,6 +13,9 @@ inputs:
   additional-files:
     required: false
     description: "Allowed values: string[]"
+  is-version-bump-enabled:
+    required: false
+    description: "Allowed values: true | false"
 runs:
   using: "composite"
   steps:
@@ -62,7 +65,12 @@ runs:
             additional_files_param="-AdditionalFiles $additional_files_paths"
           fi
 
-          cmd="pwsh -Command ./Scripts/UpdateNuspec.ps1 -CsprojPath './${{ inputs.project }}/${{ inputs.project }}.csproj' -NuspecPath './${{ inputs.project }}/${{ inputs.project }}.nuspec' $external_dependencies_param $additional_files_param"
+          skip_version_bump_param=""
+          if [ "${{ inputs.is-version-bump-enabled }}" != "true" ]; then
+            skip_version_bump_param="-SkipVersionBump"
+          fi
+          
+          cmd="pwsh -Command ./.github\actions\update-nuspec-file\UpdateNuspec.ps1 -CsprojPath './${{ inputs.project }}/${{ inputs.project }}.csproj' -NuspecPath './${{ inputs.project }}/${{ inputs.project }}.nuspec' $external_dependencies_param $additional_files_param $skip_version_bump_param"
           echo $cmd
           eval "$cmd"
           echo "Finished"

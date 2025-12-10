@@ -130,10 +130,19 @@ jobs:
         with:
           branch: ${{ steps.set-branch-name.outputs.value }}
           hard-reset: true
+      - name: IsVersionBumpEnabled
+        id: is-version-bump-enabled
+        shell: pwsh
+        run: |
+          $lastVersionTag = (git tag -l "EncryptedConfigValue.Module/*" | Sort-Object { [version]($_ -split '/' | Select-Object -Last 1) } | Select-Object -Last 1) -split '/' | Select-Object -Last 1
+          $nuspecVersion = (Select-String -Path .\EncryptedConfigValue.Module\EncryptedConfigValue.Module.nuspec -Pattern '<version>(.*?)</version>' | ForEach-Object { $_.Matches.Groups[1].Value })
+          $newestVersion = @($lastVersionTag, $nuspecVersion) | Sort-Object { [version]($_ -replace "net", "") } -Descending | Select-Object -First 1
+          "value=$($newestVersion -ne $nuspecVersion)" >> $env:GITHUB_OUTPUT
       - uses: ./.github/actions/update-nuspec-file
         with:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           project: ${{ steps.set-project-name.outputs.value }}
+          is-version-bump-enabled: ${{ steps.is-version-bump-enabled.outputs.value }}
           external-dependencies-sources: |
             EncryptedConfigValue
           additional-files: |
@@ -177,10 +186,19 @@ jobs:
         with:
           branch: ${{ steps.set-branch-name.outputs.value }}
           hard-reset: true
+      - name: IsVersionBumpEnabled
+        id: is-version-bump-enabled
+        shell: pwsh
+        run: |
+          $lastVersionTag = (git tag -l "EncryptedConfigValue.AspNetCore/*" | Sort-Object { [version]($_ -split '/' | Select-Object -Last 1) } | Select-Object -Last 1) -split '/' | Select-Object -Last 1
+          $nuspecVersion = (Select-String -Path .\EncryptedConfigValue.AspNetCore\EncryptedConfigValue.AspNetCore.nuspec -Pattern '<version>(.*?)</version>' | ForEach-Object { $_.Matches.Groups[1].Value })
+          $newestVersion = @($lastVersionTag, $nuspecVersion) | Sort-Object { [version]($_ -replace "net", "") } -Descending | Select-Object -First 1
+          "value=$($newestVersion -ne $nuspecVersion)" >> $env:GITHUB_OUTPUT
       - uses: ./.github/actions/update-nuspec-file
         with:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           project: ${{ steps.set-project-name.outputs.value }}
+          is-version-bump-enabled: ${{ steps.is-version-bump-enabled.outputs.value }}
           additional-files: |
             ./Readme.md
       - uses: ./.github/actions/commit-changes
@@ -222,10 +240,19 @@ jobs:
         with:
           branch: ${{ steps.set-branch-name.outputs.value }}
           hard-reset: true
+      - name: IsVersionBumpEnabled
+        id: is-version-bump-enabled
+        shell: pwsh
+        run: |
+          $lastVersionTag = (git tag -l "EncryptedConfigValue.Cli/*" | Sort-Object { [version]($_ -split '/' | Select-Object -Last 1) } | Select-Object -Last 1) -split '/' | Select-Object -Last 1
+          $nuspecVersion = (Select-String -Path .\EncryptedConfigValue.Cli\EncryptedConfigValue.Cli.nuspec -Pattern '<version>(.*?)</version>' | ForEach-Object { $_.Matches.Groups[1].Value })
+          $newestVersion = @($lastVersionTag, $nuspecVersion) | Sort-Object { [version]($_ -replace "net", "") } -Descending | Select-Object -First 1
+          "value=$($newestVersion -ne $nuspecVersion)" >> $env:GITHUB_OUTPUT
       - uses: ./.github/actions/update-nuspec-file
         with:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           project:  ${{ steps.set-project-name.outputs.value }}
+          is-version-bump-enabled: ${{ steps.is-version-bump-enabled.outputs.value }}
           external-dependencies-sources: |
             EncryptedConfigValue
           additional-files: |
