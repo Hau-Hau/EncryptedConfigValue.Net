@@ -10,8 +10,14 @@
     <readme>Readme.md</readme>
     <description>Provides a way of using encrypted values in ASP.NET Core apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="2d2d05f280ccadbb83fbea325023e18cd01a0ebc" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="a9c8fed08e0c45687c0d753e8143fb8e5850f5cd" />
     <dependencies>
+      <group targetFramework="net10.0">
+        <dependency id="EncryptedConfigValue.Net.Module" version="1.1.22" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="10.0.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Json" version="10.0.0" exclude="Build,Analyzers" />
+      </group>
       <group targetFramework="net9.0">
         <dependency id="EncryptedConfigValue.Net.Module" version="1.1.22" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration" version="10.0.1" exclude="Build,Analyzers" />
@@ -19,12 +25,6 @@
         <dependency id="Microsoft.Extensions.Configuration.Json" version="10.0.0" exclude="Build,Analyzers" />
       </group>
       <group targetFramework="net8.0">
-        <dependency id="EncryptedConfigValue.Net.Module" version="1.1.22" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration" version="10.0.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration.Json" version="10.0.0" exclude="Build,Analyzers" />
-      </group>
-      <group targetFramework="net10.0">
         <dependency id="EncryptedConfigValue.Net.Module" version="1.1.22" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration" version="10.0.1" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.1" exclude="Build,Analyzers" />
