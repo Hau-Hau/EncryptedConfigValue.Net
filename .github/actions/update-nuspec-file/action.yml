@@ -70,7 +70,7 @@ runs:
             skip_version_bump_param="-SkipVersionBump"
           fi
           
-          cmd="pwsh -Command ./.github\actions\update-nuspec-file\UpdateNuspec.ps1 -CsprojPath './${{ inputs.project }}/${{ inputs.project }}.csproj' -NuspecPath './${{ inputs.project }}/${{ inputs.project }}.nuspec' $external_dependencies_param $additional_files_param $skip_version_bump_param"
+          cmd="pwsh -Command ./.github/actions/update-nuspec-file/UpdateNuspec.ps1 -CsprojPath './${{ inputs.project }}/${{ inputs.project }}.csproj' -NuspecPath './${{ inputs.project }}/${{ inputs.project }}.nuspec' $external_dependencies_param $additional_files_param $skip_version_bump_param"
           echo $cmd
           eval "$cmd"
           echo "Finished"
