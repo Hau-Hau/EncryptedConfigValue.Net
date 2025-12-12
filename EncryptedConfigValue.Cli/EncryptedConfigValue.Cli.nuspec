@@ -10,25 +10,25 @@
     <readme>Readme.md</readme>
     <description>Tooling for encrypting certain configuration parameter values in dotnet apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="3cfff1c78feb37f62f12b5087f92dac274d8d3dc" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="c8bf85632b7d03644d1ff85ec96cf88efb4ee649" />
     <packageTypes>
       <packageType name="DotnetTool" />
     </packageTypes>
     <dependencies>
-      <group targetFramework="net8.0">
+      <group targetFramework="net9.0">
         <dependency id="BouncyCastle.Cryptography" version="2.6.2" exclude="Build,Analyzers" />
         <dependency id="McMaster.Extensions.CommandLineUtils" version="4.1.1" exclude="Build,Analyzers" />
-        <dependency id="System.Text.Json" version="10.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="10.0.1" exclude="Build,Analyzers" />
       </group>
       <group targetFramework="net10.0">
         <dependency id="BouncyCastle.Cryptography" version="2.6.2" exclude="Build,Analyzers" />
         <dependency id="McMaster.Extensions.CommandLineUtils" version="4.1.1" exclude="Build,Analyzers" />
-        <dependency id="System.Text.Json" version="10.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="10.0.1" exclude="Build,Analyzers" />
       </group>
-      <group targetFramework="net9.0">
+      <group targetFramework="net8.0">
         <dependency id="BouncyCastle.Cryptography" version="2.6.2" exclude="Build,Analyzers" />
         <dependency id="McMaster.Extensions.CommandLineUtils" version="4.1.1" exclude="Build,Analyzers" />
-        <dependency id="System.Text.Json" version="10.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="10.0.1" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
