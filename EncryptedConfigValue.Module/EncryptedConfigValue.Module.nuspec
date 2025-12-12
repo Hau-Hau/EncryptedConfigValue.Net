@@ -10,11 +10,11 @@
     <readme>Readme.md</readme>
     <description>Base package to create decrypt provider.</description>
     <tags>config appsettings cryptography tool</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="c463a89872df446f6786bfe615b8ab6fc05aed0f" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="c8bf85632b7d03644d1ff85ec96cf88efb4ee649" />
     <dependencies>
       <group targetFramework="netstandard2.0">
         <dependency id="BouncyCastle.Cryptography" version="2.6.2" exclude="Build,Analyzers" />
-        <dependency id="System.Text.Json" version="10.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="10.0.1" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
