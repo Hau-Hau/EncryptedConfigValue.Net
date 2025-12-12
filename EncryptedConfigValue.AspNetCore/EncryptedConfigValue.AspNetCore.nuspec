@@ -10,7 +10,7 @@
     <readme>Readme.md</readme>
     <description>Provides a way of using encrypted values in ASP.NET Core apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="b88e4f92758746060566f0e60d44bbc054655a2f" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="e71ae720c218190d69ec4071b2fee09b3400418d" />
     <dependencies>
       <group targetFramework="net9.0">
         <dependency id="EncryptedConfigValue.Net.Module" version="1.1.22" exclude="Build,Analyzers" />
