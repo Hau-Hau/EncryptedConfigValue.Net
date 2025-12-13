@@ -162,12 +162,12 @@ if ($null -ne $ExternalCsprojDependencies) {
 }
 
 $dependenciesNode = $nuspecXml.CreateElement("dependencies", $nuspecXmlNamespace)
-foreach ($targetFramework in $nuspecDependencies.Keys) {
+foreach ($targetFramework in ($nuspecDependencies.Keys | Sort-Object)) {
   $groupNode = $nuspecXml.CreateElement("group", $nuspecXmlNamespace)
   $targetFrameworkAttr = $nuspecXml.CreateAttribute('targetFramework')
   $targetFrameworkAttr.Value = $targetFramework
   $groupNode.Attributes.Append($targetFrameworkAttr) | Out-Null
-  foreach ($packageId in $nuspecDependencies[$targetFramework].Keys | Sort-Object) {
+  foreach ($packageId in ($nuspecDependencies[$targetFramework].Keys | Sort-Object)) {
     $item = $nuspecDependencies[$targetFramework][$packageId]
     $dependencyNode = $nuspecXml.CreateElement("dependency", $nuspecXmlNamespace)
 
@@ -211,7 +211,7 @@ if ($frameworkReferences.Count -ne 0) {
 }
 
 if ($null -ne $frameworkReferencesNode) {
-  foreach ($targetFramework in $rootTargetFrameworks) {
+  foreach ($targetFramework in ($rootTargetFrameworks | Sort-Object)) {
     $groupNode = $nuspecXml.CreateElement("group", $nuspecXmlNamespace)
     $targetFrameworkAttr = $nuspecXml.CreateAttribute('targetFramework')
     $targetFrameworkAttr.Value = $targetFramework
@@ -240,7 +240,7 @@ foreach ($node in $nuspecXml.package.SelectNodes("//*[local-name() = 'files']"))
 
 $filesNode = $nuspecXml.CreateElement("files", $nuspecXmlNamespace)
 $allowedFileExtensions = @(".dll", ".pdb", ".exe", ".json", ".xml") 
-foreach ($targetFramework in $rootTargetFrameworks) {
+foreach ($targetFramework in ($rootTargetFrameworks | Sort-Object)) {
   foreach ($file in (Get-ChildItem -Path "$([IO.Path]::Combine($rootCsprojDirectory, "bin", "Release", $targetFramework))")) {
     if (-not($allowedFileExtensions -Contains $file.Extension)) {
       continue
