@@ -10,7 +10,7 @@
     <readme>Readme.md</readme>
     <description>Tooling for encrypting certain configuration parameter values in dotnet apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="18833ac89916c472174720c34f1621e3ba44aa99" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="d87eb63f09b2d663de2045ba9fab9427029f7dbc" />
     <packageTypes>
       <packageType name="DotnetTool" />
     </packageTypes>
