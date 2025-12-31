@@ -95,5 +95,14 @@ runs:
 
         $csProjPath = "$([IO.Path]::Combine(".", "$($SelectedProject)", "$($SelectedProject).csproj"))"
         $hasDifferences = HasChanges -CsprojPath $csProjPath  -CurrentHash $currentHash -PrevHash $lastReleaseHash
+        if ($hasDifferences) {
+          $nuspecPath = "$([IO.Path]::Combine(".", "$($SelectedProject)", "$($SelectedProject).nuspec"))"
+          [xml]$nuspec = Get-Content $nuspecPath
+          $hashFromNuspec = $nuspec.package.metadata.repository.commit
+          if ($hashFromNuspec) {
+            $hasDifferences = HasChanges -CsprojPath $csProjPath -CurrentHash $currentHash -PrevHash $hashFromNuspec
+          }        
+        }
+
         "result=$("$($hasDifferences)".ToLowerInvariant())" >> $env:GITHUB_OUTPUT
         exit 0
