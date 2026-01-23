@@ -1,7 +1,6 @@
 name: Update nuspec files
 
 on:
-  workflow_dispatch:
   workflow_run:
     workflows: ["service::event_dispatcher::pull_request::closed::main"]
     types:
