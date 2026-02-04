@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>EncryptedConfigValue.Net.Cli</id>
-    <version>1.3.2</version>
+    <version>1.3.3</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,7 +10,7 @@
     <readme>Readme.md</readme>
     <description>Tooling for encrypting certain configuration parameter values in dotnet apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="976748c343c68e3d569e19330de2c713326a90c4" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="135dcfd9eb6dba524266615a7d9f47368eaec813" />
     <packageTypes>
       <packageType name="DotnetTool" />
     </packageTypes>
