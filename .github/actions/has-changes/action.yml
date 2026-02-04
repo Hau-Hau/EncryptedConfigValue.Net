@@ -56,20 +56,26 @@ runs:
           param ($CsprojPath, $CurrentHash, $PrevHash)  
 
           $projectDirectoryPath = "$(Split-Path -Path $CsprojPath)"
+          Write-Host "Checking changes in: $projectDirectoryPath"
           $output = $(git diff --quiet "$($CurrentHash):$($projectDirectoryPath -replace '\\', '/')" "$($PrevHash):$($projectDirectoryPath -replace '\\', '/')" -- ':!*.nuspec'; $LASTEXITCODE -ne 0)
 
           if ($output) {
+            Write-Host "  -> Direct changes detected in $projectDirectoryPath"
             return $output;
           }
 
           $csproj = [xml](Get-Content "$($CsprojPath)")
           $projectReferences = $csproj.Project.ItemGroup.ProjectReference | Where-Object { $_ -ne $null }
+          Write-Host "  -> Checking $($projectReferences.Count) project references"
           foreach ($projectReference in $projectReferences) {
             if (-not([string]::IsNullOrWhitespace($projectReference.IncludeAssets)) -and $projectReference.IncludeAssets -ne "All") {
+              Write-Host "  -> Skipping reference (IncludeAssets != All): $($projectReference.Include)"
               continue;
             }
 
-            $output = HasChanges -CsprojPath "$(Resolve-RelativePath $([IO.Path]::Combine($projectDirectoryPath, $projectReference.Include)))" -CurrentHash $CurrentHash -PrevHash $PrevHash
+            $refPath = "$(Resolve-RelativePath $([IO.Path]::Combine($projectDirectoryPath, $projectReference.Include)))"
+            Write-Host "  -> Checking reference: $refPath"
+            $output = HasChanges -CsprojPath $refPath -CurrentHash $CurrentHash -PrevHash $PrevHash
             if ($output) {
               break;
             }
@@ -79,12 +85,14 @@ runs:
         }
 
         $SelectedProject = "${{ inputs.project }}"
+        Write-Host "Checking project: $SelectedProject"
 
         $currentHash = git rev-parse HEAD
         if (-not $currentHash) {
           Write-Host "Cannot fetch hash of HEAD"
           exit 1
         }
+        Write-Host "Current hash: $currentHash"
 
         # Fetch hash of last release based on the project input
         $lastReleaseHash = git tag -l "$($SelectedProject)/*" | Sort-Object { [version]($_ -split '/' | Select-Object -Last 1) } | Select-Object -Last 1 | ForEach-Object { git rev-list -n 1 $_ }
@@ -92,17 +100,24 @@ runs:
           Write-Host "Cannot fetch hash of last release"
           exit 1
         }
+        Write-Host "Last release hash: $lastReleaseHash"
 
         $csProjPath = "$([IO.Path]::Combine(".", "$($SelectedProject)", "$($SelectedProject).csproj"))"
+        Write-Host "Starting change detection for: $csProjPath"
         $hasDifferences = HasChanges -CsprojPath $csProjPath  -CurrentHash $currentHash -PrevHash $lastReleaseHash
+
         if ($hasDifferences) {
+          Write-Host "Changes detected, checking nuspec..."
           $nuspecPath = "$([IO.Path]::Combine(".", "$($SelectedProject)", "$($SelectedProject).nuspec"))"
           [xml]$nuspec = Get-Content $nuspecPath
           $hashFromNuspec = $nuspec.package.metadata.repository.commit
           if ($hashFromNuspec) {
+            Write-Host "Nuspec commit hash found: $hashFromNuspec - rechecking against this hash"
             $hasDifferences = HasChanges -CsprojPath $csProjPath -CurrentHash $currentHash -PrevHash $hashFromNuspec
           }        
         }
 
+        Write-Host "Final result: $hasDifferences"
         "result=$("$($hasDifferences)".ToLowerInvariant())" >> $env:GITHUB_OUTPUT
         exit 0
+
