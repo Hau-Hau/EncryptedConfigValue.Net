@@ -48,7 +48,7 @@ jobs:
 
           echo "result=true" >> $GITHUB_OUTPUT
 
-  has-changes:
+  check-version:
     needs: [validate]
     if: needs.validate.outputs.result == 'true'
     runs-on: ubuntu-latest
@@ -59,32 +59,64 @@ jobs:
       
     steps:
       - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/has-changes
-        id: has-changes-module
         with:
-          project: EncryptedConfigValue.Module
+          fetch-depth: 0
 
-      - uses: ./.github/actions/has-changes
-        id: has-changes-aspnetcore
-        with:
-          project: EncryptedConfigValue.AspNetCore
+      - name: Check Module Version
+        id: check-module
+        shell: pwsh
+        run: |
+          $lastVersionTag = (git tag -l "EncryptedConfigValue.Module/*" | Sort-Object { [version]($_ -split '/' | Select-Object -Last 1) } | Select-Object -Last 1) -split '/' | Select-Object -Last 1
+          $nuspecVersion = (Select-String -Path .\EncryptedConfigValue.Module\EncryptedConfigValue.Module.nuspec -Pattern '<version>(.*?)</version>' | ForEach-Object { $_.Matches.Groups[1].Value })
+          
+          if ($lastVersionTag) {
+            $isNewer = [version]$nuspecVersion -gt [version]$lastVersionTag
+          } else {
+            $isNewer = $true
+          }
+          
+          "result=$($isNewer.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
 
-      - uses: ./.github/actions/has-changes
-        id: has-changes-cli
-        with:
-          project: EncryptedConfigValue.Cli
+      - name: Check AspNetCore Version
+        id: check-aspnetcore
+        shell: pwsh
+        run: |
+          $lastVersionTag = (git tag -l "EncryptedConfigValue.AspNetCore/*" | Sort-Object { [version]($_ -split '/' | Select-Object -Last 1) } | Select-Object -Last 1) -split '/' | Select-Object -Last 1
+          $nuspecVersion = (Select-String -Path .\EncryptedConfigValue.AspNetCore\EncryptedConfigValue.AspNetCore.nuspec -Pattern '<version>(.*?)</version>' | ForEach-Object { $_.Matches.Groups[1].Value })
+          
+          if ($lastVersionTag) {
+            $isNewer = [version]$nuspecVersion -gt [version]$lastVersionTag
+          } else {
+            $isNewer = $true
+          }
+          
+          "result=$($isNewer.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+
+      - name: Check CLI Version
+        id: check-cli
+        shell: pwsh
+        run: |
+          $lastVersionTag = (git tag -l "EncryptedConfigValue.Cli/*" | Sort-Object { [version]($_ -split '/' | Select-Object -Last 1) } | Select-Object -Last 1) -split '/' | Select-Object -Last 1
+          $nuspecVersion = (Select-String -Path .\EncryptedConfigValue.Cli\EncryptedConfigValue.Cli.nuspec -Pattern '<version>(.*?)</version>' | ForEach-Object { $_.Matches.Groups[1].Value })
+          
+          if ($lastVersionTag) {
+            $isNewer = [version]$nuspecVersion -gt [version]$lastVersionTag
+          } else {
+            $isNewer = $true
+          }
+          
+          "result=$($isNewer.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
 
       - name: Finalize
         id: finalize
         run: |
-          echo "module=${{ steps.has-changes-module.outputs.result }}" >> $GITHUB_OUTPUT
-          echo "aspnetcore=${{ steps.has-changes-aspnetcore.outputs.result }}" >> $GITHUB_OUTPUT
-          echo "cli=${{ steps.has-changes-cli.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "module=${{ steps.check-module.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "aspnetcore=${{ steps.check-aspnetcore.outputs.result }}" >> $GITHUB_OUTPUT
+          echo "cli=${{ steps.check-cli.outputs.result }}" >> $GITHUB_OUTPUT
 
   test:
-    needs: [has-changes]
-    if: needs.has-changes.outputs.module == 'true' || needs.has-changes.outputs.aspnetcore == 'true' || needs.has-changes.outputs.cli == 'true'
+    needs: [check-version]
+    if: needs.check-version.outputs.module == 'true' || needs.check-version.outputs.aspnetcore == 'true' || needs.check-version.outputs.cli == 'true'
     runs-on: ubuntu-latest
     outputs:
       result: ${{ steps.test.outputs.result }}
@@ -107,8 +139,8 @@ jobs:
           fi
 
   validate-module:
-    needs: [has-changes, test]
-    if: needs.has-changes.outputs.module == 'true'
+    needs: [check-version, test]
+    if: needs.check-version.outputs.module == 'true'
     runs-on: ubuntu-latest
     outputs:
       result: ${{ steps.validate.outputs.result }}
@@ -138,8 +170,8 @@ jobs:
           echo "result=true" >> $GITHUB_OUTPUT
 
   validate-aspnetcore:
-    needs: [has-changes, test]
-    if: needs.has-changes.outputs.aspnetcore == 'true'
+    needs: [check-version, test]
+    if: needs.check-version.outputs.aspnetcore == 'true'
     runs-on: ubuntu-latest
     outputs:
       result: ${{ steps.validate.outputs.result }}
@@ -169,8 +201,8 @@ jobs:
           echo "result=true" >> $GITHUB_OUTPUT
 
   validate-cli:
-    needs: [has-changes, test]
-    if: needs.has-changes.outputs.cli == 'true'
+    needs: [check-version, test]
+    if: needs.check-version.outputs.cli == 'true'
     runs-on: ubuntu-latest
     outputs:
       result: ${{ steps.validate.outputs.result }}
