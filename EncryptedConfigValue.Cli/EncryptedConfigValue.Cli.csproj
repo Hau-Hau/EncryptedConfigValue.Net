@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="5.0.0" />
+        <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="5.0.1" />
         <ProjectReference Include="..\EncryptedConfigValue\EncryptedConfigValue.csproj">
             <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
         </ProjectReference>
