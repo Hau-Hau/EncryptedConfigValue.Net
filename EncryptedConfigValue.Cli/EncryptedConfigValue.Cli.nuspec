@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>EncryptedConfigValue.Net.Cli</id>
-    <version>1.3.4</version>
+    <version>1.3.5</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,7 +10,7 @@
     <readme>Readme.md</readme>
     <description>Tooling for encrypting certain configuration parameter values in dotnet apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="0ac7eece87485334338fe01757bc8c8f4d4e94e3" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="e5ffe31a3d5f83dc65851d6362afd2789cbb208d" />
     <packageTypes>
       <packageType name="DotnetTool" />
     </packageTypes>
@@ -18,17 +18,17 @@
       <group targetFramework="net10.0">
         <dependency id="BouncyCastle.Cryptography" version="2.6.2" exclude="Build,Analyzers" />
         <dependency id="McMaster.Extensions.CommandLineUtils" version="5.0.1" exclude="Build,Analyzers" />
-        <dependency id="System.Text.Json" version="10.0.2" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="10.0.3" exclude="Build,Analyzers" />
       </group>
       <group targetFramework="net8.0">
         <dependency id="BouncyCastle.Cryptography" version="2.6.2" exclude="Build,Analyzers" />
         <dependency id="McMaster.Extensions.CommandLineUtils" version="5.0.1" exclude="Build,Analyzers" />
-        <dependency id="System.Text.Json" version="10.0.2" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="10.0.3" exclude="Build,Analyzers" />
       </group>
       <group targetFramework="net9.0">
         <dependency id="BouncyCastle.Cryptography" version="2.6.2" exclude="Build,Analyzers" />
         <dependency id="McMaster.Extensions.CommandLineUtils" version="5.0.1" exclude="Build,Analyzers" />
-        <dependency id="System.Text.Json" version="10.0.2" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="10.0.3" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
