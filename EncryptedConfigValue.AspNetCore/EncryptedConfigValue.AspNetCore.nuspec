@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>EncryptedConfigValue.Net.AspNetCore</id>
-    <version>1.5.0</version>
+    <version>1.5.1</version>
     <authors>Piotr Michalewicz</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,24 +10,24 @@
     <readme>Readme.md</readme>
     <description>Provides a way of using encrypted values in ASP.NET Core apps.</description>
     <tags>config appsettings cryptography aspnetcore</tags>
-    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="490581caaa0760aeb4640c00385be12e70bba3b0" />
+    <repository type="git" url="https://github.com/Hau-Hau/EncryptedConfigValue.Net" commit="b3b703f2e19e938025dd074204053c09e20b7cc3" />
     <dependencies>
       <group targetFramework="net10.0">
         <dependency id="EncryptedConfigValue.Net.Module" version="1.1.29" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration" version="10.0.8" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.8" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="10.0.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.9" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration.Json" version="10.0.8" exclude="Build,Analyzers" />
       </group>
       <group targetFramework="net8.0">
         <dependency id="EncryptedConfigValue.Net.Module" version="1.1.29" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration" version="10.0.8" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.8" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="10.0.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.9" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration.Json" version="10.0.8" exclude="Build,Analyzers" />
       </group>
       <group targetFramework="net9.0">
         <dependency id="EncryptedConfigValue.Net.Module" version="1.1.29" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration" version="10.0.8" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.8" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="10.0.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.9" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Configuration.Json" version="10.0.8" exclude="Build,Analyzers" />
       </group>
     </dependencies>
