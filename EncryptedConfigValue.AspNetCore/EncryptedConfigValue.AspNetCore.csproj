@@ -23,8 +23,8 @@
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="EncryptedConfigValue.Net.Module" Version="1.1.34" />
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.12" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.12" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.13" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.13" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.10" />
 	</ItemGroup>
 
